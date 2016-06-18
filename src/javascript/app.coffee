@@ -1,5 +1,5 @@
-# jquery    = require 'jquery'
-# window.$  = jquery
+jquery    = require 'jquery'
+window.$  = jquery
 
 #
 # ON STARTUP
