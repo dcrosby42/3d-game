@@ -13,6 +13,16 @@ I'm attracted by the notion of using declarative, reusable view elements to conv
 I've jiggered thigs such that I can use JSX to get up and rolling though I don't know how much I like using JSX.
 * coffee-reactify 
 
+# Run
+
+```
+git clone https://github.com/dcrosby42/3d-game.git
+cd 3d-game
+npm install
+gulp
+# http://localhost:3000
+```
+
 # Status
 
 Just started.
