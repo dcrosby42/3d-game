@@ -1,7 +1,6 @@
-
 React = require 'react'
 ReactDOM = require 'react-dom'
-Other = require './other'
+NonJsx = require './non-jsx'
 
-ReactDOM.render(Other.view(), document.getElementById('main'))
-
+el = React.createElement(NonJsx)
+ReactDOM.render(el, document.getElementById('main'))
