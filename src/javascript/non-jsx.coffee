@@ -42,7 +42,7 @@ NonJsx = React.createClass
       "height": 1.0,
       "depth": 1.0
     }), React.createElement("meshBasicMaterial", {
-      "color": 0xccff00
+      "color": 0x0000ff
     }))))
 
 module.exports = NonJsx

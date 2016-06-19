@@ -14,7 +14,7 @@
   "browserify": {
     "transform": [
       "browserify-shim",
-      "coffeeify",
+      "coffee-reactify",
       "hbsfy"
     ]
   },
@@ -70,6 +70,7 @@
   "dependencies": {
     "benchmark": "^2.1.0",
     "classnames": "^2.2.3",
+    "coffee-reactify": "^5.0.0",
     "csv-parse": "^1.0.2",
     "howler": "2.0.0-beta7",
     "immutable": "~3.7.6",
