@@ -1,10 +1,7 @@
-jquery    = require 'jquery'
-window.$  = jquery
 
-#
-# ON STARTUP
-#
-jquery ->
-  console.log "hi there"
- 
+React = require 'react'
+ReactDOM = require 'react-dom'
+Other = require './other'
+
+ReactDOM.render(Other.view(), document.getElementById('main'))
 
