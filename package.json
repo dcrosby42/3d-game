@@ -78,7 +78,7 @@
     "jsonfile": "^2.2.3",
     "lodash": "*",
     "microtime": "^2.1.1",
-    "mousetrap": "~1.4.6",
+    "mousetrap": "^1.4.6",
     "pixi.js": "~2.2.0",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
