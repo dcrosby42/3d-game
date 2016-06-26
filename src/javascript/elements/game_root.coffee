@@ -1,13 +1,10 @@
 React = require 'react'
 React3 = require 'react-three-renderer'
 
-Fx = require './fx'
-PostOffice = require './flarp/post_office'
+Fx = require '../lib/fx'
+PostOffice = require '../lib/flarp/post_office'
 
-Main = require './main'
-
-
-GmRoot = React.createClass
+GameRoot = React.createClass
   getInitialState: ->
     {
       main: null
@@ -15,7 +12,6 @@ GmRoot = React.createClass
     }
 
   componentWillMount: ->
-    console.log "GM componentWillMount"
     @postOffice = new PostOffice()
     @actions = @postOffice.newMailbox()
     @actions.signal.subscribe @_handleAction
@@ -23,10 +19,8 @@ GmRoot = React.createClass
     @setState main: @props.module.initialState()
   
   componentDidMount: ->
-    console.log "GM componentDidMount"
 
   componentWillUnmount: ->
-    console.log "GM componentWillUnmount"
 
   _handleAction: (action) ->
     return if @state.error?
@@ -36,14 +30,14 @@ GmRoot = React.createClass
       Fx.processEffects(effects,@actions.address)
 
     catch e
-      console.log e
+      console.log "!! ERROR in GameRoot._handleAction",e
       @setState error: e
 
   render: ->
     err = if @state.error? then <div id="err">ERR!</div>
-    <div id="root">
+    <div id="game-root">
       {err}
       {@props.module.view(@state.main, @actions.address)}
     </div>
 
-module.exports = GmRoot
+module.exports = GameRoot

@@ -1,6 +1,6 @@
 React = require 'react'
 
-KeyboardController = require './keyboard_controller'
+KeyboardController = require '../lib/keyboard/keyboard_controller'
 
 KeyboardInput = React.createClass
   componentDidMount: ->

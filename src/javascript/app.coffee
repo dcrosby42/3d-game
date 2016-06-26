@@ -1,11 +1,10 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
 
-# Practice = require './spike/practice'
-# Practice2 = require './spike/practice2'
-# Root = require './spike/parent'
-Root = require './spike/gm'
-Main = require './spike/gm/main'
+GameRoot = require './elements/game_root'
+# Main = require './modules/main'
+AsciiMaze = require './modules/ascii_maze'
 
-ReactDOM.render <Root module={Main}/>,
-                document.getElementById('main')
+gameDiv = document.getElementById('game1')
+
+ReactDOM.render <GameRoot module={AsciiMaze}/>, gameDiv
