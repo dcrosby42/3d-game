@@ -19,12 +19,13 @@ Action.Mouse =
     {type: 'Mouse', mouse: a}
 
 exports.initialState = ->
-  {
+  model = {
     time:0
     seconds:0
     controllers: {}
     mouse: {}
   }
+  [model,null]
 
 exports.update = (model,action) ->
   model.NO_SYNC = false

@@ -15,18 +15,25 @@ GameRoot = React.createClass
     @postOffice = new PostOffice()
     @actions = @postOffice.newMailbox()
     @actions.signal.subscribe @_handleAction
-    
-    @setState main: @props.module.initialState()
+
+    [model,effects] = @props.module.initialState()
+    @setState main: model
+    Fx.processEffects(effects,@actions.address)
   
   componentDidMount: ->
 
   componentWillUnmount: ->
 
+  shouldComponentUpdate: (nextProps, nextState) ->
+    if nextState.NO_RENDER
+      return false
+    true
+
   _handleAction: (action) ->
     return if @state.error?
     try
       [updated,effects] = @props.module.update(@state.main, action)
-      @setState main: updated unless updated.NO_SYNC
+      @setState main: updated
       Fx.processEffects(effects,@actions.address)
 
     catch e
