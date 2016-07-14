@@ -7,32 +7,32 @@ class ControllerSystem extends BaseSystem
 
   process: (r) ->
     controller = r.comps[0]
-    cevts = @input.controllerEvents[controller.inputName]
-    updateControllerStates(controller.states, cevts)
+    for e in @input.controllerEvents
+      if e.tag == controller.inputName
+        [controller.states,extras] = updateControlStates(controller.states, e)
+        for eventName in extras
+          # console.log "ControllerSystem: @publishEvent",r.eid,eventName
+          @publishEvent r.eid, eventName
+
     for key,val of controller.states
-      console.log "ControllerSystem: @publishEvent",r.eid, key, r.entity, controller
+      # console.log "ControllerSystem: @publishEvent",r.eid,key
       @publishEvent r.eid, key
 
-endsWithPressedOrReleased = /(Pressed|Released)$/
 
-updateControllerStates = (states, events) ->
-  for key,val of states
-    if !val or key.match endsWithPressedOrReleased
-      delete states[key]
+updateControlStates = (states, e, emit) ->
+  extras = []
+  {control,state} = e
+  prevVal = states[control]
+  if state == 'down'
+    states[control] = true
+    if !prevVal
+      extras.push "#{control}Pressed"
 
-  return unless events? and events.length > 0
-
-  for e of events
-    {control,state} = e
-    prevVal = states[control]
-    if state == 'down'
-      states[control] = true
-      if !prevVal
-        states["#{control}Pressed"] = true
-    else
-      delete states[control]
-      if prevVal
-        states["#{control}Released"] = true
+  else
+    delete states[control]
+    if prevVal
+      extras.push "#{control}Released"
+  return [states,extras]
 
 module.exports = -> new ControllerSystem()
 

@@ -45,8 +45,8 @@ class BaseSystem
   publishGlobalEvent: (event,data=null) -> @eventBucket.addGlobalEvent(event,data)
   
   handleEvents: (eid,handlerMap) ->
-    @getEvents(eid).forEach (e) ->
-      handlerMap[e.get('name')]?(e.data)
+    for e in @getEvents(eid)
+      handlerMap[e.name]?(e.data)
   
 
 module.exports = BaseSystem

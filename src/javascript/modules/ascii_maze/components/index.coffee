@@ -69,6 +69,10 @@ exports.Rng = class Rng
 
 exports.Types = Types
 
+#################################################################################
+
+# Build a new component for the given type, optionally applying props from the given object.
+# Starts from a new NON-defaulted instance of a component of the given type.
 exports.emptyCompForType = (typeid,obj=null) ->
   clazz = Types.classFor(typeid)
   if !clazz?
@@ -79,6 +83,8 @@ exports.emptyCompForType = (typeid,obj=null) ->
   Object.assign comp, obj if obj?
   comp
 
+# Build a new component for the given type, optionally applying props from the given object.
+# Starts from a new defaulted instance of a component of the given type.
 exports.buildCompForType = (typeid,obj=null) ->
   clazz = Types.classFor(typeid)
   if !clazz?

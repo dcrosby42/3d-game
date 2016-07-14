@@ -46,7 +46,6 @@ class EventBucket
 
   _entityEvents: (eid) ->
     @entityEvents[eid] ?= []
-    @entityEvents
 
 module.exports = EventBucket
 

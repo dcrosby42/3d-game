@@ -5,6 +5,7 @@ KeyboardInput = require '../../elements/keyboard_input'
 
 C = require './components'
 T = C.Types
+Systems = require './systems'
 
 EntityStore = require '../../lib/ecs/entity_store'
 EcsMachine = require '../../lib/ecs/ecs_machine'
@@ -19,14 +20,17 @@ class Mouse extends Action
 
 
 ecsMachine = new EcsMachine([
-  Systems.controllerSystem()
-  Systems.gridMovementSystem()
+  Systems.controller_system()
+  Systems.player_piece_control_system()
+  Systems.ascii_maze_movement_system()
 ])
 
 
 exports.initialState = ->
   estore = new EntityStore()
   estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Player One')
+    C.buildCompForType(T.Tag, name: 'player_piece')
     C.buildCompForType(T.Position)
     C.buildCompForType(T.Velocity)
     C.buildCompForType(T.Controller, inputName: 'player1')
@@ -46,18 +50,6 @@ exports.initialState = ->
 
 exports.update = (model,action) ->
   model.NO_RENDER = false
-  # if action instanceof Input
-  #   v = action.value
-  #   pos = model.position
-  #   if v.tag == 'player1'
-  #     if v.control == "up" and v.state == "down"
-  #       pos.y -= 1
-  #     else if v.control == "down" and v.state == "down"
-  #       pos.y += 1
-  #     else if v.control == "left" and v.state == "down"
-  #       pos.x -= 1
-  #     else if v.control == "right" and v.state == "down"
-  #       pos.x += 1
 
   if action instanceof Input
     model.NO_RENDER=true
@@ -68,8 +60,9 @@ exports.update = (model,action) ->
     t = action.value
     if model.lastTime?
       model.input.dt = model.lastTime - t
-      input = mungeInputs(dt,model.controllerEvents)
-      model.estore = ecsMachine.update(model.estore, input)
+      # input = mungeInputs(dt,model.controllerEvents)
+      [model.estore,glboalEvents] = ecsMachine.update(model.estore, model.input)
+      # TODO handle global events....?
       model.input.controllerEvents = []
       
     else
@@ -129,7 +122,10 @@ mkCharGrid = ->
 
 exports.view = (model,address) ->
   rows = mkCharGrid()
-  rows[model.position.y][model.position.x] = model.skin
+  # rows[model.position.y][model.position.x] = model.skin
+  position = _getPlayerPosition(model.estore)
+  rows[Math.floor(position.y)][Math.floor(position.x)] = "D"
+
   gridString=""
   for row in rows
     for c in row
@@ -149,4 +145,17 @@ exports.view = (model,address) ->
       address={address.forward (s) -> s.map (v) -> new Input(v)} 
     />
   </div>
+
+EntitySearch = require '../../lib/ecs/entity_search'
+pieceSearch = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}, T.Position])
+
+_getPlayerPosition = (estore) ->
+  pos = null
+  pieceSearch.run estore, (r) ->
+    [tag,position] = r.comps
+    pos = position
+  pos
+    
+
+
 
