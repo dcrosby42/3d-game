@@ -1,7 +1,6 @@
 React = require 'react'
 React3 = require 'react-three-renderer'
 KeyboardInput = require '../../elements/keyboard_input'
-# MainView = require './main_view.coffee'
 
 C = require './components'
 T = C.Types
@@ -11,9 +10,7 @@ EntityStore = require '../../lib/ecs/entity_store'
 EcsMachine = require '../../lib/ecs/ecs_machine'
 
 ActionBase = require '../../lib/action_base'
-
 class Action extends ActionBase
-class Nolo extends Action
 class Input extends Action
 class Time extends Action
 class Mouse extends Action
@@ -74,49 +71,14 @@ exports.update = (model,action) ->
   else
     [model,null]
 
-  # switch action.type
-  #   when Action.Time.type
-  #     time = action.time
-  #     model.time = time
-  #     intTime = Math.floor(time/1000)
-  #     if intTime <= model.seconds
-  #       model.NO_RENDER = true
-  #     else
-  #       model.seconds = intTime
-  #
-  #     return [model, [{type: 'tick', map: Action.Time.new}]]
-  #
-  #   when Action.Input.type
-  #     # model.NO_RENDER = true
-  #
-  #     ia = action.inputAction
-  #     console.log "Input: #{ia.tag} #{ia.control} #{ia.state}"
-  #     model.controllers[ia.tag] ?= {}
-  #     model.controllers[ia.tag][ia.control] = ia.state
-  #
-  #     return [model, null]
-  #
-  #   when Action.Mouse.type
-  #     model.NO_RENDER = true
-  #     console.log "Mouse action",action.mouse
-  #     return [model, null]
-  #
-  #   else
-  #     console.log "Main.update unhandled action", action
-
-# mungeInputs = (dt,controllerEvents) ->
-#   {
-#   }
-
-
-AsciiView = require './elements/ascii_view'
+# AsciiView = require './elements/ascii_view'
 MazeView = require './elements/maze_view'
 
 exports.view = (model,address) ->
   
   <div>
     <h3>Maze Thinger</h3>
-    {# <AsciiView estore={model.estore} /> #}
+    {#<AsciiView estore={model.estore} /> #}
     <MazeView estore={model.estore} />
     <KeyboardInput
       tag="player1"
@@ -129,15 +91,3 @@ exports.view = (model,address) ->
       address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
     />
   </div>
-
-
-_getPlayerPosition = (estore) ->
-  pos = null
-  pieceSearch.run estore, (r) ->
-    [tag,position] = r.comps
-    pos = position
-  pos
-    
-
-
-

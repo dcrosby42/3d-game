@@ -33,6 +33,18 @@ MyCamera = (props) ->
     />
   </group>
 
+LookCamera = (props) ->
+  {cameraInfo,lookAt} = props
+  <perspectiveCamera
+    name={cameraInfo.name}
+    position={cameraInfo.position}
+    fov={75}
+    aspect={cameraInfo.aspect}
+    near={0.1}
+    far={1000}
+    lookAt={lookAt}
+  />
+
 
 RESOURCES =
   <resources>
@@ -152,7 +164,8 @@ MazeView = React.createClass
     # }
 
   render: ->
-    pos = getPlayerPosition(@props.estore)
+    posComp = getPlayerPosition(@props.estore)
+    position = vec3(posComp.x, 0, posComp.y)
     <React3 mainCamera={CAMERA_INFO.name}
             width={WIDTH} 
             height={HEIGHT} 
@@ -165,10 +178,11 @@ MazeView = React.createClass
           lightTarget={LIGHT_TARGET} 
         />
         <ambientLight color={0x888888} />
-        <MyCamera cameraInfo={CAMERA_INFO}/>
+        {#<MyCamera cameraInfo={CAMERA_INFO}/> #}
+        <LookCamera cameraInfo={CAMERA_INFO} lookAt={position} />
         {ground}
         <group position={vec3(0,0.5,0)}>
-          <Marker position={vec3(pos.x,0,pos.y)} color={0x888888}/>
+          <Marker position={position} color={0x888888}/>
           <Marker position={vec3(1,0,0)} color={0x880000}/>
         </group>
 
