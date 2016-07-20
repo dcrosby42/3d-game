@@ -2,25 +2,29 @@ BaseSystem = require '../../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
 
-VAccel = 0.01
-HAccel = VAccel
+XAccel = YAccel = ZAccel = 0.01
 
 class PlayerPieceControlSystem extends BaseSystem
   @Subscribe: [ {type:T.Tag, name:'player_piece'}, T.Velocity ]
 
   process: (r) ->
-    [tag,velComp] = r.comps
+    [_tag,velComp] = r.comps
     velocity = velComp.velocity
 
     @handleEvents r.eid,
       left: ->
-        velocity.x -= HAccel
+        velocity.x -= XAccel
       right: ->
-        velocity.x += HAccel
+        velocity.x += XAccel
       up: ->
-        velocity.z -= VAccel
+        velocity.z -= ZAccel
       down: ->
-        velocity.z += VAccel
+        velocity.z += ZAccel
+      elevate: ->
+        velocity.y += YAccel
+      sink: ->
+        velocity.y -= YAccel
+
 
 module.exports = -> new PlayerPieceControlSystem()
 

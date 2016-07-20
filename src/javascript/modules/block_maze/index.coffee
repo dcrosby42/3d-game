@@ -110,6 +110,8 @@ exports.view = (model,address) ->
         "left": 'left'
         "up": 'up'
         "down": 'down'
+        "space": 'elevate'
+        "shift": 'sink'
       }}
       address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
     />
