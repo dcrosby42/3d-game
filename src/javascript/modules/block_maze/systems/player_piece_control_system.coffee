@@ -9,7 +9,8 @@ class PlayerPieceControlSystem extends BaseSystem
   @Subscribe: [ {type:T.Tag, name:'player_piece'}, T.Velocity ]
 
   process: (r) ->
-    [tag,velocity] = r.comps
+    [tag,velComp] = r.comps
+    velocity = velComp.velocity
 
     @handleEvents r.eid,
       left: ->
@@ -17,9 +18,9 @@ class PlayerPieceControlSystem extends BaseSystem
       right: ->
         velocity.x += HAccel
       up: ->
-        velocity.y -= VAccel
+        velocity.z -= VAccel
       down: ->
-        velocity.y += VAccel
+        velocity.z += VAccel
 
 module.exports = -> new PlayerPieceControlSystem()
 

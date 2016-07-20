@@ -1,22 +1,23 @@
 _ = require 'lodash'
 Domain = require '../../../lib/domain'
 # Motions = require './motions'
+{vec3,quat,euler} = require '../../../lib/three_helpers'
 
 Types = new Domain('ComponentTypes')
 
 exports.Position = class Position
   Types.registerClass @
-  constructor: (@x,@y,@name,@eid,@cid) -> @type = @constructor.type
-  @default: -> new @(0,0,null)
-  clone: -> new @constructor(@x,@y,@name,@eid,@cid)
-  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @x == o.x and @y == o.y and @name == o.name
+  constructor: (@position,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(vec3(0,0,0),null)
+  clone: -> new @constructor(@position,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @position.x == o.position.x and @position.y == o.position.y and @position.z == o.position.z
 
 exports.Velocity = class Velocity
   Types.registerClass @
-  constructor: (@x,@y,@eid,@cid) -> @type = @constructor.type
-  @default: -> new @(0,0)
-  clone: -> new @constructor(@x,@y,@eid,@cid)
-  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @x == o.x and @y == o.y
+  constructor: (@velocity,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(vec3(0,0,0))
+  clone: -> new @constructor(@velocity,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @velocity.x == o.velocity.x and @velocity.y == o.velocity.y and @velocity.z == o.velocity.z
 
 exports.Gravity = class Gravity
   Types.registerClass @
@@ -66,6 +67,13 @@ exports.Rng = class Rng
   @default: -> new @(1)
   clone: -> new @constructor(@state,@eid,@cid)
   equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @state == o.state
+
+exports.Cube = class Cube
+  Types.registerClass @
+  constructor: (@color,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(0xffffff, null)
+  clone: -> new @constructor(@color,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @color == o.color
 
 exports.Types = Types
 

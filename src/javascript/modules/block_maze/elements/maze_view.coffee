@@ -3,7 +3,7 @@ React3 = require 'react-three-renderer'
 Three = require 'three'
 
 pi=Math.PI
-{euler,vec3,quat} = require './three_helpers'
+{euler,vec3,quat} = require '../../../lib/three_helpers'
 
 EntitySearch = require '../../../lib/ecs/entity_search'
 C = require '../components'
@@ -146,7 +146,7 @@ getPlayerPosition = (estore) ->
   pieceSearch.run estore, (r) ->
     [tag,position] = r.comps
     pos = position
-  pos
+  pos.position.clone()
 
 LIGHT_POS = vec3(20, 20, 20) # magic number d
 LIGHT_TARGET = vec3(0, 0, 0)
@@ -154,18 +154,9 @@ LIGHT_TARGET = vec3(0, 0, 0)
 MazeView = React.createClass
   displayName: 'MazeView'
   
-  # getInitialState: ->
-    # d = 20
-    # @state = {
-      # cameraPosition: vec3(0, 3, 5)
-      # cameraRotation: euler(-Math.PI/9 ,Math.PI/6,0)
-      # cameraRotation: euler(-Math.PI/9 ,0,0)
-      # cubeRotation: euler()
-    # }
-
   render: ->
-    posComp = getPlayerPosition(@props.estore)
-    position = vec3(posComp.x, 0, posComp.y)
+    position = getPlayerPosition(@props.estore)
+
     <React3 mainCamera={CAMERA_INFO.name}
             width={WIDTH} 
             height={HEIGHT} 
@@ -183,7 +174,10 @@ MazeView = React.createClass
         {ground}
         <group position={vec3(0,0.5,0)}>
           <Marker position={position} color={0x888888}/>
-          <Marker position={vec3(1,0,0)} color={0x880000}/>
+          <Marker position={vec3(-1,0,-1)} color={0x880000}/>
+          <Marker position={vec3(20,0,-1)} color={0x880000}/>
+          <Marker position={vec3(20,0,10)} color={0x880000}/>
+          <Marker position={vec3(-1,0,10)} color={0x880000}/>
         </group>
 
       </scene>

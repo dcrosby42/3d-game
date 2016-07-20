@@ -9,6 +9,8 @@ Systems = require './systems'
 EntityStore = require '../../lib/ecs/entity_store'
 EcsMachine = require '../../lib/ecs/ecs_machine'
 
+{euler,vec3,quat} = require '../../lib/three_helpers'
+
 ActionBase = require '../../lib/action_base'
 class Action extends ActionBase
 class Input extends Action
@@ -16,12 +18,12 @@ class Time extends Action
 class Mouse extends Action
 
 
+
 ecsMachine = new EcsMachine([
   Systems.controller_system()
   Systems.player_piece_control_system()
   Systems.boxed_movement_system()
 ])
-
 
 exports.initialState = ->
   estore = new EntityStore()
@@ -31,6 +33,27 @@ exports.initialState = ->
     C.buildCompForType(T.Position)
     C.buildCompForType(T.Velocity)
     C.buildCompForType(T.Controller, inputName: 'player1')
+    C.buildCompForType(T.Cube, color: 0x339933)
+  ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'corner-marker-ul')
+    C.buildCompForType(T.Position, position: vec3(-1,0,-1))
+    C.buildCompForType(T.Cube, color: 0x880000)
+  ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'corner-marker-ur')
+    C.buildCompForType(T.Position, position: vec3(20,0,-1))
+    C.buildCompForType(T.Cube, color: 0x880000)
+  ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'corner-marker-lr')
+    C.buildCompForType(T.Position, position: vec3(20,0,10))
+    C.buildCompForType(T.Cube, color: 0x880000)
+  ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'corner-marker-ll')
+    C.buildCompForType(T.Position, position: vec3(-1,0,10))
+    C.buildCompForType(T.Cube, color: 0x880000)
   ])
 
   #TODO add grid entity 

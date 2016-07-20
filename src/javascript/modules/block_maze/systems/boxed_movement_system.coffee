@@ -10,13 +10,17 @@ Bounds =
   bottom: 10-1
   left: 0
   right: 20-1
+  ceiling: 5
+  floor: 0
 
 
 class BoxedMovementSystem extends BaseSystem
   @Subscribe: [ {type:T.Tag, name:'player_piece'}, T.Velocity, T.Position ]
 
   process: (r) ->
-    [tag,velocity,position] = r.comps
+    [tag,velComp,posComp] = r.comps
+    position = posComp.position
+    velocity = velComp.velocity
 
     position.x += velocity.x
     if position.x > Bounds.right
@@ -25,14 +29,22 @@ class BoxedMovementSystem extends BaseSystem
     else if position.x < Bounds.left
       position.x = Bounds.left
       velocity.x = 0
-    
+
     position.y += velocity.y
-    if position.y > Bounds.bottom
-      position.y = Bounds.bottom
+    if position.y > Bounds.ceiling
+      position.y = Bounds.ceiling
       velocity.y = 0
-    else if position.y < Bounds.top
-      position.y = Bounds.top
+    else if position.y < Bounds.floor
+      position.y = Bounds.floor
       velocity.y = 0
+    
+    position.z += velocity.z
+    if position.z > Bounds.bottom
+      position.z = Bounds.bottom
+      velocity.z = 0
+    else if position.z < Bounds.top
+      position.z = Bounds.top
+      velocity.z = 0
 
 module.exports = -> new BoxedMovementSystem()
 
