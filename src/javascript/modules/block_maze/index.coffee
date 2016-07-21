@@ -31,6 +31,7 @@ exports.initialState = ->
     C.buildCompForType(T.Name, name: 'Player One')
     C.buildCompForType(T.Tag, name: 'player_piece')
     C.buildCompForType(T.Position)
+    C.buildCompForType(T.Rotation)
     C.buildCompForType(T.Velocity)
     C.buildCompForType(T.Controller, inputName: 'player1')
     C.buildCompForType(T.Cube, color: 0x339933)
@@ -43,16 +44,19 @@ exports.initialState = ->
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'corner-marker-ur')
     C.buildCompForType(T.Position, position: vec3(20,0,-1))
+    C.buildCompForType(T.Rotation)
     C.buildCompForType(T.Cube, color: 0x880000)
   ])
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'corner-marker-lr')
     C.buildCompForType(T.Position, position: vec3(20,0,10))
+    C.buildCompForType(T.Rotation)
     C.buildCompForType(T.Cube, color: 0x880000)
   ])
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'corner-marker-ll')
     C.buildCompForType(T.Position, position: vec3(-1,0,10))
+    C.buildCompForType(T.Rotation)
     C.buildCompForType(T.Cube, color: 0x880000)
   ])
 
@@ -106,10 +110,12 @@ exports.view = (model,address) ->
     <KeyboardInput
       tag="player1"
       mappings={{
-        "right": 'right'
-        "left": 'left'
-        "up": 'up'
-        "down": 'down'
+        "w": 'forward'
+        "a": 'strafeLeft'
+        "s": 'backward'
+        "d": 'strafeRight'
+        "left": 'turnLeft'
+        "right": 'turnRight'
         "space": 'elevate'
         "shift": 'sink'
       }}

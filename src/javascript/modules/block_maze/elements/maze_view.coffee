@@ -129,7 +129,7 @@ SpinBox = (props) ->
 Marker = (props) ->
   <mesh
     position={props.position}
-    rotation={props.rotation}
+    quaternion={props.rotation}
     castShadow
     receiveShadow
   >
@@ -139,14 +139,20 @@ Marker = (props) ->
     />
   </mesh>
 
-pieceSearch = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}, T.Position])
-
+piecePosSearch = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}, T.Position])
 getPlayerPosition = (estore) ->
   pos = null
-  pieceSearch.run estore, (r) ->
+  piecePosSearch.run estore, (r) ->
     [tag,position] = r.comps
     pos = position
   pos.position.clone()
+
+playerPeiceSearcher = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}])
+getPlayerEntity = (estore) ->
+  e = null
+  playerPeiceSearcher.run estore, (r) ->
+    e = r.entity
+  e
 
 LIGHT_POS = vec3(20, 20, 20) # magic number d
 LIGHT_TARGET = vec3(0, 0, 0)
@@ -155,7 +161,11 @@ MazeView = React.createClass
   displayName: 'MazeView'
   
   render: ->
-    position = getPlayerPosition(@props.estore)
+    # position = getPlayerPosition(@props.estore)
+    player = getPlayerEntity(@props.estore)
+    position = player.get(T.Position).position.clone()
+    rotation = player.get(T.Rotation).rotation.clone()
+    color = player.get(T.Cube).color
 
     <React3 mainCamera={CAMERA_INFO.name}
             width={WIDTH} 
@@ -173,7 +183,7 @@ MazeView = React.createClass
         <LookCamera cameraInfo={CAMERA_INFO} lookAt={position} />
         {ground}
         <group position={vec3(0,0.5,0)}>
-          <Marker position={position} color={0x888888}/>
+          <Marker position={position} rotation={rotation} color={color}/>
           <Marker position={vec3(-1,0,-1)} color={0x880000}/>
           <Marker position={vec3(20,0,-1)} color={0x880000}/>
           <Marker position={vec3(20,0,10)} color={0x880000}/>

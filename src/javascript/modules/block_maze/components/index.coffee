@@ -10,14 +10,21 @@ exports.Position = class Position
   constructor: (@position,@eid,@cid) -> @type = @constructor.type
   @default: -> new @(vec3(0,0,0),null)
   clone: -> new @constructor(@position,@eid,@cid)
-  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @position.x == o.position.x and @position.y == o.position.y and @position.z == o.position.z
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @position.equals(o.position)
 
 exports.Velocity = class Velocity
   Types.registerClass @
   constructor: (@velocity,@eid,@cid) -> @type = @constructor.type
   @default: -> new @(vec3(0,0,0))
   clone: -> new @constructor(@velocity,@eid,@cid)
-  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @velocity.x == o.velocity.x and @velocity.y == o.velocity.y and @velocity.z == o.velocity.z
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @velocity.equals(o.velocity)
+
+exports.Rotation = class Rotation
+  Types.registerClass @
+  constructor: (@rotation,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(quat())
+  clone: -> new @constructor(@rotation,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @rotation.equals(o.rotation)
 
 exports.Gravity = class Gravity
   Types.registerClass @
