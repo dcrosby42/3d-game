@@ -83,7 +83,7 @@ exports.update = (model,action) ->
   if action instanceof Time
     t = action.value
     if model.lastTime?
-      model.input.dt = model.lastTime - t
+      model.input.dt = t - model.lastTime
       # input = mungeInputs(dt,model.controllerEvents)
       [model.estore,glboalEvents] = ecsMachine.update(model.estore, model.input)
       # TODO handle global events....?

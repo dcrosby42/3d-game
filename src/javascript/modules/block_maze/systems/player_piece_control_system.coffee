@@ -2,46 +2,53 @@ BaseSystem = require '../../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
 
+FrameRate = 60/1000
+
 {vec3,quat,euler} = require '../../../lib/three_helpers'
 
 UpVec = vec3(0,1,0)
 
-XAccel = YAccel = ZAccel = 0.01
+ForwardAccel = vec3(0,0, 0.01*FrameRate)
+BackwardAccel = vec3(0,0, -0.01*FrameRate)
 
-AccelVec = vec3(0,0,ZAccel)
+AscendAccel = vec3(0, 0.01*FrameRate, 0)
+DescendAccel = vec3(0, -0.01*FrameRate, 0)
 
-LeftSpin = quat().setFromAxisAngle(UpVec, Math.PI / 24)
-RightSpin = quat().setFromAxisAngle(UpVec, -Math.PI / 24)
+StrafeRightAccel = vec3(-0.01*FrameRate, 0, 0)
+StrafeLeftAccel = vec3(0.01*FrameRate, 0, 0)
+
+SpinRate = FrameRate * (Math.PI / 24)
+LeftSpin = quat().setFromAxisAngle(UpVec, -Math.PI / 24)
+RightSpin = quat().setFromAxisAngle(UpVec, Math.PI / 24)
+
 
 class PlayerPieceControlSystem extends BaseSystem
   @Subscribe: [ {type:T.Tag, name:'player_piece'}, T.Velocity, T.Rotation ]
 
   process: (r) ->
+    # console.log @input.dt
     [_tag,velComp, rotComp] = r.comps
     velocity = velComp.velocity
     rotation = rotComp.rotation
 
     @handleEvents r.eid,
-      strafeLeft: ->
-        velocity.x -= XAccel
-      strafeRight: ->
-        velocity.x += XAccel
-      forward: ->
-        velocity.add(AccelVec.clone().applyQuaternion(rotation))
-        # velocity.z -= ZAccel
-      backward: ->
-        # velocity.z += ZAccel
-        velocity.sub(AccelVec.clone().applyQuaternion(rotation))
-      elevate: ->
-        velocity.y += YAccel
-      sink: ->
-        velocity.y -= YAccel
-      turnRight: ->
-        rotation.multiply(RightSpin)
-        # console.log "turnRight", rotation
-      turnLeft: ->
-        rotation.multiply(LeftSpin)
-        # console.log "turnLeft", rotation
+      strafeLeft: =>
+        velocity.add(StrafeLeftAccel.clone().multiplyScalar(@input.dt).applyQuaternion(rotation))
+      strafeRight: =>
+        velocity.add(StrafeRightAccel.clone().multiplyScalar(@input.dt).applyQuaternion(rotation))
+      forward: =>
+        velocity.add(ForwardAccel.clone().multiplyScalar(@input.dt).applyQuaternion(rotation))
+      backward: =>
+        velocity.add(BackwardAccel.clone().multiplyScalar(@input.dt).applyQuaternion(rotation))
+      elevate: =>
+        velocity.add(AscendAccel.clone().multiplyScalar(@input.dt))#.applyQuaternion(rotation))
+      sink: =>
+        velocity.add(DescendAccel.clone().multiplyScalar(@input.dt))#.applyQuaternion(rotation))
+        # velocity.y -= YAccel
+      turnRight: =>
+        rotation.multiply(quat().setFromAxisAngle(UpVec, -SpinRate * @input.dt))
+      turnLeft: =>
+        rotation.multiply(quat().setFromAxisAngle(UpVec, SpinRate * @input.dt))
 
 
 

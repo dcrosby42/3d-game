@@ -184,6 +184,7 @@ MazeView = React.createClass
         {ground}
         <group position={vec3(0,0.5,0)}>
           <Marker position={position} rotation={rotation} color={color}/>
+          <axisHelper position={position} scale={vec3(2,2,2)} quaternion={rotation}/>
           <Marker position={vec3(-1,0,-1)} color={0x880000}/>
           <Marker position={vec3(20,0,-1)} color={0x880000}/>
           <Marker position={vec3(20,0,10)} color={0x880000}/>
