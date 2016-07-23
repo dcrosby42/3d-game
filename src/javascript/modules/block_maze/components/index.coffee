@@ -2,28 +2,55 @@ _ = require 'lodash'
 Domain = require '../../../lib/domain'
 # Motions = require './motions'
 {vec3,quat,euler} = require '../../../lib/three_helpers'
+{canVec3,canQuat,canVec3Equals,canQuatEquals} = require '../../../lib/cannon_helpers'
 
 Types = new Domain('ComponentTypes')
+
+exports.Location = class Location
+  Types.registerClass @
+  constructor: (@position,@velocity,@quaternion,@angularVelocity,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(canVec3(),canVec3(),canQuat(),canVec3(),null,null)
+  clone: -> new @constructor(
+    canVec3().copy(@position)
+    canVec3().copy(@velocity)
+    canQuat().copy(@quaternion)
+    canVec3().copy(@angularVelocity)
+    @eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and canVec3Equals(@position,o.position) and canVec3Equals(@velocity,o.velocity) and canQuatEquals(@quaternion,o.quaternion) and canVec3Equals(@angularVelocity,o.angularVelocity)
+
+exports.Physical = class Physical
+  Types.registerClass @
+  constructor: (@kind,@bodyId,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(null,null,null,null)
+  clone: -> new @constructor(@kind,@bodyId,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @kind == o.kind and @bodyId == o.bodyId
+
+exports.PhysicsWorld = class PhysicsWorld
+  Types.registerClass @
+  constructor: (@worldId,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(null,null,null)
+  clone: -> new @constructor(@worldId,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @worldId == o.worldId
 
 exports.Position = class Position
   Types.registerClass @
   constructor: (@position,@eid,@cid) -> @type = @constructor.type
   @default: -> new @(vec3(0,0,0),null)
-  clone: -> new @constructor(@position,@eid,@cid)
+  clone: -> new @constructor(@position.clone(),@eid,@cid)
   equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @position.equals(o.position)
 
 exports.Velocity = class Velocity
   Types.registerClass @
   constructor: (@velocity,@eid,@cid) -> @type = @constructor.type
   @default: -> new @(vec3(0,0,0))
-  clone: -> new @constructor(@velocity,@eid,@cid)
+  clone: -> new @constructor(@velocity.clone(),@eid,@cid)
   equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @velocity.equals(o.velocity)
 
 exports.Rotation = class Rotation
   Types.registerClass @
   constructor: (@rotation,@eid,@cid) -> @type = @constructor.type
   @default: -> new @(quat())
-  clone: -> new @constructor(@rotation,@eid,@cid)
+  clone: -> new @constructor(@rotation.clone(),@eid,@cid)
   equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @rotation.equals(o.rotation)
 
 exports.Gravity = class Gravity

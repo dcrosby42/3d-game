@@ -1,4 +1,4 @@
-C = require '../../modules/ascii_maze/components' # FIXME !!! doh.  Shouldn't have implemented this class based on assumed access to the type domain.  
+C = require '../../modules/block_maze/components' # FIXME !!! doh.  Shouldn't have implemented this class based on assumed access to the type domain.  
 # (^^^ is really only used by expandFilter which couldb be parameterized by the Domain instance, 
 #  and EntitySearchFilter.toString() is only for debug nice nice.)
 
@@ -75,7 +75,9 @@ class PreparedCompoundSearcher
     
 
 badFilterSpec = (x) ->
-  throw new Error("EntitySearch.expandFilter: cannot grok filter spec... perhaps undefined Type?",x)
+  msg = "EntitySearch.expandFilter: cannot grok filter spec... perhaps undefined Type?"
+  console.log("!! #{msg}",x)
+  throw new Error(msg)
   
 expandFilter = (fspec) ->
   badFilterSpec(fspec) unless fspec?

@@ -21,44 +21,59 @@ class Mouse extends Action
 
 ecsMachine = new EcsMachine([
   Systems.controller_system()
-  Systems.player_piece_control_system()
-  Systems.boxed_movement_system()
+  # Systems.player_piece_control_system()
+  Systems.player_piece_control_system2()
+  Systems.physics_system()
+  # Systems.boxed_movement_system2()
 ])
 
 exports.initialState = ->
   estore = new EntityStore()
+
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Physics World')
+    C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
+  ])
+
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Player One')
     C.buildCompForType(T.Tag, name: 'player_piece')
-    C.buildCompForType(T.Position)
-    C.buildCompForType(T.Rotation)
-    C.buildCompForType(T.Velocity)
+    C.buildCompForType(T.Location)
+    C.buildCompForType(T.Physical,
+      kind: 'cube'
+      # data:
+      #   scale: canVec3(1,1,1)
+    )
+    # C.buildCompForType(T.Position)
+    # C.buildCompForType(T.Rotation)
+    # C.buildCompForType(T.Velocity)
     C.buildCompForType(T.Controller, inputName: 'player1')
     C.buildCompForType(T.Cube, color: 0x339933)
   ])
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'corner-marker-ul')
-    C.buildCompForType(T.Position, position: vec3(-1,0,-1))
-    C.buildCompForType(T.Cube, color: 0x880000)
-  ])
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'corner-marker-ur')
-    C.buildCompForType(T.Position, position: vec3(20,0,-1))
-    C.buildCompForType(T.Rotation)
-    C.buildCompForType(T.Cube, color: 0x880000)
-  ])
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'corner-marker-lr')
-    C.buildCompForType(T.Position, position: vec3(20,0,10))
-    C.buildCompForType(T.Rotation)
-    C.buildCompForType(T.Cube, color: 0x880000)
-  ])
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'corner-marker-ll')
-    C.buildCompForType(T.Position, position: vec3(-1,0,10))
-    C.buildCompForType(T.Rotation)
-    C.buildCompForType(T.Cube, color: 0x880000)
-  ])
+# TODO
+  # estore.createEntity([
+  #   C.buildCompForType(T.Name, name: 'corner-marker-ul')
+  #   C.buildCompForType(T.Position, position: vec3(-1,0,-1))
+  #   C.buildCompForType(T.Cube, color: 0x880000)
+  # ])
+  # estore.createEntity([
+  #   C.buildCompForType(T.Name, name: 'corner-marker-ur')
+  #   C.buildCompForType(T.Position, position: vec3(20,0,-1))
+  #   C.buildCompForType(T.Rotation)
+  #   C.buildCompForType(T.Cube, color: 0x880000)
+  # ])
+  # estore.createEntity([
+  #   C.buildCompForType(T.Name, name: 'corner-marker-lr')
+  #   C.buildCompForType(T.Position, position: vec3(20,0,10))
+  #   C.buildCompForType(T.Rotation)
+  #   C.buildCompForType(T.Cube, color: 0x880000)
+  # ])
+  # estore.createEntity([
+  #   C.buildCompForType(T.Name, name: 'corner-marker-ll')
+  #   C.buildCompForType(T.Position, position: vec3(-1,0,10))
+  #   C.buildCompForType(T.Rotation)
+  #   C.buildCompForType(T.Cube, color: 0x880000)
+  # ])
 
   #TODO add grid entity 
 

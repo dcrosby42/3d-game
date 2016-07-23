@@ -33,7 +33,11 @@ class PlayerPieceControlSystem extends BaseSystem
 
     @handleEvents r.eid,
       strafeLeft: =>
-        velocity.add(StrafeLeftAccel.clone().multiplyScalar(@input.dt).applyQuaternion(rotation))
+        # TODO: using CANNON vecs/quats:
+        # boost = StrafeLeftAccel.scale(@input.dt)
+        # quaternion.vmult(boost,boost)
+        # velocity.vadd(boost,velocity)
+        velocity.add(StrafeLeftAccel.clone().multiplyScalar(@input.dt).applyQuaternion(rotation)) #XXX
       strafeRight: =>
         velocity.add(StrafeRightAccel.clone().multiplyScalar(@input.dt).applyQuaternion(rotation))
       forward: =>

@@ -3,7 +3,7 @@ React3 = require 'react-three-renderer'
 Three = require 'three'
 
 pi=Math.PI
-{euler,vec3,quat} = require '../../../lib/three_helpers'
+{euler,vec3,quat, convertCannonVec3, convertCannonQuat} = require '../../../lib/three_helpers'
 
 EntitySearch = require '../../../lib/ecs/entity_search'
 C = require '../components'
@@ -60,7 +60,6 @@ RESOURCES =
     />
     <meshPhongMaterial
       resourceId="cubeMaterial"
-
       color={0x888888}
     />
   </resources>
@@ -108,28 +107,10 @@ MyDirLight = (props) ->
     lookAt={props.lightTarget}
   />
 
-SpinBox = (props) ->
-    <mesh 
-        rotation={props.rotation}
-        castShadow
-        receiveShadow
-        position={props.position}
-      >
-        <boxGeometry
-          width={1}
-          height={1}
-          depth={1}
-        />
-          <meshLambertMaterial
-            color={props.color}
-          />
-      </mesh>
-
-
 Marker = (props) ->
   <mesh
     position={props.position}
-    quaternion={props.rotation}
+    quaternion={props.quaternion}
     castShadow
     receiveShadow
   >
@@ -163,9 +144,15 @@ MazeView = React.createClass
   render: ->
     # position = getPlayerPosition(@props.estore)
     player = getPlayerEntity(@props.estore)
-    position = player.get(T.Position).position.clone()
-    rotation = player.get(T.Rotation).rotation.clone()
-    color = player.get(T.Cube).color
+    # position = player.get(T.Position).position.clone()
+    # rotation = player.get(T.Rotation).rotation.clone()
+    # color = player.get(T.Cube).color
+    location = player.get(T.Location)
+    playerPos = convertCannonVec3(location.position)
+    playerQuat = convertCannonQuat(location.quaternion)
+    playerColor = 0x338833
+    # rotation = player.get(T.Rotation).rotation.clone()
+
 
     <React3 mainCamera={CAMERA_INFO.name}
             width={WIDTH} 
@@ -180,11 +167,11 @@ MazeView = React.createClass
         />
         <ambientLight color={0x888888} />
         {#<MyCamera cameraInfo={CAMERA_INFO}/> #}
-        <LookCamera cameraInfo={CAMERA_INFO} lookAt={position} />
+        <LookCamera cameraInfo={CAMERA_INFO} lookAt={playerPos} />
         {ground}
         <group position={vec3(0,0.5,0)}>
-          <Marker position={position} rotation={rotation} color={color}/>
-          <axisHelper position={position} scale={vec3(2,2,2)} quaternion={rotation}/>
+          <Marker position={playerPos} quaternion={playerQuat} color={playerColor}/>
+          <axisHelper position={playerPos} scale={vec3(2,2,2)} quaternion={playerQuat}/>
           <Marker position={vec3(-1,0,-1)} color={0x880000}/>
           <Marker position={vec3(20,0,-1)} color={0x880000}/>
           <Marker position={vec3(20,0,10)} color={0x880000}/>
