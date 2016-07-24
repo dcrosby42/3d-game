@@ -21,12 +21,8 @@ class Mouse extends Action
 
 ecsMachine = new EcsMachine([
   Systems.controller_system()
-  # Systems.player_piece_control_system()
-  # Systems.player_piece_control_system2()
   Systems.player_piece_control_system()
-  # Systems.physics_system()
-  Systems.physics_system2()
-  # Systems.boxed_movement_system2()
+  Systems.physics_system()
 ])
 
 exports.initialState = ->
