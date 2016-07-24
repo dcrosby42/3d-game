@@ -29,10 +29,7 @@ class BaseSystem
   #
 
   getEvents: (eid) ->
-    es = @eventBucket.getEventsForEntity(eid)
-    # if eid == 2 # XXX
-    #   console.log "basesystem getEvetns eid==2", es
-    es
+    @eventBucket.getEventsForEntity(eid)
 
   getEvent: (eid,eventName) ->
     for event in @getEvents
@@ -40,13 +37,17 @@ class BaseSystem
         return event
     return null
 
-  publishEvent: (eid,event,data=null) -> @eventBucket.addEventForEntity(eid,event,data)
+  publishEvent: (eid,event,data=null) ->
+    @eventBucket.addEventForEntity(eid,event,data)
 
   publishGlobalEvent: (event,data=null) -> @eventBucket.addGlobalEvent(event,data)
   
   handleEvents: (eid,handlerMap) ->
     for e in @getEvents(eid)
-      handlerMap[e.name]?(e.data)
+      fn = handlerMap[e.name]
+      if fn?
+        fn(e.data)
+    return null
   
 
 module.exports = BaseSystem
