@@ -9,14 +9,14 @@ FrameRate = 60/1000
 
 UpVec = canVec3(0,1,0)
 
-ForwardAccel = canVec3(0,0, 0.01*FrameRate)
-BackwardAccel = canVec3(0,0, -0.01*FrameRate)
+ForwardAccel = canVec3(0,0, 0.1*FrameRate)
+BackwardAccel = canVec3(0,0, -0.1*FrameRate)
 
-AscendAccel = canVec3(0, 0.01*FrameRate, 0)
-DescendAccel = canVec3(0, -0.01*FrameRate, 0)
+AscendAccel = canVec3(0, 0.1*FrameRate, 0)
+DescendAccel = canVec3(0, -0.1*FrameRate, 0)
 
-StrafeRightAccel = canVec3(-0.01*FrameRate, 0, 0)
-StrafeLeftAccel = canVec3(0.01*FrameRate, 0, 0)
+StrafeRightAccel = canVec3(-0.1*FrameRate, 0, 0)
+StrafeLeftAccel = canVec3(0.1*FrameRate, 0, 0)
 
 SpinRate = FrameRate * (Math.PI / 24)
 LeftSpin = canQuat().setFromAxisAngle(UpVec, -Math.PI / 24)
