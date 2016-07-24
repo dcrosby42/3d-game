@@ -1,7 +1,5 @@
 exports.controller_system = require './controller_system'
 exports.player_piece_control_system = require './player_piece_control_system'
-exports.player_piece_control_system2 = require './player_piece_control_system2'
-exports.player_piece_control_system3 = require './player_piece_control_system3'
 exports.boxed_movement_system = require './boxed_movement_system'
 exports.boxed_movement_system2 = require './boxed_movement_system2'
 exports.physics_system = require './physics_system'
