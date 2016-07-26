@@ -43,6 +43,9 @@ class PhysicsSystem extends BaseSystem
         localImpulse: ({impulse,point}) =>
           # console.log "phys2 body.applyLocalImpulse",impulse,point
           body.applyLocalImpulse impulse, point
+        impulse: ({impulse,point}) =>
+          # console.log "phys2 body.applyLocalImpulse",impulse,point
+          body.applyImpulse impulse, point
 
       # Mark body as relevant
       body.__relevant = true
@@ -62,11 +65,6 @@ class PhysicsSystem extends BaseSystem
     for b in markedForDeath
       world.remove b
 
-
-
-    # TODO: remove bodies that are no longer referenced by gamestate
-    #   ...and "unmark" the remaining bodies
-
     # Step the physics simulation:
     world.step(timeStep)
 
@@ -75,8 +73,10 @@ class PhysicsSystem extends BaseSystem
       # Sync body -> Location
       pos = body.position
       vel = body.velocity
+      quat = body.quaternion
       location.position.set(pos.x, pos.y, pos.z)
       location.velocity.set(vel.x, vel.y, vel.z)
+      location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
 
   getWorld: ->
     unless @_world?

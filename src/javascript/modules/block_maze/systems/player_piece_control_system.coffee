@@ -8,10 +8,10 @@ T = C.Types
 UpVec = canVec3(0,1,0)
 
 DrivePoint = canVec3(0,0,0) # where to apply impulses on body
-ForwardForce = 200
-BackwardForce = 200
-StrafeForce = 200
-AscendForce = 200
+ForwardForce = 50
+BackwardForce = 50
+StrafeForce = 50
+AscendForce = 50
 
 SpinRate = 2 * Math.PI
 
@@ -27,27 +27,33 @@ class PlayerPieceControlSystem extends BaseSystem
     @handleEvents r.eid,
       strafeLeft: =>
         impulse = canVec3(timeStep * StrafeForce, 0, 0)
-        @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
 
       strafeRight: =>
         impulse = canVec3(timeStep * -StrafeForce, 0, 0)
-        @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
 
       forward: =>
         impulse = canVec3(0, 0, timeStep * ForwardForce)
-        @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
 
       backward: =>
         impulse = canVec3(0, 0, timeStep * -BackwardForce)
-        @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
 
       elevate: =>
         impulse = canVec3(0, timeStep * AscendForce, 0)
-        @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
 
       sink: =>
         impulse = canVec3(0, timeStep * -AscendForce, 0)
-        @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
+        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
 
       turnRight: =>
         twist = canQuat()
