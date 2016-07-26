@@ -8,10 +8,10 @@ T = C.Types
 UpVec = canVec3(0,1,0)
 
 DrivePoint = canVec3(0,0,0) # where to apply impulses on body
-ForwardForce = 500
-BackwardForce = 500
-StrafeForce = 500
-AscendForce = 500
+ForwardForce = 200
+BackwardForce = 200
+StrafeForce = 200
+AscendForce = 200
 
 SpinRate = 2 * Math.PI
 
@@ -25,27 +25,27 @@ class PlayerPieceControlSystem extends BaseSystem
     timeStep = @input.dt / 1000
 
     @handleEvents r.eid,
-      strafeLeftPressed: =>
+      strafeLeft: =>
         impulse = canVec3(timeStep * StrafeForce, 0, 0)
         @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
 
-      strafeRightPressed: =>
+      strafeRight: =>
         impulse = canVec3(timeStep * -StrafeForce, 0, 0)
         @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
 
-      forwardPressed: =>
+      forward: =>
         impulse = canVec3(0, 0, timeStep * ForwardForce)
         @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
 
-      backwardPressed: =>
+      backward: =>
         impulse = canVec3(0, 0, timeStep * -BackwardForce)
         @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
 
-      elevatePressed: =>
+      elevate: =>
         impulse = canVec3(0, timeStep * AscendForce, 0)
         @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
 
-      sinkPressed: =>
+      sink: =>
         impulse = canVec3(0, timeStep * -AscendForce, 0)
         @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
 

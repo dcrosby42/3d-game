@@ -1,7 +1,7 @@
 BaseSystem = require '../../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
-{canVec3} = require '../../../lib/cannon_helpers'
+{canVec3,canQuat} = require '../../../lib/cannon_helpers'
 
 EntitySearch = require '../../../lib/ecs/entity_search'
 
@@ -82,6 +82,7 @@ class PhysicsSystem extends BaseSystem
     unless @_world?
       @_world = new Cannon.World()
       @_world.broadphase = new Cannon.NaiveBroadphase()
+      @_world.gravity = canVec3(0,-9.82,0)
       # console.log "Created world",@_world
       window.world = @_world
     @_world
