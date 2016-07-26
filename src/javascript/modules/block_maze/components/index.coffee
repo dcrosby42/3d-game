@@ -20,10 +20,24 @@ exports.Location = class Location
 
 exports.Physical = class Physical
   Types.registerClass @
-  constructor: (@kind,@bodyId,@eid,@cid) -> @type = @constructor.type
-  @default: -> new @(null,null,null,null)
-  clone: -> new @constructor(@kind,@bodyId,@eid,@cid)
-  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @kind == o.kind and @bodyId == o.bodyId
+  constructor: (@kind,@bodyId,@data,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(null,null,null,null,null)
+  clone: ->
+    dataClone = if @data? then @data.clone() else null
+    new @constructor(@kind,@bodyId,dataClone,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @kind == o.kind and @bodyId == o.bodyId and (if @data? then @data.equals(o.data) else true)
+
+  @Cube: class Cube
+    constructor: (@color) ->
+    @default: -> new @(0xFFFFFF)
+    clone: -> new @constructor(@color)
+    equals: (o) -> o? and @color == o.color
+
+  @Plane: class Plane
+    constructor: (@color,@width,@height) ->
+    @default: -> new @(0xFFFFFF,1,1)
+    clone: -> new @constructor(@color,@width,@height)
+    equals: (o) -> o? and @color == o.color and @width == o.width and @height == o.height
 
 exports.PhysicsWorld = class PhysicsWorld
   Types.registerClass @

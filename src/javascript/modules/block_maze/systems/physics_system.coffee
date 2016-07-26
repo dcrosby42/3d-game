@@ -24,7 +24,7 @@ class PhysicsSystem extends BaseSystem
       # Find / create body
       body = world.getBodyById(physical.bodyId)
       if !body?
-        body = @createDebugBody()
+        body = @createBody(physical)
         physical.bodyId = body.id
         world.add body
 
@@ -33,10 +33,10 @@ class PhysicsSystem extends BaseSystem
       #   - copy these things BEFORE applying impulses.
       #   - ...or contrive a way to avoid setting them when impulses are coming into play. <-- TODO?
       pos = location.position
-      body.position.set(pos.x, pos.y, pos.z)
       vel = location.velocity
-      body.velocity.set(vel.x, vel.y, vel.z)
       quat = location.quaternion
+      body.position.set(pos.x, pos.y, pos.z)
+      body.velocity.set(vel.x, vel.y, vel.z)
       body.quaternion.set(quat.x, quat.y, quat.z, quat.w)
 
       @handleEvents r.eid,
@@ -58,8 +58,8 @@ class PhysicsSystem extends BaseSystem
     for [physical,location,body] in pairings
       # Sync body -> Location
       pos = body.position
-      location.position.set(pos.x, pos.y, pos.z)
       vel = body.velocity
+      location.position.set(pos.x, pos.y, pos.z)
       location.velocity.set(vel.x, vel.y, vel.z)
 
   getWorld: ->
@@ -77,5 +77,23 @@ class PhysicsSystem extends BaseSystem
     # body.linearDamping = 0.0
     # body.velocity.set(1,0,0)
     body
+
+  createBody: (physical) ->
+    switch physical.kind
+      when 'cube'
+        shape = new Cannon.Box(new Cannon.Vec3(0.5,0.5,0.5))
+        body = new Cannon.Body(mass: 2, shape: shape)
+        # body.position.set(0,0,4)
+        # body.linearDamping = 0.0
+        # body.velocity.set(1,0,0)
+        body
+      when 'plane'
+        shape = new Cannon.Plane()
+        body = new Cannon.Body(mass: 0, shape: shape)
+        body
+
+      else
+        console.log "!! ERR PhysicsSystem.createBody: Cannot construct body from Physical",physical
+        throw new Error("Cannot construct body from Physical kind '#{physical.kind}'")
 
 module.exports = -> new PhysicsSystem()

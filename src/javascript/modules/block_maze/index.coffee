@@ -10,6 +10,7 @@ EntityStore = require '../../lib/ecs/entity_store'
 EcsMachine = require '../../lib/ecs/ecs_machine'
 
 {euler,vec3,quat} = require '../../lib/three_helpers'
+{canVec3,canQuat} = require '../../lib/cannon_helpers'
 
 ActionBase = require '../../lib/action_base'
 class Action extends ActionBase
@@ -33,47 +34,63 @@ exports.initialState = ->
     C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
   ])
 
-  estore.createEntity([
+  e = estore.createEntity([
     C.buildCompForType(T.Name, name: 'Player One')
     C.buildCompForType(T.Tag, name: 'player_piece')
     C.buildCompForType(T.Location)
     C.buildCompForType(T.Physical,
       kind: 'cube'
-      # data:
-      #   scale: canVec3(1,1,1)
+      data: new C.Physical.Cube(0x333399)
+      axisHelper: 2
     )
-    # C.buildCompForType(T.Position)
-    # C.buildCompForType(T.Rotation)
-    # C.buildCompForType(T.Velocity)
     C.buildCompForType(T.Controller, inputName: 'player1')
-    C.buildCompForType(T.Cube, color: 0x339933)
   ])
-# TODO
-  # estore.createEntity([
-  #   C.buildCompForType(T.Name, name: 'corner-marker-ul')
-  #   C.buildCompForType(T.Position, position: vec3(-1,0,-1))
-  #   C.buildCompForType(T.Cube, color: 0x880000)
-  # ])
-  # estore.createEntity([
-  #   C.buildCompForType(T.Name, name: 'corner-marker-ur')
-  #   C.buildCompForType(T.Position, position: vec3(20,0,-1))
-  #   C.buildCompForType(T.Rotation)
-  #   C.buildCompForType(T.Cube, color: 0x880000)
-  # ])
-  # estore.createEntity([
-  #   C.buildCompForType(T.Name, name: 'corner-marker-lr')
-  #   C.buildCompForType(T.Position, position: vec3(20,0,10))
-  #   C.buildCompForType(T.Rotation)
-  #   C.buildCompForType(T.Cube, color: 0x880000)
-  # ])
-  # estore.createEntity([
-  #   C.buildCompForType(T.Name, name: 'corner-marker-ll')
-  #   C.buildCompForType(T.Position, position: vec3(-1,0,10))
-  #   C.buildCompForType(T.Rotation)
-  #   C.buildCompForType(T.Cube, color: 0x880000)
-  # ])
 
-  #TODO add grid entity 
+  console.log e
+
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Corner1')
+    C.buildCompForType(T.Location, position: canVec3(-1,0,-1))
+    C.buildCompForType(T.Physical,
+      kind: 'cube'
+      data: new C.Physical.Cube(0x993333)
+    )
+  ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Corner2')
+    C.buildCompForType(T.Location, position: canVec3(20,0,-1))
+    C.buildCompForType(T.Physical,
+      kind: 'cube'
+      data: new C.Physical.Cube(0x993333)
+    )
+  ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Corner3')
+    C.buildCompForType(T.Location, position: canVec3(20,0,10))
+    C.buildCompForType(T.Physical,
+      kind: 'cube'
+      data: new C.Physical.Cube(0x993333)
+    )
+  ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Corner4')
+    C.buildCompForType(T.Location, position: canVec3(-1,0,10))
+    C.buildCompForType(T.Physical,
+      kind: 'cube'
+      data: new C.Physical.Cube(0x993333)
+    )
+  ])
+  
+  groundQuat = canQuat()
+  groundQuat.setFromAxisAngle(canVec3(1, 0, 0), -Math.PI / 2)
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Ground')
+    C.buildCompForType(T.Location, position: canVec3(0,-0.5,0), quaternion: groundQuat)
+    C.buildCompForType(T.Physical,
+      kind: 'plane'
+      data: new C.Physical.Plane(0x9999cc, 100, 100)
+    )
+  ])
 
   model  = {
     lastTime: null

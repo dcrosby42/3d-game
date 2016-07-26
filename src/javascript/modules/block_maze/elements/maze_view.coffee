@@ -18,20 +18,8 @@ CAMERA_INFO =
   tilt: -pi/6
   pan: -pi/6
   position: vec3(0,3,5)
-  aspect: 1200/600
+  aspect: WIDTH/HEIGHT
 
-MyCamera = (props) ->
-  {cameraInfo} = props
-  <group position={cameraInfo.position} rotation={euler(0,cameraInfo.pan,0)}>
-    <perspectiveCamera
-      name={cameraInfo.name}
-      fov={75}
-      aspect={cameraInfo.aspect}
-      near={0.1}
-      far={1000}
-      rotation={euler(cameraInfo.tilt,0,0)}
-    />
-  </group>
 
 LookCamera = (props) ->
   {cameraInfo,lookAt} = props
@@ -64,24 +52,6 @@ RESOURCES =
     />
   </resources>
 
-groundQuaternion = quat().setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
-ground =
-  <mesh
-    castShadow
-    receiveShadow
-    quaternion={groundQuaternion}
-  >
-    <planeBufferGeometry
-      width={100}
-      height={100}
-      widthSegments={1}
-      heightSegments={1}
-    />
-    <meshLambertMaterial
-      color={0x777777}
-    />
-  </mesh>
-
 FOG = new Three.Fog(0x001525, 10, 40)
 
 MyDirLight = (props) ->
@@ -107,33 +77,62 @@ MyDirLight = (props) ->
     lookAt={props.lightTarget}
   />
 
-Marker = (props) ->
-  <mesh
-    position={props.position}
-    quaternion={props.quaternion}
-    castShadow
-    receiveShadow
-  >
-    <geometryResource resourceId="cubeGeo" />
-    <meshPhongMaterial
-      color={props.color}
-    />
-  </mesh>
-
-piecePosSearch = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}, T.Position])
-getPlayerPosition = (estore) ->
-  pos = null
-  piecePosSearch.run estore, (r) ->
-    [tag,position] = r.comps
-    pos = position
-  pos.position.clone()
-
-playerPeiceSearcher = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}])
+PlayerPeiceSearcher = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}])
 getPlayerEntity = (estore) ->
-  e = null
-  playerPeiceSearcher.run estore, (r) ->
-    e = r.entity
-  e
+  PlayerPeiceSearcher.singleEntity(estore)
+
+createObject = (key,physical,location) ->
+
+  pos = convertCannonVec3(location.position)
+  quat = convertCannonQuat(location.quaternion)
+
+  axisHelper = if s = physical.axisHelper?
+    <axisHelper position={pos} scale={vec3(s,s,s)} quaternion={quat}/>
+  else
+    null
+
+  switch physical.kind
+    when 'cube'
+      <group key={key}>
+        {axisHelper}
+        <mesh
+          position={pos}
+          quaternion={quat}
+          castShadow
+          receiveShadow
+        >
+          <geometryResource resourceId="cubeGeo" />
+          <meshPhongMaterial
+            color={physical.data.color}
+          />
+        </mesh>
+      </group>
+
+    when 'plane'
+      <group key={key}>
+        {axisHelper}
+        <mesh
+          castShadow
+          receiveShadow
+          quaternion={quat}
+          position={pos}
+        >
+          <planeBufferGeometry
+            width={physical.data.width}
+            height={physical.data.height}
+            widthSegments={100}
+            heightSegments={100}
+          />
+          <meshLambertMaterial
+            color={physical.data.color}
+          />
+        </mesh>
+      </group>
+
+    else
+      throw new Error("Can't create 3d representation of", physical)
+
+PhysicalSearcher = EntitySearch.prepare([T.Physical,T.Location])
 
 LIGHT_POS = vec3(20, 20, 20) # magic number d
 LIGHT_TARGET = vec3(0, 0, 0)
@@ -142,17 +141,17 @@ MazeView = React.createClass
   displayName: 'MazeView'
   
   render: ->
-    # position = getPlayerPosition(@props.estore)
     player = getPlayerEntity(@props.estore)
-    # position = player.get(T.Position).position.clone()
-    # rotation = player.get(T.Rotation).rotation.clone()
-    # color = player.get(T.Cube).color
     location = player.get(T.Location)
     playerPos = convertCannonVec3(location.position)
-    playerQuat = convertCannonQuat(location.quaternion)
-    playerColor = 0x338833
-    # rotation = player.get(T.Rotation).rotation.clone()
-
+    camera = <LookCamera cameraInfo={CAMERA_INFO} lookAt={playerPos} />
+      
+    objects = []
+    i = 0
+    PhysicalSearcher.run @props.estore, (r) ->
+      [physical,location] = r.comps
+      objects.push createObject(i,physical,location)
+      i++
 
     <React3 mainCamera={CAMERA_INFO.name}
             width={WIDTH} 
@@ -166,18 +165,8 @@ MazeView = React.createClass
           lightTarget={LIGHT_TARGET} 
         />
         <ambientLight color={0x888888} />
-        {#<MyCamera cameraInfo={CAMERA_INFO}/> #}
-        <LookCamera cameraInfo={CAMERA_INFO} lookAt={playerPos} />
-        {ground}
-        <group position={vec3(0,0.5,0)}>
-          <Marker position={playerPos} quaternion={playerQuat} color={playerColor}/>
-          <axisHelper position={playerPos} scale={vec3(2,2,2)} quaternion={playerQuat}/>
-          <Marker position={vec3(-1,0,-1)} color={0x880000}/>
-          <Marker position={vec3(20,0,-1)} color={0x880000}/>
-          <Marker position={vec3(20,0,10)} color={0x880000}/>
-          <Marker position={vec3(-1,0,10)} color={0x880000}/>
-        </group>
-
+        {camera}
+        {objects}
       </scene>
     </React3>
 
