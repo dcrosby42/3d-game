@@ -44,9 +44,25 @@ class PhysicsSystem extends BaseSystem
           # console.log "phys2 body.applyLocalImpulse",impulse,point
           body.applyLocalImpulse impulse, point
 
-      # TODO Mark bodies as referenced
+      # Mark body as relevant
+      body.__relevant = true
       
+      # Hang onto the relationship between the components and body for a moment
       pairings.push [physical,location,body]
+
+    # Sweep all world bodies and look for irrelevant bodies:
+    markedForDeath = []
+    for b in world.bodies
+      if !b.__relevant
+        markedForDeath.push b
+      else
+        b.__relevant = false
+    
+    # Clear irrelevant 
+    for b in markedForDeath
+      world.remove b
+
+
 
     # TODO: remove bodies that are no longer referenced by gamestate
     #   ...and "unmark" the remaining bodies
