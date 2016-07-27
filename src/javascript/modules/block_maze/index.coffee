@@ -131,12 +131,33 @@ exports.update = (model,action) ->
 # AsciiView = require './elements/ascii_view'
 MazeView = require './elements/maze_view'
 
+sendMouseAction: (address, type,e) ->
+  e.stopPropagation()
+  e.preventDefault()
+  address.send new Mouse(type: type, event: e)
+
+getMouseHandlers: (address) ->
+  handler = (type) =>
+    (e) =>
+      sendMouseAction(address, type, e)
+  {
+    onMouseEnter: handler('enter')
+    onMouseLeave: handler('leave')
+    onMouseMove: handler('move')
+    onMouseDown: handler('down')
+    onMouseUp: handler('up')
+    onWheel: handler('wheel')
+  }
+
 exports.view = (model,address) ->
   
   <div>
     <h3>Maze Thinger</h3>
     {#<AsciiView estore={model.estore} /> #}
-    <MazeView estore={model.estore} />
+
+    <div {...getMouseHandlers(address)}> 
+      <MazeView estore={model.estore} />
+    </div>
     <KeyboardInput
       tag="player1"
       mappings={{
