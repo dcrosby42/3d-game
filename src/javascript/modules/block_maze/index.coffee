@@ -46,8 +46,6 @@ exports.initialState = ->
     C.buildCompForType(T.Controller, inputName: 'player1')
   ])
 
-  console.log e
-
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Corner1')
     C.buildCompForType(T.Location, position: canVec3(-1,0,-1))
@@ -110,6 +108,11 @@ exports.update = (model,action) ->
     e = action.value
     model.input.controllerEvents.push(e)
 
+  if action instanceof Mouse
+    model.NO_RENDER=true
+    {type,x,y,event} = action.value
+    # console.log "Action.Mouse type=#{type}", x,y
+
   if action instanceof Time
     t = action.value
     if model.lastTime?
@@ -128,34 +131,28 @@ exports.update = (model,action) ->
   else
     [model,null]
 
-# AsciiView = require './elements/ascii_view'
 MazeView = require './elements/maze_view'
 
-sendMouseAction: (address, type,e) ->
-  e.stopPropagation()
-  e.preventDefault()
-  address.send new Mouse(type: type, event: e)
-
-getMouseHandlers: (address) ->
-  handler = (type) =>
-    (e) =>
-      sendMouseAction(address, type, e)
-  {
-    onMouseEnter: handler('enter')
-    onMouseLeave: handler('leave')
-    onMouseMove: handler('move')
-    onMouseDown: handler('down')
-    onMouseUp: handler('up')
-    onWheel: handler('wheel')
-  }
+handleMouse = (type,address) ->
+  (e) ->
+    e.stopPropagation()
+    e.preventDefault()
+    address.send new Mouse(
+      type: type
+      x: e.nativeEvent.offsetX
+      y: e.nativeEvent.offsetY
+      event: e
+    )
 
 exports.view = (model,address) ->
   
   <div>
     <h3>Maze Thinger</h3>
-    {#<AsciiView estore={model.estore} /> #}
-
-    <div {...getMouseHandlers(address)}> 
+    <div style={width:"800px",height:"400px"}
+      onMouseMove={handleMouse 'move', address}
+      onMouseDown={handleMouse 'down', address}
+      onMouseUp={handleMouse 'up', address}
+    >
       <MazeView estore={model.estore} />
     </div>
     <KeyboardInput
