@@ -134,14 +134,16 @@ exports.update = (model,action) ->
   if action instanceof Time
     t = action.value
     if model.lastTime?
-      model.input.dt = t - model.lastTime
-      # input = mungeInputs(dt,model.controllerEvents)
+      dt = t - model.lastTime
+      if dt > 0.1 or dt < 0
+        dt = 1.0/60.0 # avoid big updates or the crazy first-reqAnimFr-is-huge-then-it-goes-back-to-normal issue. ?
+      model.input.dt = dt
       [model.estore,glboalEvents] = ecsMachine.update(model.estore, model.input)
       # TODO handle global events....?
 
       # Update the dev camera
-      model.camera.data.pan += model.mouseLocation.x * -Math.PI/2 * (model.input.dt / 1000)
-      model.camera.data.tilt += model.mouseLocation.y * Math.PI/2 * (model.input.dt / 1000)
+      model.camera.data.pan += model.mouseLocation.x * -Math.PI/2 * dt
+      model.camera.data.tilt += model.mouseLocation.y * Math.PI/2 * dt
 
       # Reset the controller input queue for the next Time action (tick)
       model.input.controllerEvents = []
@@ -150,7 +152,7 @@ exports.update = (model,action) ->
       model.NO_RENDER=true
     model.lastTime = t
 
-    return [model, [{type: 'tick', map: (v) -> new Time(v)}]]
+    return [model, [{type: 'tick', map: (v) -> new Time(v/1000.0)}]]
 
   else
     [model,null]

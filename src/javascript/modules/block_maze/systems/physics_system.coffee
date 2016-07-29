@@ -14,8 +14,7 @@ class PhysicsSystem extends BaseSystem
 
   process: (r) ->
     world = @getWorld()
-    # timeStep = 1.0 / 60.0
-    timeStep = @input.dt / 1000
+    timeStep = @input.dt
 
     # Sync game state to physics world
     pairings = []

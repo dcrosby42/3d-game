@@ -22,7 +22,7 @@ class PlayerPieceControlSystem extends BaseSystem
   process: (r) ->
     [_tag,location] = r.comps
 
-    timeStep = @input.dt / 1000
+    timeStep = @input.dt
 
     @handleEvents r.eid,
       strafeLeft: =>
