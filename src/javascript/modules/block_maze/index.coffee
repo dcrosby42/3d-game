@@ -96,6 +96,16 @@ exports.initialState = ->
     input:
       dt: null
       controllerEvents: []
+    camera:
+      type: "dev"
+      data:
+        name: "dev"
+        position: vec3(0,3,5)
+        pan: 0
+        tilt: 0
+    mouseLocation:
+      x: 0
+      y: 0
   }
   [model, [{type: 'tick', map: (v) -> new Time(v)}]]
 
@@ -111,8 +121,15 @@ exports.update = (model,action) ->
   if action instanceof Mouse
     model.NO_RENDER=true
     {type,x,y,width,height,event} = action.value
-    shortest = if height < width then height else width
-    console.log "Action.Mouse type=#{type}", x,y, (x/shortest)-1,((y/shortest)-0.5)*-2
+
+    # Convert x and y into "unit rectangle"-relative coords, -1 <= x <= 1 and -1 <= y <= 1, y positive is up.  upper left is -1,1 and lower right is 1,-11
+    cx = (x * (2/width)) - 1
+    cy = (y * (-2/height)) + 1
+    model.mouseLocation.x = cx
+    model.mouseLocation.y = cy
+    # console.log "Action.Mouse type=#{type}", cx,cy
+        
+
 
   if action instanceof Time
     t = action.value
@@ -121,6 +138,12 @@ exports.update = (model,action) ->
       # input = mungeInputs(dt,model.controllerEvents)
       [model.estore,glboalEvents] = ecsMachine.update(model.estore, model.input)
       # TODO handle global events....?
+
+      # Update the dev camera
+      model.camera.data.pan += model.mouseLocation.x * -Math.PI/2 * (model.input.dt / 1000)
+      model.camera.data.tilt += model.mouseLocation.y * Math.PI/2 * (model.input.dt / 1000)
+
+      # Reset the controller input queue for the next Time action (tick)
       model.input.controllerEvents = []
       
     else
@@ -156,9 +179,9 @@ exports.view = (model,address) ->
     <div style={width:width,height:height}
       onMouseMove={handleMouse 'move', width,height,address}
       onMouseDown={handleMouse 'down', width,height,address}
-      onMouseUp={handleMouse 'up', address}
+      onMouseUp={handleMouse 'up', width,height,address}
     >
-      <MazeView width={width} height={height} estore={model.estore} />
+      <MazeView width={width} height={height} camera={model.camera} estore={model.estore} />
     </div>
     <KeyboardInput
       tag="player1"

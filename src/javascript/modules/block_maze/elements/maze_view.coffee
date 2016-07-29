@@ -18,8 +18,24 @@ LookCamera = (props) ->
     aspect={cameraInfo.aspect}
     near={0.1}
     far={1000}
-    lookAt={lookAt}
+    lookAt={null}
   />
+
+DevCamera = (props) ->
+  {cameraInfo,aspect} = props
+  <group 
+    rotation={euler(0,cameraInfo.pan,0)}
+    position={cameraInfo.position}
+  >
+    <perspectiveCamera
+      name={cameraInfo.name}
+      rotation={euler(cameraInfo.tilt,0,0)}
+      fov={75}
+      aspect={aspect}
+      near={0.1}
+      far={1000}
+    />
+  </group>
 
 
 RESOURCES =
@@ -138,11 +154,13 @@ MazeView = React.createClass
     location = player.get(T.Location)
     playerPos = convertCannonVec3(location.position)
 
-    camInfo =
-      name: 'devcam'
-      position: vec3(0,3,5)
-      aspect: @props.width / @props.height
-    camera = <LookCamera cameraInfo={camInfo} lookAt={playerPos} />
+    # camInfo =
+    #   name: 'devcam'
+    #   position: vec3(0,3,5)
+    #   aspect: @props.width / @props.height
+    # camera = <LookCamera cameraInfo={camInfo} lookAt={playerPos} />
+    aspect = @props.width/@props.height
+    camera = <DevCamera aspect={aspect} cameraInfo={@props.camera.data} />
       
     objects = []
     i = 0
@@ -151,7 +169,7 @@ MazeView = React.createClass
       objects.push createObject(i,physical,location)
       i++
 
-    <React3 mainCamera={camInfo.name}
+    <React3 mainCamera={@props.camera.data.name}
             width={@props.width} 
             height={@props.height} 
             clearColor={FOG.color}
