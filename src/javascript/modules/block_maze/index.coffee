@@ -110,8 +110,9 @@ exports.update = (model,action) ->
 
   if action instanceof Mouse
     model.NO_RENDER=true
-    {type,x,y,event} = action.value
-    # console.log "Action.Mouse type=#{type}", x,y
+    {type,x,y,width,height,event} = action.value
+    shortest = if height < width then height else width
+    console.log "Action.Mouse type=#{type}", x,y, (x/shortest)-1,((y/shortest)-0.5)*-2
 
   if action instanceof Time
     t = action.value
@@ -133,7 +134,7 @@ exports.update = (model,action) ->
 
 MazeView = require './elements/maze_view'
 
-handleMouse = (type,address) ->
+handleMouse = (type,width,height,address) ->
   (e) ->
     e.stopPropagation()
     e.preventDefault()
@@ -141,19 +142,23 @@ handleMouse = (type,address) ->
       type: type
       x: e.nativeEvent.offsetX
       y: e.nativeEvent.offsetY
+      width: width
+      height: height
       event: e
     )
 
 exports.view = (model,address) ->
+  width = 800
+  height = 400
   
   <div>
     <h3>Maze Thinger</h3>
-    <div style={width:"800px",height:"400px"}
-      onMouseMove={handleMouse 'move', address}
-      onMouseDown={handleMouse 'down', address}
+    <div style={width:width,height:height}
+      onMouseMove={handleMouse 'move', width,height,address}
+      onMouseDown={handleMouse 'down', width,height,address}
       onMouseUp={handleMouse 'up', address}
     >
-      <MazeView estore={model.estore} />
+      <MazeView width={width} height={height} estore={model.estore} />
     </div>
     <KeyboardInput
       tag="player1"

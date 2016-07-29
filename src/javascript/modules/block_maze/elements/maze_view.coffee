@@ -9,18 +9,6 @@ EntitySearch = require '../../../lib/ecs/entity_search'
 C = require '../components'
 T = C.Types
 
-
-WIDTH=800 # width = window.innerWidth
-HEIGHT=400 # height = window.innerHeight
-
-CAMERA_INFO =
-  name: 'devcam'
-  tilt: -pi/6
-  pan: -pi/6
-  position: vec3(0,3,5)
-  aspect: WIDTH/HEIGHT
-
-
 LookCamera = (props) ->
   {cameraInfo,lookAt} = props
   <perspectiveCamera
@@ -87,17 +75,20 @@ createObject = (key,physical,location) ->
   quat = convertCannonQuat(location.quaternion)
 
   axisHelper = if s = physical.axisHelper?
-    <axisHelper position={pos} scale={vec3(s,s,s)} quaternion={quat}/>
+    <axisHelper 
+      scale={vec3(s,s,s)} 
+    />
   else
     null
 
   switch physical.kind
     when 'cube'
-      <group key={key}>
+      <group key={key}
+        position={pos}
+        quaternion={quat}
+      >
         {axisHelper}
         <mesh
-          position={pos}
-          quaternion={quat}
           castShadow
           receiveShadow
         >
@@ -109,13 +100,15 @@ createObject = (key,physical,location) ->
       </group>
 
     when 'plane'
-      <group key={key}>
+      <group key={key}
+          quaternion={quat}
+          position={pos}
+        >
         {axisHelper}
+
         <mesh
           castShadow
           receiveShadow
-          quaternion={quat}
-          position={pos}
         >
           <planeBufferGeometry
             width={physical.data.width}
@@ -144,7 +137,12 @@ MazeView = React.createClass
     player = getPlayerEntity(@props.estore)
     location = player.get(T.Location)
     playerPos = convertCannonVec3(location.position)
-    camera = <LookCamera cameraInfo={CAMERA_INFO} lookAt={playerPos} />
+
+    camInfo =
+      name: 'devcam'
+      position: vec3(0,3,5)
+      aspect: @props.width / @props.height
+    camera = <LookCamera cameraInfo={camInfo} lookAt={playerPos} />
       
     objects = []
     i = 0
@@ -153,9 +151,9 @@ MazeView = React.createClass
       objects.push createObject(i,physical,location)
       i++
 
-    <React3 mainCamera={CAMERA_INFO.name}
-            width={WIDTH} 
-            height={HEIGHT} 
+    <React3 mainCamera={camInfo.name}
+            width={@props.width} 
+            height={@props.height} 
             clearColor={FOG.color}
     >
       {RESOURCES}
