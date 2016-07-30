@@ -2,6 +2,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 React3 = require 'react-three-renderer'
 
+GamepadInterface = require '../lib/gamepad/gamepad'
 # Fx = require '../lib/fx'
 # PostOffice = require '../lib/flarp/post_office'
 
@@ -85,11 +86,22 @@ GamepadDevPanel = React.createClass
     }
   
   componentWillMount: ->
-    watcher = new GamepadConnectedWatcher(15)
-    watcher.onChanged (gamepads) =>
-      @setState gamepads: gamepads
-      console.log "onChanged:",gamepads
-    watcher.start()
+    # watcher = new GamepadConnectedWatcher(15)
+    # watcher.onChanged (gamepads) =>
+    #   @setState gamepads: gamepads
+    #   console.log "onChanged:",gamepads
+    # watcher.start()
+    gpifc = new GamepadInterface()
+    check = ->
+      changes = gpifc.update()
+      if changes.length > 0
+        console.log "changes:"
+        for c in changes
+          console.log c
+      else
+        console.log "(no change)"
+      setTimeout check, 200
+    check()
 
   #
   # componentDidMount: ->
@@ -126,7 +138,7 @@ DebugGamepad = React.createClass
     i = @props.index
     gpdiv = if gp?
       buttonStates = gp.buttons.map (b,i) =>
-        <div className="buttonState" key={i}>button {i} ({@state.buttonMap[i]}): {b.pressed} {b.value}</div>
+        <div className="buttonState" key={i}>button {i} ({@state.buttonMap[i]}): pressed='{b.pressed}' value='{b.value}'</div>
       axes = gp.axes.map (a,i) =>
         <div className="axis" key={i}>Axis {i} ({@state.axisMap[i]}): {a}</div>
 
