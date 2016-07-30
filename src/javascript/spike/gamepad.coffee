@@ -106,9 +106,12 @@ GamepadDevPanel = React.createClass
     for i,gp of @state.gamepads
       gps.push(<DebugGamepad key={i} index={i} gamepad={gp}/>)
 
-    <div id="gamepad-dev">
-      Gamepad dev panel
-      <div id="pads">
+    <div id="gamepad-dev" className="pure-g">
+      <div id="pads" className="pure-u-1-1 pure-g">
+        <div className="pure-u-6-24">Zero</div>
+        <div className="pure-u-6-24">One</div>
+        <div className="pure-u-6-24">Two</div>
+        <div className="pure-u-6-24">Three</div>
         {gps}
       </div>
     </div>
@@ -131,7 +134,7 @@ DebugGamepad = React.createClass
 
       connected = if gp.connected then "(CONNECTED)" else "(not connected)"
         
-      <div className="debug-gamepad">
+      <div className="debug-gamepad pure-u-6-24">
         <div className="header">Gamepad {gp.index}: {gp.id} {connected}</div>
         <div className="mapping">Mapping: {gp.mapping}</div>
         <div className="timestamp">Timestamp: {gp.timestamp}</div>
