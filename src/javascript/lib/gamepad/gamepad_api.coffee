@@ -39,41 +39,32 @@ buttonMap =
 
 copyGamepadState = (gamepad) ->
   st = new GamepadState(gamepad.id,gamepad.index,gamepad.timestamp,gamepad.connected)
-  # st.id = gamepad.id
-  # st.index = gamepad.index
-  # st.timestamp = gamepad.timestamp
-  # st.connected = gamepad.connected
-  # st.buttons = []
   for b,i in gamepad.buttons
     st.buttons[i] = new GamepadButtonState(i, b.pressed, b.value)
-  # st.axes = []
   for a,i in gamepad.axes
-    st.axes[i] = new GamepadAxisState(i, a)
+    value = Math.round(a*100)/100
+    st.axes[i] = new GamepadAxisState(i, value)
   st
 
 addChanges = (changes, a, b) ->
-  # for ab,i in a.buttons
-  #   bb = b.buttons[i]
-  #   if ab.pressed != bb.pressed or ab.value != bb.value
-  #     changes.push type: "buttonChanged", index: a.index, id: a.id, control: buttonMap[i], oldPressed: ab.pressed, oldValue: ab.value, newPressed: bb.pressed, newValue: bb.value
-  # for aa,i in a.axes
-  #   ba = b.axes[i]
-  #   if aa.value != ba.value
-  #     changes.push type: "axisChanged", index: a.index, id: a.id, control: axisMap[i], oldValue: aa.value, newValue: ba.value
   changeCount = 0
   for ab,i in a.buttons
     bb = b.buttons[i]
     if ab.value != bb.value
-      changes.push type: "valueChanged", index: a.index, id: a.id, control: buttonMap[i], oldValue: ab.value, newValue: bb.value
+      changes.push type: "valueChanged", index: a.index, id: a.id, control: buttonMap[i], oldValue: ab.value, newValue: bb.value, state: b
       changeCount++
   for aa,i in a.axes
     ba = b.axes[i]
     if aa.value != ba.value
-      changes.push type: "valueChanged", index: a.index, id: a.id, control: axisMap[i], oldValue: aa.value, newValue: ba.value
+      changes.push type: "valueChanged", index: a.index, id: a.id, control: axisMap[i], oldValue: aa.value, newValue: ba.value, state: b
       changeCount++
   return changeCount
     
-class GamepadInterface
+class GamepadApi
+  @DefaultLayout:
+    axisMap: axisMap
+    buttonMap: buttonMap
+
   constructor: ->
     @getter = new GamepadGetter()
     @gamepadIds = [null,null,null,null]
@@ -97,13 +88,14 @@ class GamepadInterface
           @gamepadStates[i] = state
           if prevId?
             changes.push type: "gamepadRemoved", index: i, id: prevId
-          changes.push type: "gamepadAdded", index: i, id: gp.id, gamepadState: state
+          changes.push type: "gamepadAdded", index: i, id: gp.id, state: state
         else
           # Gamepad @ i is same gamepad as before
           priorState = @gamepadStates[i]
           if gp.timestamp > priorState.timestamp
             newState = copyGamepadState(gp)
             addChanges(changes, priorState, newState)
+            @gamepadStates[i] = newState
 
       else
         # Gamepad @ i is gone
@@ -115,5 +107,4 @@ class GamepadInterface
       i++
     return changes
 
-
-module.exports = GamepadInterface
+module.exports = GamepadApi
