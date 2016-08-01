@@ -9,8 +9,10 @@ statefulUpDown = (address,control) ->
 
 bindKey = (key,control,address) ->
   relay = statefulUpDown(address,control)
-  MousetrapWrapper.bind(key, (-> relay('down')), 'keydown')
-  MousetrapWrapper.bind(key, (-> relay('up')), 'keyup')
+  # MousetrapWrapper.bind(key, (-> relay('down')), 'keydown')
+  # MousetrapWrapper.bind(key, (-> relay('up')), 'keyup')
+  MousetrapWrapper.bind(key, (-> relay(1)), 'keydown')
+  MousetrapWrapper.bind(key, (-> relay(0)), 'keyup')
 
 exports.bindKeys = (address, mappings) ->
   for k,c of mappings
