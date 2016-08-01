@@ -1,6 +1,7 @@
 React = require 'react'
 React3 = require 'react-three-renderer'
 KeyboardInput = require '../../elements/keyboard_input'
+GamepadInput = require '../../elements/gamepad_input'
 
 C = require './components'
 T = C.Types
@@ -196,6 +197,24 @@ exports.view = (model,address) ->
         "right": 'turnRight'
         "space": 'elevate'
         "shift": 'sink'
+      }}
+      address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
+    />
+    <GamepadInput
+      tag="player1"
+      gamepadIndex={0}
+      mappings={{
+        "dpad_up": 'forward'
+        "dpad_left": 'strafeLeft'
+        "dpad_down": 'backward'
+        "dpad_right": 'strafeRight'
+        "left_bumper": 'turnLeft'
+        "right_bumper": 'turnRight'
+        "one": 'elevate'
+        "three": 'sink'
+        "axis_left_x": 'strafe'
+        "axis_left_y": 'drive'
+        "axis_right_x": 'turn'
       }}
       address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
     />

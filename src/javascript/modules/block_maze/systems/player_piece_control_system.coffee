@@ -25,6 +25,20 @@ class PlayerPieceControlSystem extends BaseSystem
     timeStep = @input.dt
 
     @handleEvents r.eid,
+      strafe: (analog) =>
+        impulse = canVec3(timeStep * StrafeForce * -analog, 0, 0)
+        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
+
+      drive: (analog) =>
+        impulse = canVec3(0, 0, timeStep * ForwardForce * -analog)
+        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
+
+      turn: (analog) =>
+        twist = canQuat()
+        twist.setFromAxisAngle(UpVec, -SpinRate * timeStep * analog)
+        quaternion = location.quaternion
+        quaternion.mult(twist,quaternion)
+
       strafeLeft: =>
         impulse = canVec3(timeStep * StrafeForce, 0, 0)
         # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
@@ -34,6 +48,7 @@ class PlayerPieceControlSystem extends BaseSystem
         impulse = canVec3(timeStep * -StrafeForce, 0, 0)
         # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
         @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
+
 
       forward: =>
         impulse = canVec3(0, 0, timeStep * ForwardForce)
@@ -66,6 +81,7 @@ class PlayerPieceControlSystem extends BaseSystem
         twist.setFromAxisAngle(UpVec, SpinRate * timeStep)
         quaternion = location.quaternion
         quaternion.mult(twist,quaternion)
+      
 
 
 module.exports = -> new PlayerPieceControlSystem()

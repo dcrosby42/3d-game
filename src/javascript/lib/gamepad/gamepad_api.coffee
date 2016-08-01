@@ -14,10 +14,10 @@ class GamepadAxisState
   constructor: (@index,@value) ->
 
 axisMap =
-  0: "left_x"
-  1: "left_y"
-  2: "right_x"
-  3: "right_y"
+  0: "axis_left_x"
+  1: "axis_left_y"
+  2: "axis_right_x"
+  3: "axis_right_y"
   
 buttonMap =
   0: "one"

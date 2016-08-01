@@ -11,11 +11,11 @@ class ControllerSystem extends BaseSystem
       if e.tag == controller.inputName
         [controller.states,extras] = updateControlStates(controller.states, e)
         for [name,value] in extras
-          # console.log "ControllerSystem: @publishEvent",r.eid,eventName
+          # console.log "ControllerSystem: @publishEvent",r.eid, name, value
           @publishEvent r.eid, name, value
 
     for name,value of controller.states
-      # console.log "ControllerSystem: @publishEvent",r.eid,key
+      # console.log "ControllerSystem: @publishEvent",r.eid, name, value
       @publishEvent r.eid, name, value
 
 
@@ -26,6 +26,7 @@ updateControlStates = (states, e, emit) ->
   if state == 0
     delete states[control]
     if prevVal? and prevVal != 0
+      extras.push [control,0]
       extras.push ["#{control}Released",0]
 
   else
