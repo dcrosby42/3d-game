@@ -42,8 +42,8 @@ exports.initialState = ->
     C.buildCompForType(T.Tag, name: 'player_piece')
     C.buildCompForType(T.Location)
     C.buildCompForType(T.Physical,
-      kind: 'cube'
-      data: new C.Physical.Cube(0x333399)
+      kind: 'ball'
+      data: new C.Physical.Ball(0x333399)
       axisHelper: 2
     )
     C.buildCompForType(T.Controller, inputName: 'player1')

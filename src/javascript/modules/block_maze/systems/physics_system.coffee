@@ -99,8 +99,18 @@ class PhysicsSystem extends BaseSystem
       when 'cube'
         shape = new Cannon.Box(new Cannon.Vec3(0.5,0.5,0.5))
         body = new Cannon.Body(mass: 2, shape: shape)
+        body.linearDamping = 0.1
+        body.angularDamping = 0.1
         # body.position.set(0,0,4)
         # body.linearDamping = 0.0
+        # body.velocity.set(1,0,0)
+        body
+      when 'ball'
+        shape = new Cannon.Sphere(0.5)
+        body = new Cannon.Body(mass: 2, shape: shape)
+        # body.position.set(0,0,4)
+        body.linearDamping = 0.1
+        body.angularDamping = 0.3
         # body.velocity.set(1,0,0)
         body
       when 'plane'

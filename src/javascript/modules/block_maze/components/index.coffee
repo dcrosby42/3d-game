@@ -39,6 +39,12 @@ exports.Physical = class Physical
     clone: -> new @constructor(@color,@width,@height)
     equals: (o) -> o? and @color == o.color and @width == o.width and @height == o.height
 
+  @Ball: class Ball
+    constructor: (@color,@radius) ->
+    @default: -> new @(0xFFFFFF,0.5)
+    clone: -> new @constructor(@color,@radius)
+    equals: (o) -> o? and @color == o.color and @radius == o.radius
+
 exports.PhysicsWorld = class PhysicsWorld
   Types.registerClass @
   constructor: (@worldId,@eid,@cid) -> @type = @constructor.type

@@ -60,6 +60,12 @@ FollowCamera = (props) ->
 
 RESOURCES =
   <resources>
+    <sphereGeometry
+      resourceId="ballGeo"
+      radius={0.5}
+      widthSegments={10}
+      heightSegments={10}
+    />
     <boxGeometry
       resourceId="cubeGeo"
 
@@ -138,6 +144,25 @@ createObject = (key,physical,location) ->
           />
         </mesh>
       </group>
+
+    when 'ball'
+      <group key={key}
+        position={pos}
+        quaternion={quat}
+      >
+        {axisHelper}
+        <mesh
+          castShadow
+          receiveShadow
+        >
+          <geometryResource resourceId="ballGeo" />
+          <meshPhongMaterial
+            color={physical.data.color}
+          />
+        </mesh>
+      </group>
+
+      
 
     when 'plane'
       <group key={key}
