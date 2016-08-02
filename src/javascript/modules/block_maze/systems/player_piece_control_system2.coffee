@@ -92,7 +92,7 @@ class PlayerPieceControlSystem extends BaseSystem
         @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       orbitX: (analog) =>
-        camera.hOrbit += analog *OrbitSpeed * timeStep
+        camera.hOrbit += -analog *OrbitSpeed * timeStep
 
       orbitY: (analog) =>
         camera.vOrbit += analog * OrbitSpeed * timeStep

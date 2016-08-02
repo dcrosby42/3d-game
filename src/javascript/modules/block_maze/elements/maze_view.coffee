@@ -227,6 +227,7 @@ MazeView = React.createClass
             width={@props.width} 
             height={@props.height} 
             clearColor={FOG.color}
+            shadowMapEnabled
     >
       {RESOURCES}
       <scene fog={FOG}>
