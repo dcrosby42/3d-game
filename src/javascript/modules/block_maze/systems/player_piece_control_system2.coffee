@@ -8,12 +8,12 @@ T = C.Types
 UpVec = canVec3(0,1,0)
 
 DrivePoint = canVec3(0,0,0) # where to apply impulses on body
-ForwardForce = 50
-BackwardForce = 50
-StrafeForce = 50
-AscendForce = 50
+ForwardForce = 25
+BackwardForce = 25
+StrafeForce = 25
+AscendForce = 25
 
-SpinRate = 2 * Math.PI
+OrbitSpeed = 1 * Math.PI
 
 Left90 = canQuat()
 Left90.setFromAxisAngle(UpVec, Math.PI/2)
@@ -64,6 +64,45 @@ class PlayerPieceControlSystem extends BaseSystem
         Right90.vmult(impulse,impulse)
         @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
+      orbitRight: =>
+        camera.hOrbit += -OrbitSpeed * timeStep
+        # twist = canQuat()
+        # twist.setFromAxisAngle(UpVec, -SpinRate * timeStep)
+        # quaternion = location.quaternion
+        # quaternion.mult(twist,quaternion)
+
+      orbitLeft: =>
+        camera.hOrbit += OrbitSpeed * timeStep
+
+      orbitUp: =>
+        camera.vOrbit += -OrbitSpeed * timeStep
+
+      orbitDown: =>
+        camera.vOrbit += OrbitSpeed * timeStep
+
+      # GAMEPAD:
+
+      drive: (analog) =>
+        impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*ForwardForce)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+
+      strafe: (analog) =>
+        impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*StrafeForce)
+        Left90.vmult(impulse,impulse)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+
+      orbitX: (analog) =>
+        camera.hOrbit += analog *OrbitSpeed * timeStep
+
+      orbitY: (analog) =>
+        camera.vOrbit += analog * OrbitSpeed * timeStep
+
+
+      #   twist = canQuat()
+      #   twist.setFromAxisAngle(UpVec, SpinRate * timeStep)
+      #   quaternion = location.quaternion
+      #   quaternion.mult(twist,quaternion)
+
       #   impulse = canVec3(timeStep * -StrafeForce, 0, 0)
       #   # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
       #   @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
@@ -99,27 +138,7 @@ class PlayerPieceControlSystem extends BaseSystem
       #   # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
       #   @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
       #
-      # elevate: =>
-      #   impulse = canVec3(0, timeStep * AscendForce, 0)
-      #   # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
-      #   @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
       #
-      # sink: =>
-      #   impulse = canVec3(0, timeStep * -AscendForce, 0)
-      #   # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
-      #   @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
-      #
-      # turnRight: =>
-      #   twist = canQuat()
-      #   twist.setFromAxisAngle(UpVec, -SpinRate * timeStep)
-      #   quaternion = location.quaternion
-      #   quaternion.mult(twist,quaternion)
-      #   
-      # turnLeft: =>
-      #   twist = canQuat()
-      #   twist.setFromAxisAngle(UpVec, SpinRate * timeStep)
-      #   quaternion = location.quaternion
-      #   quaternion.mult(twist,quaternion)
       
 
 

@@ -203,10 +203,10 @@ exports.view = (model,address) ->
         "a": 'strafeLeft'
         "s": 'backward'
         "d": 'strafeRight'
-        "left": 'turnLeft'
-        "right": 'turnRight'
-        "space": 'elevate'
-        "shift": 'sink'
+        "left": 'orbitLeft'
+        "right": 'orbitRight'
+        "up": 'orbitUp'
+        "down": 'orbitDown'
       }}
       address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
     />
@@ -220,11 +220,12 @@ exports.view = (model,address) ->
         "dpad_right": 'strafeRight'
         "left_bumper": 'turnLeft'
         "right_bumper": 'turnRight'
-        "one": 'elevate'
-        "three": 'sink'
+        # "one": 'elevate'
+        # "three": 'sink'
         "axis_left_x": 'strafe'
         "axis_left_y": 'drive'
-        "axis_right_x": 'turn'
+        "axis_right_x": 'orbitX'
+        "axis_right_y": 'orbitY'
       }}
       address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
     />

@@ -48,10 +48,10 @@ exports.PhysicsWorld = class PhysicsWorld
 
 exports.FollowCamera = class FollowCamera
   Types.registerClass @
-  constructor: (@followTag,@lookAt,@eid,@cid) -> @type = @constructor.type
-  @default: -> new @(null,canVec3(),null,null)
-  clone: -> new @constructor(@followTag,canVec3().copy(@lookAt),@eid,@cid)
-  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @followTag == o.followTag and canVec3Equals(@lookAt,o.lookAt)
+  constructor: (@followTag,@lookAt,@hOrbit,@vOrbit,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(null,canVec3(),0,0,null,null)
+  clone: -> new @constructor(@followTag,canVec3().copy(@lookAt),@hOrbit,@vOrbit,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @followTag == o.followTag and canVec3Equals(@lookAt,o.lookAt) and @hOrbit == o.hOrbit and @vOrbit == o.vOrbit
 
 exports.Position = class Position
   Types.registerClass @

@@ -32,9 +32,25 @@ class CameraFollowSystem extends BaseSystem
     cpos = camLocation.position
     ppos = location.position
 
-    cpos.set(ppos.x, ppos.y+3, ppos.z+5)
+
+    stick = canVec3(0,0,5)
+    twist = canQuat()
+    twist.setFromAxisAngle(canVec3(1,0,0), camera.vOrbit)
+    twist.vmult(stick,stick)
+
+    twist = canQuat()
+    twist.setFromAxisAngle(UpVec, camera.hOrbit)
+    twist.vmult(stick,stick)
+
+    # quaternion = location.quaternion
+    # quaternion.mult(twist,quaternion)
+
+    ppos.vadd(stick, cpos)
+    # FIXME: use camera orbit
+    # cpos.set(ppos.x, ppos.y+3, ppos.z+5)
 
     camera.lookAt.copy(ppos)
+    # console.log camera.hOrbit, camera.vOrbit
 
 module.exports = -> new CameraFollowSystem()
 
