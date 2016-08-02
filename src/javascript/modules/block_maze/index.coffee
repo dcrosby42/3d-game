@@ -23,8 +23,10 @@ class Mouse extends Action
 
 ecsMachine = new EcsMachine([
   Systems.controller_system()
-  Systems.player_piece_control_system()
+  # Systems.player_piece_control_system()
+  Systems.player_piece_control_system2()
   Systems.physics_system()
+  Systems.camera_follow_system()
 ])
 
 exports.initialState = ->
@@ -91,6 +93,14 @@ exports.initialState = ->
     )
   ])
 
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Follow Camera')
+    # C.buildCompForType(T.Tag, name: 'follow_cam')
+    C.buildCompForType(T.FollowCamera, followTag: 'player_piece')
+    C.buildCompForType(T.Location, position: canVec3(0,3,5))
+  ])
+
+
   model  = {
     lastTime: null
     estore: estore
@@ -119,15 +129,15 @@ exports.update = (model,action) ->
     e = action.value
     model.input.controllerEvents.push(e)
 
-  if action instanceof Mouse
-    model.NO_RENDER=true
-    {type,x,y,width,height,event} = action.value
+  # if action instanceof Mouse
+    # model.NO_RENDER=true
+    # {type,x,y,width,height,event} = action.value
 
     # Convert x and y into "unit rectangle"-relative coords, -1 <= x <= 1 and -1 <= y <= 1, y positive is up.  upper left is -1,1 and lower right is 1,-11
-    cx = (x * (2/width)) - 1
-    cy = (y * (-2/height)) + 1
-    model.mouseLocation.x = cx
-    model.mouseLocation.y = cy
+    # cx = (x * (2/width)) - 1
+    # cy = (y * (-2/height)) + 1
+    # model.mouseLocation.x = cx
+    # model.mouseLocation.y = cy
     # console.log "Action.Mouse type=#{type}", cx,cy
         
 

@@ -46,6 +46,13 @@ exports.PhysicsWorld = class PhysicsWorld
   clone: -> new @constructor(@worldId,@eid,@cid)
   equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @worldId == o.worldId
 
+exports.FollowCamera = class FollowCamera
+  Types.registerClass @
+  constructor: (@followTag,@lookAt,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(null,canVec3(),null,null)
+  clone: -> new @constructor(@followTag,canVec3().copy(@lookAt),@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @followTag == o.followTag and canVec3Equals(@lookAt,o.lookAt)
+
 exports.Position = class Position
   Types.registerClass @
   constructor: (@position,@eid,@cid) -> @type = @constructor.type

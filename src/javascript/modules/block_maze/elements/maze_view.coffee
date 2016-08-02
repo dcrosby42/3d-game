@@ -18,7 +18,7 @@ LookCamera = (props) ->
     aspect={cameraInfo.aspect}
     near={0.1}
     far={1000}
-    lookAt={null}
+    lookAt={lookAt}
   />
 
 DevCamera = (props) ->
@@ -36,6 +36,26 @@ DevCamera = (props) ->
       far={1000}
     />
   </group>
+
+FollowCamera = (props) ->
+  {name,aspect,cameraEntity} = props
+
+  cam = cameraEntity.get(T.FollowCamera)
+  lookAt = convertCannonVec3(cam.lookAt)
+  # console.log lookAt
+
+  camLoc = cameraEntity.get(T.Location)
+  pos = convertCannonVec3(camLoc.position)
+
+  <perspectiveCamera
+    position={pos}
+    name={name}
+    fov={75}
+    aspect={aspect}
+    near={0.1}
+    far={1000}
+    lookAt={lookAt}
+  />
 
 
 RESOURCES =
@@ -84,6 +104,10 @@ MyDirLight = (props) ->
 PlayerPeiceSearcher = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}])
 getPlayerEntity = (estore) ->
   PlayerPeiceSearcher.singleEntity(estore)
+
+CameraSearcher = EntitySearch.prepare([T.FollowCamera])
+getCameraEntity = (estore) ->
+  CameraSearcher.singleEntity(estore)
 
 createObject = (key,physical,location) ->
 
@@ -154,13 +178,18 @@ MazeView = React.createClass
     location = player.get(T.Location)
     playerPos = convertCannonVec3(location.position)
 
+    cameraEntity = getCameraEntity(@props.estore)
+    cameraLocComp = cameraEntity.get(T.Location)
+    cameraPos = convertCannonVec3(cameraLocComp.position)
+
     # camInfo =
     #   name: 'devcam'
     #   position: vec3(0,3,5)
     #   aspect: @props.width / @props.height
-    # camera = <LookCamera cameraInfo={camInfo} lookAt={playerPos} />
+    #camera = <LookCamera cameraInfo={camInfo} lookAt={playerPos} />
     aspect = @props.width/@props.height
-    camera = <DevCamera aspect={aspect} cameraInfo={@props.camera.data} />
+    # camera = <DevCamera aspect={aspect} cameraInfo={@props.camera.data} />
+    camera = <FollowCamera name="follow_cam" aspect={aspect} cameraEntity={cameraEntity} />
       
     objects = []
     i = 0
@@ -169,7 +198,7 @@ MazeView = React.createClass
       objects.push createObject(i,physical,location)
       i++
 
-    <React3 mainCamera={@props.camera.data.name}
+    <React3 mainCamera="follow_cam"
             width={@props.width} 
             height={@props.height} 
             clearColor={FOG.color}
