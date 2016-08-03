@@ -26,6 +26,16 @@ ecsMachine = new EcsMachine([
   Systems.camera_follow_system()
 ])
 
+mkCubeComps = (pos,color=0xffffff,name='Cube') ->
+  [
+    C.buildCompForType(T.Name, name: name)
+    C.buildCompForType(T.Location, position: pos)
+    C.buildCompForType(T.Physical,
+      kind: 'cube'
+      data: new C.Physical.Cube(color)
+    )
+  ]
+
 exports.initialState = ->
   estore = new EntityStore()
 
@@ -46,38 +56,11 @@ exports.initialState = ->
     C.buildCompForType(T.Controller, inputName: 'player1')
   ])
 
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Corner1')
-    C.buildCompForType(T.Location, position: canVec3(-1,0,-1))
-    C.buildCompForType(T.Physical,
-      kind: 'cube'
-      data: new C.Physical.Cube(0x993333)
-    )
-  ])
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Corner2')
-    C.buildCompForType(T.Location, position: canVec3(20,0,-1))
-    C.buildCompForType(T.Physical,
-      kind: 'cube'
-      data: new C.Physical.Cube(0x993333)
-    )
-  ])
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Corner3')
-    C.buildCompForType(T.Location, position: canVec3(20,0,10))
-    C.buildCompForType(T.Physical,
-      kind: 'cube'
-      data: new C.Physical.Cube(0x993333)
-    )
-  ])
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Corner4')
-    C.buildCompForType(T.Location, position: canVec3(-1,0,10))
-    C.buildCompForType(T.Physical,
-      kind: 'cube'
-      data: new C.Physical.Cube(0x993333)
-    )
-  ])
+
+  estore.createEntity mkCubeComps(canVec3(-1,0,-1),0x993333)
+  estore.createEntity mkCubeComps(canVec3(20,0,-1),0x993333)
+  estore.createEntity mkCubeComps(canVec3(20,0,10),0x993333)
+  estore.createEntity mkCubeComps(canVec3(-1,0,10),0x993333)
   
   groundQuat = canQuat()
   groundQuat.setFromAxisAngle(canVec3(1, 0, 0), -Math.PI / 2)

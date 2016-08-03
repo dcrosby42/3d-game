@@ -44,7 +44,6 @@ FollowCamera = (props) ->
 
   cam = cameraEntity.get(T.FollowCamera)
   lookAt = convertCannonVec3(cam.lookAt)
-  # console.log lookAt
 
   camLoc = cameraEntity.get(T.Location)
   pos = convertCannonVec3(camLoc.position)
@@ -85,9 +84,9 @@ MyDirLight = (props) ->
     lookAt={props.lightTarget}
   />
 
-PlayerPeiceSearcher = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}])
-getPlayerEntity = (estore) ->
-  PlayerPeiceSearcher.singleEntity(estore)
+# PlayerPeiceSearcher = EntitySearch.prepare([{type:T.Tag,name:'player_piece'}])
+# getPlayerEntity = (estore) ->
+#   PlayerPeiceSearcher.singleEntity(estore)
 
 CameraSearcher = EntitySearch.prepare([T.FollowCamera])
 getCameraEntity = (estore) ->
@@ -102,9 +101,9 @@ MazeView = React.createClass
   displayName: 'MazeView'
   
   render: ->
-    player = getPlayerEntity(@props.estore)
-    location = player.get(T.Location)
-    playerPos = convertCannonVec3(location.position)
+    # player = getPlayerEntity(@props.estore)
+    # location = player.get(T.Location)
+    # playerPos = convertCannonVec3(location.position)
 
     cameraEntity = getCameraEntity(@props.estore)
     cameraLocComp = cameraEntity.get(T.Location)
