@@ -104,13 +104,13 @@ exports.initialState = ->
     input:
       dt: null
       controllerEvents: []
-    camera:
-      type: "dev"
-      data:
-        name: "dev"
-        position: vec3(0,3,5)
-        pan: 0
-        tilt: 0
+    # camera:
+    #   type: "dev"
+    #   data:
+    #     name: "dev"
+    #     position: vec3(0,3,5)
+    #     pan: 0
+    #     tilt: 0
     mouseLocation:
       x: 0
       y: 0
@@ -150,8 +150,8 @@ exports.update = (model,action) ->
       # TODO handle global events....?
 
       # Update the dev camera
-      model.camera.data.pan += model.mouseLocation.x * -Math.PI/2 * dt
-      model.camera.data.tilt += model.mouseLocation.y * Math.PI/2 * dt
+      # model.camera.data.pan += model.mouseLocation.x * -Math.PI/2 * dt
+      # model.camera.data.tilt += model.mouseLocation.y * Math.PI/2 * dt
 
       # Reset the controller input queue for the next Time action (tick)
       model.input.controllerEvents = []
