@@ -9,6 +9,8 @@ EntitySearch = require '../../../lib/ecs/entity_search'
 C = require '../components'
 T = C.Types
 
+Objects = require '../objects'
+
 LookCamera = (props) ->
   {cameraInfo,lookAt} = props
   <perspectiveCamera
@@ -58,30 +60,6 @@ FollowCamera = (props) ->
   />
 
 
-RESOURCES =
-  <resources>
-    <sphereGeometry
-      resourceId="ballGeo"
-      radius={0.5}
-      widthSegments={10}
-      heightSegments={10}
-    />
-    <boxGeometry
-      resourceId="cubeGeo"
-
-      width={1}
-      height={1}
-      depth={1}
-
-      widthSegments={10}
-      heightSegments={10}
-    />
-    <meshPhongMaterial
-      resourceId="cubeMaterial"
-      color={0x888888}
-    />
-  </resources>
-
 FOG = new Three.Fog(0x001525, 10, 40)
 
 MyDirLight = (props) ->
@@ -115,81 +93,6 @@ CameraSearcher = EntitySearch.prepare([T.FollowCamera])
 getCameraEntity = (estore) ->
   CameraSearcher.singleEntity(estore)
 
-createObject = (key,physical,location) ->
-
-  pos = convertCannonVec3(location.position)
-  quat = convertCannonQuat(location.quaternion)
-
-  axisHelper = if s = physical.axisHelper?
-    <axisHelper 
-      scale={vec3(s,s,s)} 
-    />
-  else
-    null
-
-  switch physical.kind
-    when 'cube'
-      <group key={key}
-        position={pos}
-        quaternion={quat}
-      >
-        {axisHelper}
-        <mesh
-          castShadow
-          receiveShadow
-        >
-          <geometryResource resourceId="cubeGeo" />
-          <meshPhongMaterial
-            color={physical.data.color}
-          />
-        </mesh>
-      </group>
-
-    when 'ball'
-      <group key={key}
-        position={pos}
-        quaternion={quat}
-      >
-        {axisHelper}
-        <mesh
-          castShadow
-          receiveShadow
-        >
-          <geometryResource resourceId="ballGeo" />
-          <meshPhongMaterial
-            color={physical.data.color}
-          />
-        </mesh>
-      </group>
-
-      
-
-    when 'plane'
-      <group key={key}
-          quaternion={quat}
-          position={pos}
-        >
-        {axisHelper}
-
-        <mesh
-          castShadow
-          receiveShadow
-        >
-          <planeBufferGeometry
-            width={physical.data.width}
-            height={physical.data.height}
-            widthSegments={100}
-            heightSegments={100}
-          />
-          <meshLambertMaterial
-            color={physical.data.color}
-          />
-        </mesh>
-      </group>
-
-    else
-      throw new Error("Can't create 3d representation of", physical)
-
 PhysicalSearcher = EntitySearch.prepare([T.Physical,T.Location])
 
 LIGHT_POS = vec3(20, 20, 20) # magic number d
@@ -220,7 +123,7 @@ MazeView = React.createClass
     i = 0
     PhysicalSearcher.run @props.estore, (r) ->
       [physical,location] = r.comps
-      objects.push createObject(i,physical,location)
+      objects.push Objects.create3d(i,physical,location)
       i++
 
     <React3 mainCamera="follow_cam"
@@ -229,7 +132,7 @@ MazeView = React.createClass
             clearColor={FOG.color}
             shadowMapEnabled
     >
-      {RESOURCES}
+      {Objects.VisualResources}
       <scene fog={FOG}>
         <MyDirLight
           lightPosition={LIGHT_POS} 

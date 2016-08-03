@@ -9,6 +9,8 @@ Cannon = require 'cannon'
 
 PhysicalSearcher = EntitySearch.prepare([T.Physical,T.Location])
 
+Objects = require "../objects"
+
 class PhysicsSystem extends BaseSystem
   @Subscribe: [ T.PhysicsWorld ]
 
@@ -23,14 +25,13 @@ class PhysicsSystem extends BaseSystem
       # Find / create body
       body = world.getBodyById(physical.bodyId)
       if !body?
-        body = @createBody(physical)
+        body = Objects.createBody(physical,location)
         physical.bodyId = body.id
         world.add body
 
       # Sync Location -> body
-      # IMPORTANT: copying state like position, velocity etc. will OVERRIDE the effects of applying impulses and so forth.
-      #   - copy these things BEFORE applying impulses.
-      #   - ...or contrive a way to avoid setting them when impulses are coming into play. <-- TODO?
+      # IMPORTANT: copying state like position, velocity etc. will OVERRIDE the effects of applying impulses and so forth. Be sure to copy BEFORE applying impulse
+
       pos = location.position
       vel = location.velocity
       quat = location.quaternion
@@ -40,10 +41,8 @@ class PhysicsSystem extends BaseSystem
 
       @handleEvents r.eid,
         localImpulse: ({impulse,point}) =>
-          # console.log "phys2 body.applyLocalImpulse",impulse,point
           body.applyLocalImpulse impulse, point
         impulse: ({impulse,point}) =>
-          # console.log "phys2 body.applyLocalImpulse",impulse,point
           body.applyImpulse impulse, point
 
       # Mark body as relevant
@@ -82,44 +81,8 @@ class PhysicsSystem extends BaseSystem
       @_world = new Cannon.World()
       @_world.broadphase = new Cannon.NaiveBroadphase()
       @_world.gravity = canVec3(0,-9.82,0)
-      # console.log "Created world",@_world
       window.world = @_world
     @_world
 
-  createDebugBody: ->
-    shape = new Cannon.Box(new Cannon.Vec3(1,1,1))
-    body = new Cannon.Body(mass: 2, shape: shape)
-    # body.position.set(0,0,4)
-    # body.linearDamping = 0.0
-    # body.velocity.set(1,0,0)
-    body
-
-  createBody: (physical) ->
-    switch physical.kind
-      when 'cube'
-        shape = new Cannon.Box(new Cannon.Vec3(0.5,0.5,0.5))
-        body = new Cannon.Body(mass: 2, shape: shape)
-        body.linearDamping = 0.1
-        body.angularDamping = 0.1
-        # body.position.set(0,0,4)
-        # body.linearDamping = 0.0
-        # body.velocity.set(1,0,0)
-        body
-      when 'ball'
-        shape = new Cannon.Sphere(0.5)
-        body = new Cannon.Body(mass: 2, shape: shape)
-        # body.position.set(0,0,4)
-        body.linearDamping = 0.1
-        body.angularDamping = 0.3
-        # body.velocity.set(1,0,0)
-        body
-      when 'plane'
-        shape = new Cannon.Plane()
-        body = new Cannon.Body(mass: 0, shape: shape)
-        body
-
-      else
-        console.log "!! ERR PhysicsSystem.createBody: Cannot construct body from Physical",physical
-        throw new Error("Cannot construct body from Physical kind '#{physical.kind}'")
 
 module.exports = -> new PhysicsSystem()
