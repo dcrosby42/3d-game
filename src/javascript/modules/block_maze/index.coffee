@@ -184,8 +184,8 @@ handleMouse = (type,width,height,address) ->
     )
 
 exports.view = (model,address) ->
-  width = 800
-  height = 400
+  width = 1200
+  height = 600
   
   <div>
     <h3>Maze Thinger</h3>

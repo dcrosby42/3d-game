@@ -66,19 +66,19 @@ class PlayerPieceControlSystem extends BaseSystem
 
       orbitRight: =>
         camera.hOrbit += -OrbitSpeed * timeStep
-        # twist = canQuat()
-        # twist.setFromAxisAngle(UpVec, -SpinRate * timeStep)
-        # quaternion = location.quaternion
-        # quaternion.mult(twist,quaternion)
 
       orbitLeft: =>
         camera.hOrbit += OrbitSpeed * timeStep
 
       orbitUp: =>
         camera.vOrbit += -OrbitSpeed * timeStep
+        if camera.vOrbit < -Math.PI/2
+          camera.vOrbit = -Math.PI/2 + 0.01
 
       orbitDown: =>
         camera.vOrbit += OrbitSpeed * timeStep
+        if camera.vOrbit > 0
+          camera.vOrbit = 0
 
       # GAMEPAD:
 
@@ -96,6 +96,10 @@ class PlayerPieceControlSystem extends BaseSystem
 
       orbitY: (analog) =>
         camera.vOrbit += analog * OrbitSpeed * timeStep
+        if camera.vOrbit < -Math.PI/2
+          camera.vOrbit = -Math.PI/2 + 0.01
+        else if camera.vOrbit > 0
+          camera.vOrbit = 0
 
 
       #   twist = canQuat()
