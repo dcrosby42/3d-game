@@ -8,80 +8,98 @@ T = C.Types
 UpVec = canVec3(0,1,0)
 
 DrivePoint = canVec3(0,0,0) # where to apply impulses on body
-ForwardForce = 50
-BackwardForce = 50
-StrafeForce = 50
-AscendForce = 50
+ForwardForce = 25
+BackwardForce = 25
+StrafeForce = 25
+AscendForce = 25
 
-SpinRate = 2 * Math.PI
+OrbitSpeed = 1 * Math.PI
+
+Left90 = canQuat()
+Left90.setFromAxisAngle(UpVec, Math.PI/2)
+
+Right90 = canQuat()
+Right90.setFromAxisAngle(UpVec, -(Math.PI/2))
+
+calcCamRelativeImpulse = (camLoc, playerLoc, timeStep, force) ->
+  cpos = camLoc.position
+  ppos = playerLoc.position
+  impulse = canVec3(ppos.x - cpos.x, 0, ppos.z - cpos.z)
+  impulse.normalize()
+  impulse.scale(timeStep * force, impulse)
+  impulse
 
 
 class PlayerPieceControlSystem extends BaseSystem
-  @Subscribe: [ {type:T.Tag, name:'player_piece'}, T.Location ]
+  @Subscribe: [
+    [ {type:T.Tag, name:'player_piece'}, T.Location ]
+    [ T.FollowCamera, T.Location]
 
-  process: (r) ->
-    [_tag,location] = r.comps
+  ]
+
+  process: (pR, cR) ->
+    [_tag,location] = pR.comps
+    [camera,camLocation] = cR.comps
+
+    eid = pR.eid
 
     timeStep = @input.dt
 
-    @handleEvents r.eid,
-      strafe: (analog) =>
-        impulse = canVec3(timeStep * StrafeForce * -analog, 0, 0)
-        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
-
-      drive: (analog) =>
-        impulse = canVec3(0, 0, timeStep * ForwardForce * -analog)
-        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
-
-      turn: (analog) =>
-        twist = canQuat()
-        twist.setFromAxisAngle(UpVec, -SpinRate * timeStep * analog)
-        quaternion = location.quaternion
-        quaternion.mult(twist,quaternion)
-
-      strafeLeft: =>
-        impulse = canVec3(timeStep * StrafeForce, 0, 0)
-        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
-        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
-
-      strafeRight: =>
-        impulse = canVec3(timeStep * -StrafeForce, 0, 0)
-        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
-        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
-
-
-      forward: =>
-        impulse = canVec3(0, 0, timeStep * ForwardForce)
-        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
-        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
+    @handleEvents eid,
+      forward: (val) =>
+        impulse = calcCamRelativeImpulse(camLocation,location,timeStep, ForwardForce)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       backward: =>
-        impulse = canVec3(0, 0, timeStep * -BackwardForce)
-        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
-        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
-
-      elevate: =>
-        impulse = canVec3(0, timeStep * AscendForce, 0)
-        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
-        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
-
-      sink: =>
-        impulse = canVec3(0, timeStep * -AscendForce, 0)
-        # @publishEvent r.eid, "localImpulse", impulse: impulse, point: DrivePoint
-        @publishEvent r.eid, "impulse", impulse: impulse, point: DrivePoint
-
-      turnRight: =>
-        twist = canQuat()
-        twist.setFromAxisAngle(UpVec, -SpinRate * timeStep)
-        quaternion = location.quaternion
-        quaternion.mult(twist,quaternion)
-        
-      turnLeft: =>
-        twist = canQuat()
-        twist.setFromAxisAngle(UpVec, SpinRate * timeStep)
-        quaternion = location.quaternion
-        quaternion.mult(twist,quaternion)
+        impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -BackwardForce)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
       
+      strafeLeft: =>
+        impulse = calcCamRelativeImpulse(camLocation,location,timeStep, StrafeForce)
+        Left90.vmult(impulse,impulse)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+
+      strafeRight: =>
+        impulse = calcCamRelativeImpulse(camLocation,location,timeStep, StrafeForce)
+        Right90.vmult(impulse,impulse)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+
+      orbitRight: =>
+        camera.hOrbit += -OrbitSpeed * timeStep
+
+      orbitLeft: =>
+        camera.hOrbit += OrbitSpeed * timeStep
+
+      orbitUp: =>
+        camera.vOrbit += -OrbitSpeed * timeStep
+        if camera.vOrbit < -Math.PI/2
+          camera.vOrbit = -Math.PI/2 + 0.01
+
+      orbitDown: =>
+        camera.vOrbit += OrbitSpeed * timeStep
+        if camera.vOrbit > 0
+          camera.vOrbit = 0
+
+      # GAMEPAD:
+
+      drive: (analog) =>
+        impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*ForwardForce)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+
+      strafe: (analog) =>
+        impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*StrafeForce)
+        Left90.vmult(impulse,impulse)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+
+      orbitX: (analog) =>
+        camera.hOrbit += -analog *OrbitSpeed * timeStep
+
+      orbitY: (analog) =>
+        camera.vOrbit += analog * OrbitSpeed * timeStep
+        if camera.vOrbit < -Math.PI/2
+          camera.vOrbit = -Math.PI/2 + 0.01
+        else if camera.vOrbit > 0
+          camera.vOrbit = 0
 
 
 module.exports = -> new PlayerPieceControlSystem()

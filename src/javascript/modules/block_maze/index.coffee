@@ -19,12 +19,9 @@ class Input extends Action
 class Time extends Action
 class Mouse extends Action
 
-
-
 ecsMachine = new EcsMachine([
   Systems.controller_system()
-  # Systems.player_piece_control_system()
-  Systems.player_piece_control_system2()
+  Systems.player_piece_control_system()
   Systems.physics_system()
   Systems.camera_follow_system()
 ])
