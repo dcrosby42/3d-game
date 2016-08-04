@@ -74,6 +74,50 @@ Bodies.cube = (physical,location) ->
   # body.velocity.set(1,0,0)
   body
 
+Visuals.block = (key,physical,location) ->
+  pos = convertCannonVec3(location.position)
+  quat = convertCannonQuat(location.quaternion)
+  # console.log physical
+  # window.physical = physical
+  # throw new Error("Stop!")
+  dim = physical.data.dim
+  <group key={key}
+    position={pos}
+    quaternion={quat}
+  >
+    {buildAxisHelper(physical)}
+    <mesh
+      castShadow
+      receiveShadow
+    >
+      <boxGeometry
+        width={dim.x}
+        height={dim.y}
+        depth={dim.z}
+
+        widthSegments={10}
+        heightSegments={10}
+      />
+      <meshPhongMaterial
+        color={physical.data.color}
+      />
+    </mesh>
+  </group>
+
+Bodies.block = (physical,location) ->
+  pos = location.position
+  data = physical.data
+  shape = new Cannon.Box(new Cannon.Vec3(data.dim.x/2, data.dim.y/2, data.dim.z/2))
+  body = new Cannon.Body(shape: shape, type: physical.bodyType)
+  body.position.set(pos.x, pos.y, pos.z)
+  if physical.bodyType == Cannon.DYNAMIC
+    body.mass = 2
+    body.linearDamping = 0.1
+    body.angularDamping = 0.1
+  else
+    body.mass = 0
+  body
+
 Visuals.plane = (key,physical,location) ->
   pos = convertCannonVec3(location.position)
   quat = convertCannonQuat(location.quaternion)

@@ -1,5 +1,6 @@
 _ = require 'lodash'
 Domain = require '../../../lib/domain'
+Cannon = require 'cannon'
 # Motions = require './motions'
 {vec3,quat,euler} = require '../../../lib/three_helpers'
 {canVec3,canQuat,canVec3Equals,canQuatEquals} = require '../../../lib/cannon_helpers'
@@ -20,12 +21,12 @@ exports.Location = class Location
 
 exports.Physical = class Physical
   Types.registerClass @
-  constructor: (@kind,@bodyId,@data,@eid,@cid) -> @type = @constructor.type
-  @default: -> new @(null,null,null,null,null)
+  constructor: (@kind,@bodyId,@data,@bodyType,@eid,@cid) -> @type = @constructor.type
+  @default: -> new @(null,null,null,Cannon.Body.DYNAMIC,null,null)
   clone: ->
     dataClone = if @data? then @data.clone() else null
-    new @constructor(@kind,@bodyId,dataClone,@eid,@cid)
-  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @kind == o.kind and @bodyId == o.bodyId and (if @data? then @data.equals(o.data) else true)
+    new @constructor(@kind,@bodyId,dataClone,@bodyType,@eid,@cid)
+  equals: (o) -> o? and @eid == o.eid and @cid == o.cid and @kind == o.kind and @bodyId == o.bodyId and @bodyType == o.bodyType and (if @data? then @data.equals(o.data) else true)
 
   @Cube: class Cube
     constructor: (@color) ->
@@ -44,6 +45,12 @@ exports.Physical = class Physical
     @default: -> new @(0xFFFFFF,0.5)
     clone: -> new @constructor(@color,@radius)
     equals: (o) -> o? and @color == o.color and @radius == o.radius
+
+  @Block: class Block
+    constructor: (@color,@dim) ->
+    @default: -> new @(0xFFFFFF,canVec3(1,1,1))
+    clone: -> new @constructor(@color,@dim.clone())
+    equals: (o) -> o? and @color == o.color and canVec3Equals(@dim,o.dim)
 
 exports.PhysicsWorld = class PhysicsWorld
   Types.registerClass @

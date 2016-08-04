@@ -12,6 +12,7 @@ ForwardForce = 25
 BackwardForce = 25
 StrafeForce = 25
 AscendForce = 25
+JumpThrust = 50
 
 OrbitSpeed = 1 * Math.PI
 
@@ -79,6 +80,11 @@ class PlayerPieceControlSystem extends BaseSystem
         camera.vOrbit += OrbitSpeed * timeStep
         if camera.vOrbit > 0
           camera.vOrbit = 0
+
+      jump: =>
+        impulse = canVec3(0, JumpThrust * timeStep, 0)
+        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+
 
       # GAMEPAD:
 

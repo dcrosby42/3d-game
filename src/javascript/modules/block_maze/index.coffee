@@ -1,8 +1,8 @@
 React = require 'react'
+Cannon = require 'cannon'
 React3 = require 'react-three-renderer'
 KeyboardInput = require '../../elements/keyboard_input'
 GamepadInput = require '../../elements/gamepad_input'
-
 C = require './components'
 T = C.Types
 Systems = require './systems'
@@ -51,7 +51,7 @@ exports.initialState = ->
     C.buildCompForType(T.Physical,
       kind: 'ball'
       data: new C.Physical.Ball(0x333399)
-      axisHelper: 2
+      # axisHelper: 2
     )
     C.buildCompForType(T.Controller, inputName: 'player1')
   ])
@@ -66,10 +66,19 @@ exports.initialState = ->
   groundQuat.setFromAxisAngle(canVec3(1, 0, 0), -Math.PI / 2)
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Ground')
-    C.buildCompForType(T.Location, position: canVec3(0,-0.5,0), quaternion: groundQuat)
+    C.buildCompForType(T.Location, position: canVec3(0,-10,0), quaternion: groundQuat)
     C.buildCompForType(T.Physical,
       kind: 'plane'
       data: new C.Physical.Plane(0x9999cc, 100, 100)
+    )
+  ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Ground')
+    C.buildCompForType(T.Location, position: canVec3(0,-1.5,0))
+    C.buildCompForType(T.Physical,
+      kind: 'block'
+      bodyType: Cannon.Body.STATIC
+      data: new C.Physical.Block(0x9999cc, canVec3(5,1,10))
     )
   ])
 
@@ -187,6 +196,7 @@ exports.view = (model,address) ->
         "right": 'orbitRight'
         "up": 'orbitUp'
         "down": 'orbitDown'
+        "space": 'jump'
       }}
       address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
     />
@@ -201,7 +211,7 @@ exports.view = (model,address) ->
         "left_bumper": 'turnLeft'
         "right_bumper": 'turnRight'
         # "one": 'elevate'
-        # "three": 'sink'
+        "three": 'jump'
         "axis_left_x": 'strafe'
         "axis_left_y": 'drive'
         "axis_right_x": 'orbitX'
