@@ -65,7 +65,7 @@ Visuals.cube = (key,physical,location) ->
 Bodies.cube = (physical,location) ->
   shape = new Cannon.Box(new Cannon.Vec3(0.5,0.5,0.5)) # TODO get dimensions from physical comp
   pos = location.position
-  body = new Cannon.Body(mass: 2, shape: shape)
+  body = new Cannon.Body(mass: 0.5, shape: shape)
   body.linearDamping = 0.1
   body.angularDamping = 0.1
   body.position.set(pos.x, pos.y, pos.z)

@@ -58,6 +58,8 @@ exports.initialState = ->
 
 
   estore.createEntity mkCubeComps(canVec3(-1,0,-1),0x993333)
+  estore.createEntity mkCubeComps(canVec3(-1,1,-1),0x993333)
+  estore.createEntity mkCubeComps(canVec3(-1.1,2,-1),0x993333)
   estore.createEntity mkCubeComps(canVec3(20,0,-1),0x993333)
   estore.createEntity mkCubeComps(canVec3(20,0,10),0x993333)
   estore.createEntity mkCubeComps(canVec3(-1,0,10),0x993333)
