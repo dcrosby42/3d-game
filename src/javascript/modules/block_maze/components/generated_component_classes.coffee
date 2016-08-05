@@ -12,6 +12,34 @@ cloneObj = (obj) ->
     res[key] = val
   return res
 
+exports.Name = class Name
+  Types.registerClass @
+  constructor: (@eid, @cid, @name) -> @type = @constructor.type
+  @default: -> new @(null, null, null)
+  clone: -> new @constructor(@eid, @cid, @name)
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@name == o.name)
+
+exports.Tag = class Tag
+  Types.registerClass @
+  constructor: (@eid, @cid, @name) -> @type = @constructor.type
+  @default: -> new @(null, null, null)
+  clone: -> new @constructor(@eid, @cid, @name)
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@name == o.name)
+
+exports.Timer = class Timer
+  Types.registerClass @
+  constructor: (@eid, @cid, @time, @eventName) -> @type = @constructor.type
+  @default: -> new @(null, null, null, null)
+  clone: -> new @constructor(@eid, @cid, @time, @eventName)
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@time == o.time) and (@eventName == o.eventName)
+
+exports.Rng = class Rng
+  Types.registerClass @
+  constructor: (@eid, @cid, @state) -> @type = @constructor.type
+  @default: -> new @(null, null, 1)
+  clone: -> new @constructor(@eid, @cid, @state)
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@state == o.state)
+
 exports.Location = class Location
   Types.registerClass @
   constructor: (@eid, @cid, @position, @velocity, @quaternion, @angularVelocity) -> @type = @constructor.type
@@ -67,7 +95,7 @@ exports.PhysicsWorld = class PhysicsWorld
 exports.Controller = class Controller
   Types.registerClass @
   constructor: (@eid, @cid, @inputName, @states) -> @type = @constructor.type
-  @default: -> new @(null, null, null, null)
+  @default: -> new @(null, null, null, {})
   clone: -> new @constructor(@eid, @cid, @inputName, (if @states? then cloneObj(@states) else null))
   equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@inputName == o.inputName) and (if @states? then _.isEqual(@states, o.states) else !o.states)
 

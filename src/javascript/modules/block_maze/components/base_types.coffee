@@ -6,6 +6,11 @@ exports.BaseType = class BaseType
   default: -> "null"
   ivar: ->
     "@#{@name}"
+  @with: (opts={}) ->
+    mydefault = opts.default
+    class extends @
+      default: ->
+        mydefault
 
 exports.String = class String extends BaseType
 
