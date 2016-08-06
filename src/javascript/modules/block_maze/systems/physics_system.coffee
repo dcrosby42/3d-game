@@ -20,6 +20,7 @@ class PhysicsSystem extends BaseSystem
 
     # Sync game state to physics world
     pairings = []
+    bodyIdsToComps = {}
     PhysicalSearcher.run @estore, (r) =>
       [physical, location] = r.comps
       # Find / create body
@@ -29,6 +30,7 @@ class PhysicsSystem extends BaseSystem
         physical.bodyId = body.id
         world.add body
 
+      bodyIdsToComps[physical.bodyId] = physical
       # Sync Location -> body
       # IMPORTANT: copying state like position, velocity etc. will OVERRIDE the effects of applying impulses and so forth. Be sure to copy BEFORE applying impulse
 
@@ -64,7 +66,7 @@ class PhysicsSystem extends BaseSystem
       world.remove b
 
     # Step the physics simulation:
-    world.step(timeStep)
+    worldEvents = @stepWorld(world,timeStep)
 
     # Sync physics world to game state
     for [physical,location,body] in pairings
@@ -75,14 +77,43 @@ class PhysicsSystem extends BaseSystem
       location.position.set(pos.x, pos.y, pos.z)
       location.velocity.set(vel.x, vel.y, vel.z)
       location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+      if events = worldEvents[body.id]
+        for [type,otherId] in events
+          otherComp = bodyIdsToComps[otherId]
+          if otherComp?
+            # console.log "publishEvent", physical.eid, type, cid: physical.cid, otherCid: otherComp.cid, otherEid: otherComp.eid
+            @publishEvent physical.eid, type, cid: physical.cid, otherCid: otherComp.cid, otherEid: otherComp.eid
+
+  stepWorld: (world,timeStep) ->
+    @_worldEvents = {}
+    world.step(timeStep)
+    return @_worldEvents
 
   getWorld: ->
     unless @_world?
       @_world = new Cannon.World()
       @_world.broadphase = new Cannon.NaiveBroadphase()
       @_world.gravity = canVec3(0,-9.82,0)
+
+      @subscribeWorldCollisions()
+
       window.world = @_world
     @_world
+
+  subscribeWorldCollisions: ->
+    subscribe = (type) =>
+      @_world.addEventListener type, (e) =>
+        a = e.bodyA.id
+        b = e.bodyB.id
+        @_worldEvents[a] ?= []
+        @_worldEvents[a].push [type, b]
+        @_worldEvents[b] ?= []
+        @_worldEvents[b].push [type, a]
+
+    @_worldEvents = {}
+    for t in [ "beginContact", "endContact" ]
+      subscribe t
+
 
 
 module.exports = -> new PhysicsSystem()
