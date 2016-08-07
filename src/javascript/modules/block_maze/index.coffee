@@ -23,6 +23,7 @@ ecsMachine = new EcsMachine([
   Systems.controller_system()
   Systems.player_piece_control_system()
   Systems.physics_system()
+  # Systems.collision_detect_system()
   Systems.camera_follow_system()
 ])
 
