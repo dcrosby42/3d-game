@@ -195,7 +195,7 @@ exports.update = (model,action) ->
   else
     [model,null]
 
-MazeView = require './elements/maze_view'
+MazeView = require './elements/faster_maze_view'
 
 handleMouse = (type,width,height,address) ->
   (e) ->
