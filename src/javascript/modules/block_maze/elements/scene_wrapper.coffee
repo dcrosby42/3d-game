@@ -21,6 +21,7 @@ defaultDirectionalLight = ->
   light.castShadow = true
   light.position.set(position.x, position.y, position.z)
   light.lookAt = targetVec
+  # light.target.position.set(0, 0, 0);
   light.shadow.mapSize.width = 1024
   light.shadow.mapSize.height = 1024
   light.shadow.camera.left = -D
@@ -34,7 +35,6 @@ defaultDirectionalLight = ->
 
   #light.shadowDarkness = 0.5
   #light.shadowCameraVisible = true # only for debugging
-  # light.target.position.set(0, 0, 0);
   return light
 
 defaultAmbientLight = ->
@@ -48,10 +48,6 @@ createFollowCamera = (name,aspect) ->
   far = 1000
   camera = new THREE.PerspectiveCamera(fov,aspect,near,far)
   camera.name = name
-  # camera.aspect = aspect
-  # camera.fov = 75
-  # camera.near = 0.1
-  # camera.far = 1000
   return camera
 
 updateFollowCamera = (camera,cameraEntity) ->
@@ -60,12 +56,10 @@ updateFollowCamera = (camera,cameraEntity) ->
   camLoc = cameraEntity.get(T.Location)
   pos = convertCannonVec3(camLoc.position)
   camera.position.set(pos.x,pos.y,pos.z)
-  camera.lookAt = lookAt#.set(lookAt.x, lookAt.y, lookAt.z)
+  camera.lookAt(lookAt)
   null
 
 updateGameObjectViews = (root,estore) ->
-  # pairings = []
-  # viewIdsToComps = {}
   PhysicalSearcher.run estore, (r) ->
     [physical,location] = r.comps
 
@@ -74,30 +68,25 @@ updateGameObjectViews = (root,estore) ->
       view = Objects.create3DView(physical,location)
       physical.viewId = view.id
       root.add view
-      console.log "Created view",physical,view
-
-    # viewIdsToComps[physical.viewId] = physical
+      # console.log "Created view",physical,view
 
     Objects.update3DView(view, physical,location)
-
     view.userData.relevant = true
-    # console.log view.userData
-
-    # pairings.push [physical,location,view]
 
   # Sweep all 3d objects in the root and look for irrelevant views:
   markedForDeath = []
   for v in root.children
     if !v.userData.relevant
-      console.log "Marking for death:",v
+      # console.log "Marking for death:",v
       markedForDeath.push v
     else
       v.userData.relevant = false
 
   # Remove irrelevant views:
   for v in markedForDeath
-    console.log "Removing obsolete view",v
+    # console.log "Removing obsolete view",v
     root.remove v
+
   null
 
 

@@ -55,7 +55,7 @@ ViewUpdaters.ball = (view,physical,location) ->
   # group = new THREE.Group()
   view.position.set(pos.x,pos.y,pos.z)
   view.quaternion.set(quat.x,quat.y,quat.z,quat.w)
-  # view.userData.mesh.material.color = physical.data.color
+  # TODO? requires that at build time we tuck refs into userData: view.userData.mesh.material.color = physical.data.color
   null
 
 
@@ -68,11 +68,11 @@ Bodies.ball = (physical,location) ->
   body.angularDamping = 0.3
   return body
 
-Bodies.terrain1 = (physical,location) ->
-  null
-
-Visuals.terrain1 = (key,physical,location) ->
-  null
+# Bodies.terrain1 = (physical,location) ->
+#   null
+#
+# Visuals.terrain1 = (key,physical,location) ->
+#   null
 
 Visuals.cube = (key,physical,location) ->
   pos = convertCannonVec3(location.position)
@@ -92,6 +92,33 @@ Visuals.cube = (key,physical,location) ->
       />
     </mesh>
   </group>
+
+Views.cube = (physical,location) ->
+  pos = convertCannonVec3(location.position)
+  quat = convertCannonQuat(location.quaternion)
+  # dim = physical.data.dim
+
+  group = new THREE.Group()
+  group.position.set(pos.x,pos.y,pos.z)
+  group.quaternion.set(quat.x,quat.y,quat.z,quat.w)
+
+  geometry = new THREE.BoxGeometry(1,1,1, 10, 10)
+  material = new THREE.MeshPhongMaterial(color: physical.data.color)
+  mesh = new THREE.Mesh(geometry, material)
+  mesh.castShadow = true
+  mesh.receiveShadow = true
+
+  group.add mesh
+    # {buildAxisHelper(physical)}
+  return group
+
+  
+ViewUpdaters.cube = (view,physical,location) ->
+  pos = convertCannonVec3(location.position)
+  quat = convertCannonQuat(location.quaternion)
+  view.position.set(pos.x,pos.y,pos.z)
+  view.quaternion.set(quat.x,quat.y,quat.z,quat.w)
+  null
 
 Bodies.cube = (physical,location) ->
   shape = new Cannon.Box(new Cannon.Vec3(0.5,0.5,0.5)) # TODO get dimensions from physical comp
@@ -134,6 +161,36 @@ Visuals.block = (key,physical,location) ->
       />
     </mesh>
   </group>
+
+Views.block = (physical,location) ->
+  pos = convertCannonVec3(location.position)
+  quat = convertCannonQuat(location.quaternion)
+  dim = physical.data.dim
+
+  group = new THREE.Group()
+  group.position.set(pos.x,pos.y,pos.z)
+  group.quaternion.set(quat.x,quat.y,quat.z,quat.w)
+
+  geometry = new THREE.BoxGeometry(dim.x, dim.y, dim.z, 10, 10)
+  material = new THREE.MeshPhongMaterial(color: physical.data.color)
+  mesh = new THREE.Mesh(geometry, material)
+  mesh.castShadow = true
+  mesh.receiveShadow = true
+
+  group.add mesh
+    # {buildAxisHelper(physical)}
+  return group
+
+ViewUpdaters.block = (view,physical,location) ->
+  # TODO: what if I don't want to assume blocks are static?
+  # --> check physical.bodyType == Cannon.BodyTypes.STATIC)
+  if physical.bodyType == Cannon.DYNAMIC # TODO don't use physical or cannon here?
+    pos = convertCannonVec3(location.position)
+    quat = convertCannonQuat(location.quaternion)
+    view.position.set(pos.x,pos.y,pos.z)
+    view.quaternion.set(quat.x,quat.y,quat.z,quat.w)
+  # TODO? requires that at build time we tuck refs into userData: view.userData.mesh.material.color = physical.data.color
+  null
 
 Bodies.block = (physical,location) ->
   pos = location.position
