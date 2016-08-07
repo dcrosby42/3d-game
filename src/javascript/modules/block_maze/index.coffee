@@ -27,6 +27,37 @@ ecsMachine = new EcsMachine([
   Systems.camera_follow_system()
 ])
 
+
+generateSlabComps = () ->
+  compLists = []
+  dark=false
+  back = -2
+  left = -2
+  width = 4
+  length = 4
+  height = 0.5 
+  y = -2
+  z = -2
+  lightColor = 0xffffff
+  darkColor = 0x333366
+
+  numXSlabs = 10 
+  numZSlabs = 10
+
+  for i in [0...numZSlabs]
+    z = back + i*length
+    for j in [0...numXSlabs]
+      dark = if i % 2 == 0
+        j % 2 == 0
+      else
+        j % 2 != 0
+      x = left + j*width
+      color = if dark then darkColor else lightColor
+      compLists.push mkSlabComps(canVec3(x, y, z), canVec3(width,height,length), color)
+      dark = !dark
+
+  return compLists
+
 mkCubeComps = (pos,color=0xffffff,name='Cube') ->
   [
     C.buildCompForType(T.Name, name: name)
@@ -34,6 +65,17 @@ mkCubeComps = (pos,color=0xffffff,name='Cube') ->
     C.buildCompForType(T.Physical,
       kind: 'cube'
       data: new C.Physical.Cube(color)
+    )
+  ]
+
+mkSlabComps = (pos,dim,color=0xffffff,name='Slab') ->
+  [
+    C.buildCompForType(T.Name, name: 'Slab')
+    C.buildCompForType(T.Location, position: pos)
+    C.buildCompForType(T.Physical,
+      kind: 'block'
+      bodyType: Cannon.Body.STATIC
+      data: new C.Physical.Block(color, dim)
     )
   ]
 
@@ -58,36 +100,29 @@ exports.initialState = ->
   ])
 
 
-  estore.createEntity mkCubeComps(canVec3(-1,0,-1),0x993333)
+  for comps in generateSlabComps()
+    estore.createEntity comps
+
   estore.createEntity mkCubeComps(canVec3(-1,1,-1),0x993333)
   estore.createEntity mkCubeComps(canVec3(-1.1,2,-1),0x993333)
   estore.createEntity mkCubeComps(canVec3(20,0,-1),0x993333)
   estore.createEntity mkCubeComps(canVec3(20,0,10),0x993333)
   estore.createEntity mkCubeComps(canVec3(-1,0,10),0x993333)
   
-  groundQuat = canQuat()
-  groundQuat.setFromAxisAngle(canVec3(1, 0, 0), -Math.PI / 2)
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Ground')
-    C.buildCompForType(T.Location, position: canVec3(0,-10,0), quaternion: groundQuat)
-    C.buildCompForType(T.Physical,
-      kind: 'plane'
-      data: new C.Physical.Plane(0x9999cc, 100, 100)
-    )
-  ])
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Ground')
-    C.buildCompForType(T.Location, position: canVec3(0,-1.5,0))
-    C.buildCompForType(T.Physical,
-      kind: 'block'
-      bodyType: Cannon.Body.STATIC
-      data: new C.Physical.Block(0x9999cc, canVec3(5,1,10))
-    )
-  ])
+  # groundQuat = canQuat()
+  # groundQuat.setFromAxisAngle(canVec3(1, 0, 0), -Math.PI / 2)
+  # estore.createEntity([
+  #   C.buildCompForType(T.Name, name: 'Ground')
+  #   C.buildCompForType(T.Location, position: canVec3(0,-10,0), quaternion: groundQuat)
+  #   C.buildCompForType(T.Physical,
+  #     kind: 'plane'
+  #     data: new C.Physical.Plane(0x9999cc, 100, 100)
+  #   )
+  # ])
+
 
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Follow Camera')
-    # C.buildCompForType(T.Tag, name: 'follow_cam')
     C.buildCompForType(T.FollowCamera, followTag: 'player_piece')
     C.buildCompForType(T.Location, position: canVec3(0,3,5))
   ])
