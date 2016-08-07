@@ -21,6 +21,7 @@ Defs =
   
  Physical:
    bodyId: BT.Number
+   viewId: BT.Number
    kind: BT.String
    bodyType: BT.Number
    data: BT.Comp

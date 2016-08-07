@@ -1,12 +1,15 @@
 React = require 'react'
 React3 = require 'react-three-renderer'
 Cannon = require 'cannon'
+THREE = require 'three'
 
 {euler,vec3,quat, convertCannonVec3, convertCannonQuat} = require '../../lib/three_helpers'
 {canVec3,canQuat} = require '../../lib/cannon_helpers'
 
 Bodies = {}
 Visuals = {}
+Views = {}
+ViewUpdaters = {}
 
 Visuals.ball = (key,physical,location) ->
   pos = convertCannonVec3(location.position)
@@ -26,6 +29,34 @@ Visuals.ball = (key,physical,location) ->
       />
     </mesh>
   </group>
+
+Views.ball = (physical,location) ->
+  pos = convertCannonVec3(location.position)
+  quat = convertCannonQuat(location.quaternion)
+
+  group = new THREE.Group()
+  group.position.set(pos.x,pos.y,pos.z)
+  group.quaternion.set(quat.x,quat.y,quat.z,quat.w)
+
+  geometry = new THREE.SphereGeometry(0.5, 10, 10)
+  material = new THREE.MeshPhongMaterial(color: physical.data.color)
+  mesh = new THREE.Mesh(geometry, material)
+  mesh.castShadow = true
+  mesh.receiveShadow = true
+
+  group.add mesh
+
+  return group
+  
+ViewUpdaters.ball = (view,physical,location) ->
+  pos = convertCannonVec3(location.position)
+  quat = convertCannonQuat(location.quaternion)
+
+  # group = new THREE.Group()
+  view.position.set(pos.x,pos.y,pos.z)
+  view.quaternion.set(quat.x,quat.y,quat.z,quat.w)
+  # view.userData.mesh.material.color = physical.data.color
+  null
 
 
 Bodies.ball = (physical,location) ->
@@ -202,3 +233,27 @@ module.exports.create3d = (key,physical,location) ->
   else
     console.log "!! ERR: Can't build 3d visual for ",physical
     throw new Error("No 3d visual factory found for kind '#{physical.kind}'")
+
+module.exports.create3DView = (physical,location) ->
+  visFactory = Views[physical.kind]
+  if visFactory?
+    try
+      return visFactory(physical,location)
+    catch err
+      console.log "!! ERR: failed to build 3d view for",physical,location
+      throw err
+  else
+    console.log "!! ERR: Can't build 3d view for ",physical
+    throw new Error("No 3d view factory found for kind '#{physical.kind}'")
+
+module.exports.update3DView = (view,physical,location) ->
+  visFactory = ViewUpdaters[physical.kind]
+  if visFactory?
+    try
+      return visFactory(view,physical,location)
+    catch err
+      console.log "!! ERR: failed to build 3d view updater for",physical,location
+      throw err
+  else
+    console.log "!! ERR: Can't build 3d view updater for ",physical
+    throw new Error("No 3d view updater found for kind '#{physical.kind}'")

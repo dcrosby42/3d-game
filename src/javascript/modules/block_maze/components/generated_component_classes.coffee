@@ -49,10 +49,10 @@ exports.Location = class Location
 
 exports.Physical = class Physical
   Types.registerClass @
-  constructor: (@eid, @cid, @bodyId, @kind, @bodyType, @data) -> @type = @constructor.type
-  @default: -> new @(null, null, null, null, null, null)
-  clone: -> new @constructor(@eid, @cid, @bodyId, @kind, @bodyType, (if @data? then @data.clone() else null))
-  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@bodyId == o.bodyId) and (@kind == o.kind) and (@bodyType == o.bodyType) and (if @data? then @data.equals(o.data) else !o.data?)
+  constructor: (@eid, @cid, @bodyId, @viewId, @kind, @bodyType, @data) -> @type = @constructor.type
+  @default: -> new @(null, null, null, null, null, null, null)
+  clone: -> new @constructor(@eid, @cid, @bodyId, @viewId, @kind, @bodyType, (if @data? then @data.clone() else null))
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@bodyId == o.bodyId) and (@viewId == o.viewId) and (@kind == o.kind) and (@bodyType == o.bodyType) and (if @data? then @data.equals(o.data) else !o.data?)
   
   @Cube: class Cube
     constructor: (@color) ->
