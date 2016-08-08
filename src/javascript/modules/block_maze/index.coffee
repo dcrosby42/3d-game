@@ -112,16 +112,16 @@ exports.initialState = ->
   estore.createEntity mkCubeComps(canVec3(-1,0,10),0x993333)
   estore.createEntity mkCubeComps(canVec3(-1,1,10),0x993333)
   
-  # groundQuat = canQuat()
-  # groundQuat.setFromAxisAngle(canVec3(1, 0, 0), -Math.PI / 2)
-  # estore.createEntity([
-  #   C.buildCompForType(T.Name, name: 'Ground')
-  #   C.buildCompForType(T.Location, position: canVec3(0,-10,0), quaternion: groundQuat)
-  #   C.buildCompForType(T.Physical,
-  #     kind: 'plane'
-  #     data: new C.Physical.Plane(0x9999cc, 100, 100)
-  #   )
-  # ])
+  groundQuat = canQuat()
+  groundQuat.setFromAxisAngle(canVec3(1, 0, 0), -Math.PI / 2)
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Ground')
+    C.buildCompForType(T.Location, position: canVec3(0,-10,0), quaternion: groundQuat)
+    C.buildCompForType(T.Physical,
+      kind: 'plane'
+      data: new C.Physical.Plane(0x9999cc, 50, 50)
+    )
+  ])
 
 
   estore.createEntity([

@@ -6,29 +6,31 @@ THREE = require 'three'
 {euler,vec3,quat, convertCannonVec3, convertCannonQuat} = require '../../lib/three_helpers'
 {canVec3,canQuat} = require '../../lib/cannon_helpers'
 
+Data = require './data'
+
 Bodies = {}
-Visuals = {}
+# Visuals = {}
 Views = {}
 ViewUpdaters = {}
 
-Visuals.ball = (key,physical,location) ->
-  pos = convertCannonVec3(location.position)
-  quat = convertCannonQuat(location.quaternion)
-  <group key={key}
-    position={pos}
-    quaternion={quat}
-  >
-    {buildAxisHelper(physical)}
-    <mesh
-      castShadow
-      receiveShadow
-    >
-      <geometryResource resourceId="ballGeo" />
-      <meshPhongMaterial
-        color={physical.data.color}
-      />
-    </mesh>
-  </group>
+# Visuals.ball = (key,physical,location) ->
+#   pos = convertCannonVec3(location.position)
+#   quat = convertCannonQuat(location.quaternion)
+#   <group key={key}
+#     position={pos}
+#     quaternion={quat}
+#   >
+#     {buildAxisHelper(physical)}
+#     <mesh
+#       castShadow
+#       receiveShadow
+#     >
+#       <geometryResource resourceId="ballGeo" />
+#       <meshPhongMaterial
+#         color={physical.data.color}
+#       />
+#     </mesh>
+#   </group>
 
 Views.ball = (physical,location) ->
   pos = convertCannonVec3(location.position)
@@ -74,24 +76,24 @@ Bodies.ball = (physical,location) ->
 # Visuals.terrain1 = (key,physical,location) ->
 #   null
 
-Visuals.cube = (key,physical,location) ->
-  pos = convertCannonVec3(location.position)
-  quat = convertCannonQuat(location.quaternion)
-  <group key={key}
-    position={pos}
-    quaternion={quat}
-  >
-    {buildAxisHelper(physical)}
-    <mesh
-      castShadow
-      receiveShadow
-    >
-      <geometryResource resourceId="cubeGeo" />
-      <meshPhongMaterial
-        color={physical.data.color}
-      />
-    </mesh>
-  </group>
+# Visuals.cube = (key,physical,location) ->
+#   pos = convertCannonVec3(location.position)
+#   quat = convertCannonQuat(location.quaternion)
+#   <group key={key}
+#     position={pos}
+#     quaternion={quat}
+#   >
+#     {buildAxisHelper(physical)}
+#     <mesh
+#       castShadow
+#       receiveShadow
+#     >
+#       <geometryResource resourceId="cubeGeo" />
+#       <meshPhongMaterial
+#         color={physical.data.color}
+#       />
+#     </mesh>
+#   </group>
 
 Views.cube = (physical,location) ->
   pos = convertCannonVec3(location.position)
@@ -132,35 +134,35 @@ Bodies.cube = (physical,location) ->
   # body.velocity.set(1,0,0)
   body
 
-Visuals.block = (key,physical,location) ->
-  pos = convertCannonVec3(location.position)
-  quat = convertCannonQuat(location.quaternion)
-  # console.log physical
-  # window.physical = physical
-  # throw new Error("Stop!")
-  dim = physical.data.dim
-  <group key={key}
-    position={pos}
-    quaternion={quat}
-  >
-    {buildAxisHelper(physical)}
-    <mesh
-      castShadow
-      receiveShadow
-    >
-      <boxGeometry
-        width={dim.x}
-        height={dim.y}
-        depth={dim.z}
-
-        widthSegments={10}
-        heightSegments={10}
-      />
-      <meshPhongMaterial
-        color={physical.data.color}
-      />
-    </mesh>
-  </group>
+# Visuals.block = (key,physical,location) ->
+#   pos = convertCannonVec3(location.position)
+#   quat = convertCannonQuat(location.quaternion)
+#   # console.log physical
+#   # window.physical = physical
+#   # throw new Error("Stop!")
+#   dim = physical.data.dim
+#   <group key={key}
+#     position={pos}
+#     quaternion={quat}
+#   >
+#     {buildAxisHelper(physical)}
+#     <mesh
+#       castShadow
+#       receiveShadow
+#     >
+#       <boxGeometry
+#         width={dim.x}
+#         height={dim.y}
+#         depth={dim.z}
+#
+#         widthSegments={10}
+#         heightSegments={10}
+#       />
+#       <meshPhongMaterial
+#         color={physical.data.color}
+#       />
+#     </mesh>
+#   </group>
 
 Views.block = (physical,location) ->
   pos = convertCannonVec3(location.position)
@@ -206,59 +208,129 @@ Bodies.block = (physical,location) ->
     body.mass = 0
   body
 
-Visuals.plane = (key,physical,location) ->
+Views.plane = (physical,location) ->
   pos = convertCannonVec3(location.position)
   quat = convertCannonQuat(location.quaternion)
-  <group key={key}
-      quaternion={quat}
-      position={pos}
-    >
-    {buildAxisHelper(physical)}
+  dim = physical.data.dim
 
-    <mesh
-      castShadow
-      receiveShadow
-    >
-      <planeBufferGeometry
-        width={physical.data.width}
-        height={physical.data.height}
-        widthSegments={100}
-        heightSegments={100}
-      />
-      <meshLambertMaterial
-        color={physical.data.color}
-      />
-    </mesh>
-  </group>
+  group = new THREE.Group()
+  group.position.set(pos.x,pos.y,pos.z)
+  group.quaternion.set(quat.x,quat.y,quat.z,quat.w)
+
+
+  axis = new THREE.AxisHelper(1)
+  group.add axis
+
+
+
+  ter = Data.get("spike.terrain.flat")
+  # console.log ter
+  # window.ter = ter
+  geometry = new THREE.PlaneGeometry(
+    ter.xSegments*ter.spacing
+    ter.ySegments*ter.spacing
+    ter.xSegments
+    ter.ySegments
+  )
+
+  i = 0
+  for row in ter.rows
+    for h in row
+      geometry.vertices[i].z = h
+      i++
+  # for h,i in ter.heights
+  #   geometry.vertices[i].z = h
+
+
+  # planeWidth = physical.data.width
+  # planeHeight = physical.data.height
+  # planeWSegs = 99
+  # planeHSegs = 99
+  # geometry = new THREE.PlaneGeometry(planeWidth,planeHeight,planeWSegs,planeHSegs)
+  # console.log geometry.vertices
+  # window.plane = geometry
+  # for y in [0..planeHSegs]
+  #   for x in [0..planeWSegs]
+  #     val = Math.sin(x / 10) + 1
+  #     i = (y*(planeWSegs+1)) + x
+  #     geometry.vertices[i].z = val
+
+  geometry.verticesNeedUpdate = false
+  geometry.normalsNeedUpdate = false
+  # geometry.colorsNeedUpdate = false
+  # geometry.uvsNeedUpdate = false
+  # geometry.groupsNeedUpdate = false
+
+    # geometry.vertices[i].z = 2
+  # for y in [0...planeHSegs]
+  #   for x in [0...planeWSegs]
+  #     # val = Math.sin(x / 10) * 2 + 1
+  #     i = (y*planeWSegs) + x
+  #     geometry.vertices[i].z = x / 10
+
+  material = new THREE.MeshPhongMaterial(
+    color: physical.data.color
+    wireframe: true
+  )
+  mesh = new THREE.Mesh(geometry, material)
+  # mesh.castShadow = true
+  mesh.receiveShadow = true
+
+  group.add mesh
+    # {buildAxisHelper(physical)}
+  return group
+
+ViewUpdaters.plane = (view, physical, plane) ->
+  return
 
 Bodies.plane = (physical,location) ->
-  shape = new Cannon.Plane()
-  body = new Cannon.Body(mass: 0, shape: shape)
-  body
 
-module.exports.VisualResources =
-  <resources>
-    <sphereGeometry
-      resourceId="ballGeo"
-      radius={0.5}
-      widthSegments={10}
-      heightSegments={10}
-    />
-    <boxGeometry
-      resourceId="cubeGeo"
 
-      width={1}
-      height={1}
-      depth={1}
+  # shape = new Cannon.Plane()
+  # body = new Cannon.Body(mass: 0, shape: shape)
+  # return body
+  pos = convertCannonVec3(location.position)
 
-      widthSegments={10}
-      heightSegments={10}
-    />
-    <meshPhongMaterial
-      resourceId="cubeMaterial"
-      color={0x888888}
-    />
-  </resources>
+  ter = Data.get("spike.terrain.flat")
+  shape = new Cannon.Heightfield(ter.rows,
+    elementSize: ter.spacing # Distance between the data points in X and Y directions
+  )
+  body = new Cannon.Body(mass: 0, shape: shape, bodyType: Cannon.Body.STATIC)
+  # halfx = (ter.xSegments*ter.spacing)/2
+  # halfh = (ter.ySegments*ter.spacing)/2
+  x = pos.x
+  y = pos.y
+  z = pos.z
+  # console.log "plane pos",x,y,z
+  # console.log "halfx #{halfx} halfh #{halfh}"
+  body.position.set(x,y,z)
+  return body
+  # heightfieldBody.addShape(heightfieldShape);
+  # world.addBody(heightfieldBody);
+
+# module.exports.VisualResources =
+#   <resources>
+#     <sphereGeometry
+#       resourceId="ballGeo"
+#       radius={0.5}
+#       widthSegments={10}
+#       heightSegments={10}
+#     />
+#     <boxGeometry
+#       resourceId="cubeGeo"
+#
+#       width={1}
+#       height={1}
+#       depth={1}
+#
+#       widthSegments={10}
+#       heightSegments={10}
+#     />
+#     <meshPhongMaterial
+#       resourceId="cubeMaterial"
+#       color={0x888888}
+#     />
+#   </resources>
 
 buildAxisHelper = (physical) ->
   if s = physical.axisHelper?
@@ -279,17 +351,17 @@ module.exports.createBody = (physical,location) ->
     console.log "!! ERR: Can't build physical body for",physical
     throw new Error("No body factory found for kind '#{physical.kind}'")
 
-module.exports.create3d = (key,physical,location) ->
-  visFactory = Visuals[physical.kind]
-  if visFactory?
-    try
-      return visFactory(key,physical,location)
-    catch err
-      console.log "!! ERR: failed to build 3d visual for",physical,location
-      throw err
-  else
-    console.log "!! ERR: Can't build 3d visual for ",physical
-    throw new Error("No 3d visual factory found for kind '#{physical.kind}'")
+# module.exports.create3d = (key,physical,location) ->
+#   visFactory = Visuals[physical.kind]
+#   if visFactory?
+#     try
+#       return visFactory(key,physical,location)
+#     catch err
+#       console.log "!! ERR: failed to build 3d visual for",physical,location
+#       throw err
+#   else
+#     console.log "!! ERR: Can't build 3d visual for ",physical
+#     throw new Error("No 3d visual factory found for kind '#{physical.kind}'")
 
 module.exports.create3DView = (physical,location) ->
   visFactory = Views[physical.kind]

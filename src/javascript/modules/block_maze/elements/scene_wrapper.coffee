@@ -116,6 +116,12 @@ class SceneWrapper
     window.scene = @scene
     window.root = @rootGroup
 
+
+    axis = new THREE.AxisHelper(5)
+    @scene.add axis
+
+
+
     # XXX
     # aspect = @width/@height
     # @camera = new THREE.PerspectiveCamera( 75, aspect, 1, 100 )
