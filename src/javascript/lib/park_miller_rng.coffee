@@ -8,6 +8,16 @@ nextInt = (state, min, max) ->
   res = Math.round((min + ((max - min) * state1 / 2147483647.0)))
   return [res,state1]
 
+nextFloat = (state, min, max) ->
+  state1 = next(state)
+  res = state1 / 2147483647.0
+  return [res,state1]
+
+nextFloatBetween = (state, min, max) ->
+  state1 = next(state)
+  res = min + ((max - min) * state1 / 2147483647.0)
+  return [res,state1]
+
 choose = (state,list) ->
   [i,state1] = nextInt(state, 0, list.length - 1)
   return [list[i], state1]
@@ -30,6 +40,7 @@ weightedChoose = (state,list) ->
 module.exports =
   next: next
   nextInt: nextInt
+  nextFloat: nextFloat
   choose: choose
   weightedChoose: weightedChoose
 
