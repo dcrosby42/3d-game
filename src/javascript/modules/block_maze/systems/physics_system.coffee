@@ -32,15 +32,10 @@ class PhysicsSystem extends BaseSystem
 
       bodyIdsToComps[physical.bodyId] = physical
       # Sync Location -> body
-      # IMPORTANT: copying state like position, velocity etc. will OVERRIDE the effects of applying impulses and so forth. Be sure to copy BEFORE applying impulse
+      # IMPORTANT: be sure to update pos, vel, etc BEFORE applying forces!
+      Objects.updateBody(body, physical, location)
 
-      pos = location.position
-      vel = location.velocity
-      quat = location.quaternion
-      body.position.set(pos.x, pos.y, pos.z)
-      body.velocity.set(vel.x, vel.y, vel.z)
-      body.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-
+      # Forces from events:
       @handleEvents r.eid,
         localImpulse: ({impulse,point}) =>
           body.applyLocalImpulse impulse, point
