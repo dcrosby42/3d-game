@@ -238,7 +238,7 @@ class Plane extends Kindness
 
     material = new THREE.MeshPhongMaterial(
       color: physical.data.color
-      # wireframe: true
+      wireframe: true
     )
     mesh = new THREE.Mesh(geometry, material)
     # mesh.castShadow = true
