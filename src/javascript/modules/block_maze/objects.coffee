@@ -139,14 +139,15 @@ class Block extends Kindness
 
   # updateView: (view,physical,location) ->
 
+ter = Data.get("spike.terrain.shapes")
 class Plane extends Kindness
+
   createBody: (physical,location) ->
     # shape = new Cannon.Plane()
     # body = new Cannon.Body(mass: 0, shape: shape)
     # return body
     pos = convertCannonVec3(location.position)
 
-    ter = Data.get("spike.terrain.flat")
     # data=ter.rows
     data = []
     for row in ter.rows
@@ -156,6 +157,7 @@ class Plane extends Kindness
       # drow.push 0
       data.push drow
 
+    console.log "objects Plane making hfield from data rows #{data.length} cols #{data[0].length}"
     shape = new Cannon.Heightfield(data,
       elementSize: ter.spacing # Distance between the data points in X and Y directions
     )
@@ -183,7 +185,7 @@ class Plane extends Kindness
     axis = new THREE.AxisHelper(1)
     group.add axis
 
-    ter = Data.get("spike.terrain.flat")
+    # ter = Data.get("spike.terrain.flat")
     # console.log ter
     # window.ter = ter
     width = ter.xSegments * ter.spacing
@@ -203,38 +205,12 @@ class Plane extends Kindness
 
     window.mesh = geometry
 
-    #
-    # geometry.vertices[50].z = 1
-    # for h,i in ter.heights
-    #   geometry.vertices[i].z = h
-
-
-    # planeWidth = physical.data.width
-    # planeHeight = physical.data.height
-    # planeWSegs = 99
-    # planeHSegs = 99
-    # geometry = new THREE.PlaneGeometry(planeWidth,planeHeight,planeWSegs,planeHSegs)
-    # console.log geometry.vertices
-    # window.plane = geometry
-    # for y in [0..planeHSegs]
-    #   for x in [0..planeWSegs]
-    #     val = Math.sin(x / 10) + 1
-    #     i = (y*(planeWSegs+1)) + x
-    #     geometry.vertices[i].z = val
-
     geometry.verticesNeedUpdate = false
     geometry.normalsNeedUpdate = false
     # geometry.colorsNeedUpdate = false
     # geometry.uvsNeedUpdate = false
     # geometry.groupsNeedUpdate = false
     geometry.computeVertexNormals()
-
-      # geometry.vertices[i].z = 2
-    # for y in [0...planeHSegs]
-    #   for x in [0...planeWSegs]
-    #     # val = Math.sin(x / 10) * 2 + 1
-    #     i = (y*planeWSegs) + x
-    #     geometry.vertices[i].z = x / 10
 
     material = new THREE.MeshPhongMaterial(
       color: physical.data.color
@@ -244,7 +220,7 @@ class Plane extends Kindness
     # mesh.castShadow = true
     mesh.receiveShadow = true
     # mesh.position.set(width/2, 0, length/2)
-    mesh.position.set(5,10,0)
+    mesh.position.set(length/2,width/2,0)
     mesh.rotation.z = Math.PI/2
 
     group.add mesh
