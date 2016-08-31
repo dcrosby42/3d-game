@@ -1,39 +1,11 @@
-React = require 'react'
-React3 = require 'react-three-renderer'
 Cannon = require 'cannon'
 THREE = require 'three'
 
 {euler,vec3,quat, convertCannonVec3, convertCannonQuat} = require '../../lib/three_helpers'
 {canVec3,canQuat} = require '../../lib/cannon_helpers'
 
+Kindness = require './kindness'
 Data = require './data'
-
-Bodies = {}
-Views = {}
-ViewUpdaters = {}
-
-Kindness = class Kindness
-  createBody: (physical,location) ->
-    throw new Error("Kind #{@constructor.name} needs to implement @createBody")
-
-  updateBody: (body,physical,location) ->
-    pos = location.position
-    vel = location.velocity
-    quat = location.quaternion
-    body.position.set(pos.x, pos.y, pos.z)
-    body.velocity.set(vel.x, vel.y, vel.z)
-    body.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-    null
-
-  createView: (physical,location) ->
-    throw new Error("Kind #{@constructor.name} needs to implement @createView")
-
-  updateView: (view,physical,location) ->
-    if physical.bodyType? and physical.bodyType != Cannon.DYNAMIC
-      return
-    [pos,quat] = convertedPosAndQuat(location)
-    updateViewPosAndQuat(view,pos,quat)
-    null
 
 convertedPosAndQuat = (location) ->
   pos = convertCannonVec3(location.position)
@@ -139,9 +111,9 @@ class Block extends Kindness
 
   # updateView: (view,physical,location) ->
 
-ter = Data.get("spike.terrain.shapes")
+# ter = Data.get("spike.terrain.shapes")
+ter = Data.get("spike.terrain.flat")
 class Plane extends Kindness
-
   createBody: (physical,location) ->
     # shape = new Cannon.Plane()
     # body = new Cannon.Body(mass: 0, shape: shape)
@@ -235,6 +207,8 @@ Kinds.ball = new Ball()
 Kinds.cube = new Cube()
 Kinds.block = new Block()
 Kinds.plane = new Plane()
+Terrain = require './terrain'
+Kinds.terrain = new Terrain()
 
 
 getModule = (k) ->

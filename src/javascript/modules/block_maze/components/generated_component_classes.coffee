@@ -60,6 +60,12 @@ exports.Physical = class Physical
     clone: -> new @constructor(@color)
     equals: (o) -> (@color == o.color)
   
+  @Terrain: class Terrain
+    constructor: (@color) ->
+    @default: -> new @(0xffffff)
+    clone: -> new @constructor(@color)
+    equals: (o) -> (@color == o.color)
+  
   @Plane: class Plane
     constructor: (@color, @width, @height) ->
     @default: -> new @(0xffffff, null, null)

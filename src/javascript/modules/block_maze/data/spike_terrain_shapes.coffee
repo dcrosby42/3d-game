@@ -1,7 +1,7 @@
 module.exports = ->
   obj = {
     spacing: 1
-    xSegments: 15 
+    xSegments: 11
     ySegments: 10
     rows: []
   }

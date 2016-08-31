@@ -35,14 +35,14 @@ generateSlabComps = () ->
   left = -2
   width = 4
   length = 4
-  height = 0.5 
+  height = 0.5
   y = -2
   z = -2
   lightColor = 0xffffff
   darkColor = 0x333366
 
-  numXSlabs = 10 
-  numZSlabs = 10
+  numXSlabs = 4
+  numZSlabs = 4
 
   for i in [0...numZSlabs]
     z = back + i*length
@@ -117,9 +117,13 @@ exports.initialState = ->
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Ground')
     C.buildCompForType(T.Location, position: canVec3(0,0,12), quaternion: groundQuat)
+    # C.buildCompForType(T.Physical,
+    #   kind: 'plane'
+    #   data: new C.Physical.Plane(0x9999cc, 50, 50)
+    # )
     C.buildCompForType(T.Physical,
-      kind: 'plane'
-      data: new C.Physical.Plane(0x9999cc, 50, 50)
+      kind: 'terrain'
+      data: new C.Physical.Terrain()
     )
   ])
 

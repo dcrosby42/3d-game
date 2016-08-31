@@ -28,6 +28,8 @@ Defs =
    _inner:
      Cube:
        color: BT.Color
+     Terrain:
+       color: BT.Color
      Plane:
        color: BT.Color
        width: BT.Number
