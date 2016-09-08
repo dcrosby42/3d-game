@@ -86,7 +86,7 @@ initScene = ->
   light.shadowCameraBottom = 60
   light.shadowCameraNear = 20
   light.shadowCameraFar = 200
-  light.shadowBias = -.0001
+  light.shadowBias = -0.0001
   light.shadowMapWidth = light.shadowMapHeight = 2048
   light.shadowDarkness = 0.7
   scene.add( light )
