@@ -1,5 +1,4 @@
 React = require 'react'
-React3 = require 'react-three-renderer'
 Cannon = require 'cannon'
 THREE = require 'three'
 

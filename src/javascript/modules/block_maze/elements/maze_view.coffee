@@ -1,5 +1,4 @@
 React = require 'react'
-React3 = require 'react-three-renderer'
 Three = require 'three'
 
 pi=Math.PI

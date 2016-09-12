@@ -1,5 +1,4 @@
 React = require 'react'
-React3 = require 'react-three-renderer'
 
 Fx = require '../lib/fx'
 PostOffice = require '../lib/flarp/post_office'

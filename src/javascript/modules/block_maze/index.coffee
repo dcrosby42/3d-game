@@ -1,6 +1,5 @@
 React = require 'react'
 Cannon = require 'cannon'
-React3 = require 'react-three-renderer'
 KeyboardInput = require '../../elements/keyboard_input'
 GamepadInput = require '../../elements/gamepad_input'
 C = require './components'
