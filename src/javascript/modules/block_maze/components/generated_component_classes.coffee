@@ -2,7 +2,6 @@ _ = require 'lodash'
 Domain = require '../../../lib/domain'
 Cannon = require 'cannon'
 {vec3,quat,euler} = require '../../../lib/three_helpers'
-{canVec3,canQuat,canVec3Equals,canQuatEquals} = require '../../../lib/cannon_helpers'
 
 Types = new Domain('ComponentTypes')
 
@@ -43,9 +42,9 @@ exports.Rng = class Rng
 exports.Location = class Location
   Types.registerClass @
   constructor: (@eid, @cid, @position, @velocity, @quaternion, @angularVelocity) -> @type = @constructor.type
-  @default: -> new @(null, null, canVec3(), canVec3(), canQuat(), canVec3())
-  clone: -> new @constructor(@eid, @cid, canVec3().copy(@position), canVec3().copy(@velocity), canQuat().copy(@quaternion), canVec3().copy(@angularVelocity))
-  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and canVec3Equals(@position,o.position) and canVec3Equals(@velocity,o.velocity) and canQuatEquals(@quaternion,o.quaternion) and canVec3Equals(@angularVelocity,o.angularVelocity)
+  @default: -> new @(null, null, vec3(), vec3(), quat(), vec3())
+  clone: -> new @constructor(@eid, @cid, (if @position? then @position.clone() else null), (if @velocity? then @velocity.clone() else null), (if @quaternion? then @quaternion.clone() else null), (if @angularVelocity? then @angularVelocity.clone() else null))
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (if @position? then @position.equals(o.position) else !o.position?) and (if @velocity? then @velocity.equals(o.velocity) else !o.velocity?) and (if @quaternion? then @quaternion.equals(o.quaternion) else !o.quaternion?) and (if @angularVelocity? then @angularVelocity.equals(o.angularVelocity) else !o.angularVelocity?)
 
 exports.Physical = class Physical
   Types.registerClass @
@@ -74,16 +73,16 @@ exports.Physical = class Physical
   
   @Block: class Block
     constructor: (@color, @dim) ->
-    @default: -> new @(0xffffff, canVec3())
-    clone: -> new @constructor(@color, canVec3().copy(@dim))
-    equals: (o) -> (@color == o.color) and canVec3Equals(@dim,o.dim)
+    @default: -> new @(0xffffff, vec3())
+    clone: -> new @constructor(@color, (if @dim? then @dim.clone() else null))
+    equals: (o) -> (@color == o.color) and (if @dim? then @dim.equals(o.dim) else !o.dim?)
 
 exports.FollowCamera = class FollowCamera
   Types.registerClass @
   constructor: (@eid, @cid, @followingTag, @lookAt, @hOrbit, @vOrbit) -> @type = @constructor.type
-  @default: -> new @(null, null, null, canVec3(), null, null)
-  clone: -> new @constructor(@eid, @cid, @followingTag, canVec3().copy(@lookAt), @hOrbit, @vOrbit)
-  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@followingTag == o.followingTag) and canVec3Equals(@lookAt,o.lookAt) and (@hOrbit == o.hOrbit) and (@vOrbit == o.vOrbit)
+  @default: -> new @(null, null, null, vec3(), null, null)
+  clone: -> new @constructor(@eid, @cid, @followingTag, (if @lookAt? then @lookAt.clone() else null), @hOrbit, @vOrbit)
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@followingTag == o.followingTag) and (if @lookAt? then @lookAt.equals(o.lookAt) else !o.lookAt?) and (@hOrbit == o.hOrbit) and (@vOrbit == o.vOrbit)
 
 exports.PhysicsWorld = class PhysicsWorld
   Types.registerClass @

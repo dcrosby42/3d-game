@@ -63,7 +63,6 @@ headWriter = ->
   s += "Domain = require '../../../lib/domain'\n"
   s += "Cannon = require 'cannon'\n"
   s += "{vec3,quat,euler} = require '../../../lib/three_helpers'\n"
-  s += "{canVec3,canQuat,canVec3Equals,canQuatEquals} = require '../../../lib/cannon_helpers'\n"
   s += "\n"
   s += "Types = new Domain('ComponentTypes')\n"
 

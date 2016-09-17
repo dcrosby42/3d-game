@@ -3,7 +3,6 @@ Cannon = require 'cannon'
 THREE = require 'three'
 
 {euler,vec3,quat, convertCannonVec3, convertCannonQuat} = require '../../lib/three_helpers'
-{canVec3,canQuat} = require '../../lib/cannon_helpers'
 
 Data = require './data'
 

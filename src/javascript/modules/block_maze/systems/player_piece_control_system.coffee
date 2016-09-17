@@ -2,12 +2,11 @@ BaseSystem = require '../../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
 
-# {vec3,quat,euler} = require '../../../lib/three_helpers'
-{canVec3,canQuat} = require '../../../lib/cannon_helpers'
+{vec3,quat,euler} = require '../../../lib/three_helpers'
 
-UpVec = canVec3(0,1,0)
+UpVec = vec3(0,1,0)
 
-DrivePoint = canVec3(0,0,0) # where to apply impulses on body
+DrivePoint = vec3(0,0,0) # where to apply impulses on body
 ForwardForce = 25
 BackwardForce = 25
 StrafeForce = 25
@@ -16,16 +15,16 @@ JumpThrust = 50
 
 OrbitSpeed = 1 * Math.PI
 
-Left90 = canQuat()
+Left90 = quat()
 Left90.setFromAxisAngle(UpVec, Math.PI/2)
 
-Right90 = canQuat()
+Right90 = quat()
 Right90.setFromAxisAngle(UpVec, -(Math.PI/2))
 
 calcCamRelativeImpulse = (camLoc, playerLoc, timeStep, force) ->
   cpos = camLoc.position
   ppos = playerLoc.position
-  impulse = canVec3(ppos.x - cpos.x, 0, ppos.z - cpos.z)
+  impulse = vec3(ppos.x - cpos.x, 0, ppos.z - cpos.z)
   impulse.normalize()
   impulse.scale(timeStep * force, impulse)
   impulse
@@ -82,7 +81,7 @@ class PlayerPieceControlSystem extends BaseSystem
           camera.vOrbit = 0
 
       jump: =>
-        impulse = canVec3(0, JumpThrust * timeStep, 0)
+        impulse = vec3(0, JumpThrust * timeStep, 0)
         @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
 

@@ -29,19 +29,19 @@ exports.Obj = class Object extends BaseType
 
 exports.Vec = class Vec extends BaseType
   clone: ->
-    "canVec3().copy(#{@ivar()})"
+    "(if #{@ivar()}? then #{@ivar()}.clone() else null)"
   equals: ->
-    "canVec3Equals(#{@ivar()},o.#{@name})"
+    "(if #{@ivar()}? then #{@ivar()}.equals(o.#{@name}) else !o.#{@name}?)"
   default: ->
-    "canVec3()"
+    "vec3()"
 
 exports.Quat = class Quat extends BaseType
   clone: ->
-    "canQuat().copy(#{@ivar()})"
+    "(if #{@ivar()}? then #{@ivar()}.clone() else null)"
   equals: ->
-    "canQuatEquals(#{@ivar()},o.#{@name})"
+    "(if #{@ivar()}? then #{@ivar()}.equals(o.#{@name}) else !o.#{@name}?)"
   default: ->
-    "canQuat()"
+    "quat()"
 
 exports.Comp = class Comp extends BaseType
   clone: ->

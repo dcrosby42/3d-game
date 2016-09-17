@@ -10,7 +10,6 @@ EntityStore = require '../../lib/ecs/entity_store'
 EcsMachine = require '../../lib/ecs/ecs_machine'
 
 {euler,vec3,quat} = require '../../lib/three_helpers'
-{canVec3,canQuat} = require '../../lib/cannon_helpers'
 
 ActionBase = require '../../lib/action_base'
 class Action extends ActionBase
@@ -21,7 +20,7 @@ class Mouse extends Action
 ecsMachine = new EcsMachine([
   Systems.controller_system()
   Systems.player_piece_control_system()
-  Systems.physics_system()
+  # Systems.physics_system()
   # Systems.collision_detect_system()
   Systems.camera_follow_system()
 ])
@@ -52,7 +51,7 @@ generateSlabComps = () ->
         j % 2 != 0
       x = left + j*width
       color = if dark then darkColor else lightColor
-      compLists.push mkSlabComps(canVec3(x, y, z), canVec3(width,height,length), color)
+      compLists.push mkSlabComps(vec3(x, y, z), vec3(width,height,length), color)
       dark = !dark
 
   return compLists
@@ -102,20 +101,20 @@ exports.initialState = ->
   for comps in generateSlabComps()
     estore.createEntity comps
 
-  estore.createEntity mkCubeComps(canVec3(-1,1,-1),0x993333)
-  estore.createEntity mkCubeComps(canVec3(-1.1,2,-1),0x993333)
-  estore.createEntity mkCubeComps(canVec3(20,0,-1),0x993333)
-  estore.createEntity mkCubeComps(canVec3(20,1,-1),0x993333)
-  estore.createEntity mkCubeComps(canVec3(20,0,10),0x993333)
-  estore.createEntity mkCubeComps(canVec3(20,1,10),0x993333)
-  estore.createEntity mkCubeComps(canVec3(-1,0,10),0x993333)
-  estore.createEntity mkCubeComps(canVec3(-1,1,10),0x993333)
+  estore.createEntity mkCubeComps(vec3(-1,1,-1),0x993333)
+  estore.createEntity mkCubeComps(vec3(-1.1,2,-1),0x993333)
+  estore.createEntity mkCubeComps(vec3(20,0,-1),0x993333)
+  estore.createEntity mkCubeComps(vec3(20,1,-1),0x993333)
+  estore.createEntity mkCubeComps(vec3(20,0,10),0x993333)
+  estore.createEntity mkCubeComps(vec3(20,1,10),0x993333)
+  estore.createEntity mkCubeComps(vec3(-1,0,10),0x993333)
+  estore.createEntity mkCubeComps(vec3(-1,1,10),0x993333)
   
-  groundQuat = canQuat()
-  groundQuat.setFromAxisAngle(canVec3(1, 0, 0), -Math.PI / 2)
+  groundQuat = quat()
+  groundQuat.setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Ground')
-    C.buildCompForType(T.Location, position: canVec3(0,0,12), quaternion: groundQuat)
+    C.buildCompForType(T.Location, position: vec3(0,0,12), quaternion: groundQuat)
     C.buildCompForType(T.Physical,
       kind: 'plane'
       data: new C.Physical.Plane(0x9999cc, 50, 50)
@@ -126,7 +125,7 @@ exports.initialState = ->
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Follow Camera')
     C.buildCompForType(T.FollowCamera, followTag: 'player_piece')
-    C.buildCompForType(T.Location, position: canVec3(0,3,5))
+    C.buildCompForType(T.Location, position: vec3(0,3,5))
   ])
 
 

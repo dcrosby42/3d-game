@@ -2,11 +2,11 @@ BaseSystem = require '../../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
 
-{canVec3,canQuat} = require '../../../lib/cannon_helpers'
+{vec3,quat,euler} = require '../../../lib/three_helpers'
 
-UpVec = canVec3(0,1,0)
+UpVec = vec3(0,1,0)
 
-DrivePoint = canVec3(0,0,0) # where to apply impulses on body
+DrivePoint = vec3(0,0,0) # where to apply impulses on body
 ForwardForce = 50
 BackwardForce = 50
 StrafeForce = 50
@@ -33,23 +33,26 @@ class CameraFollowSystem extends BaseSystem
     ppos = location.position
 
 
-    stick = canVec3(0,0,5)
-    twist = canQuat()
-    twist.setFromAxisAngle(canVec3(1,0,0), camera.vOrbit)
-    twist.vmult(stick,stick)
+    stick = vec3(0,0,5)
+    twist = quat()
+    twist.setFromAxisAngle(vec3(1,0,0), camera.vOrbit)
+    stick.applyQuaternion(twist)
 
-    twist = canQuat()
-    twist.setFromAxisAngle(UpVec, camera.hOrbit)
-    twist.vmult(stick,stick)
+    twist = quat()
+    twist.setFromAxisAngle(vec3(0,1,0), camera.hOrbit)
+    stick.applyQuaternion(twist)
+    # twist.multiplyVector3(stick)
 
     # quaternion = location.quaternion
     # quaternion.mult(twist,quaternion)
-
-    ppos.vadd(stick, cpos)
+    
+    cpos.addVectors(ppos, stick)
+    # ppos.clone().add(stick)
+    # ppos.vadd(stick, cpos)
     # FIXME: use camera orbit
     # cpos.set(ppos.x, ppos.y+3, ppos.z+5)
 
-    camera.lookAt.copy(ppos)
+    camera.lookAt.set(ppos.x, ppos.y, ppos.z)
     # console.log camera.hOrbit, camera.vOrbit
 
 module.exports = -> new CameraFollowSystem()
