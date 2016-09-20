@@ -97,9 +97,8 @@ exports.initialState = ->
   ])
 
 
-  # TODO
-  # for comps in generateSlabComps()
-  #   estore.createEntity comps
+  for comps in generateSlabComps()
+    estore.createEntity comps
 
   # TODO
   # estore.createEntity mkCubeComps(vec3(-1,1,-1),0x993333)

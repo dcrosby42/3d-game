@@ -16,7 +16,7 @@ Kindness = class Kindness
     throw new Error("Kind #{@constructor.name} needs to implement @createShape")
 
   updateShape: (shape,physical,location) ->
-    return if physical.bodyType == 0
+    return if physical.bodyType == 0# "static" ... TODO define this in a shared location 
     pos = location.position
     vel = location.velocity
     quat = location.quaternion
@@ -116,39 +116,40 @@ class Cube extends Kindness
   # updateView: (view,physical,location) ->
 
 class Block extends Kindness
-  createBody: (physical,location) ->
+  createShape: (physical,location) ->
     pos = location.position
-    data = physical.data
-    shape = new Cannon.Box(new Cannon.Vec3(data.dim.x/2, data.dim.y/2, data.dim.z/2))
-    body = new Cannon.Body(shape: shape, type: physical.bodyType)
-    body.position.set(pos.x, pos.y, pos.z)
-    if physical.bodyType == Cannon.DYNAMIC
-      body.mass = 2
-      body.linearDamping = 0.1
-      body.angularDamping = 0.1
-    else
-      body.mass = 0
-    return body
-
-  # updateBody: (body,physical,location) ->
-
-  createView: (physical,location) ->
-    [pos,quat] = convertedPosAndQuat(location)
-    group = newGroup(pos,quat)
+    vel = location.velocity
+    quat = location.quaternion
 
     dim = physical.data.dim
 
+    mass = if physical.bodyType == 0 # "static" ... TODO define this in a shared location
+      0
+    else
+      2 # TODO physical.mass
+    friction = 0.8 # physijs default
+    restitution = 0.2 # physijs default
+    linearDamping = 0.1
+    angularDamping = 0.3
+
     geometry = new THREE.BoxGeometry(dim.x, dim.y, dim.z, 10, 10)
-    material = new THREE.MeshPhongMaterial(color: physical.data.color)
-    mesh = new THREE.Mesh(geometry, material)
-    mesh.castShadow = true
-    mesh.receiveShadow = true
+    threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
+    material = Physijs.createMaterial(threeMaterial, friction, restitution)
+    shape = new Physijs.BoxMesh( geometry, material, mass)
 
-    group.add mesh
-      # {buildAxisHelper(physical)}
-    return group
+    shape.castShadow = true
+    shape.receiveShadow = true
+    shape.position.set(pos.x, pos.y, pos.z)
 
-  # updateView: (view,physical,location) ->
+    if physical.bodyType == 0 # "static" ... TODO define this in a shared location
+      null # TODO fix this whole stanza
+    else
+      shape.setDamping(linearDamping, angularDamping)
+      #TODO shape.setLinearVelocity(physical.velocity)
+      #TODO shape.setAngularVelocity(physical.angularVelocity)
+
+    return shape
+
 
 ter = Data.get("spike.terrain.shapes")
 class Plane extends Kindness
