@@ -12,8 +12,8 @@ module.exports = ->
       row.push 0
     obj.rows.push row
 
-  console.log "data spike terrain rows #{obj.rows.length}, cols #{obj.rows[0].length}"
-  console.log "data spike terrain",obj
+  # console.log "data spike terrain rows #{obj.rows.length}, cols #{obj.rows[0].length}"
+  # console.log "data spike terrain",obj
 
   obj.rows[0][0] = 0.5
   obj.rows[0][1] = 0.5
@@ -28,5 +28,5 @@ module.exports = ->
   obj.rows[2][10] = 1.5
   obj.rows[3][10] = 1.5
 
-  console.log "terarin data",obj
+  # console.log "terarin data",obj
   obj

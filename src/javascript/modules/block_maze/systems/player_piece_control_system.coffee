@@ -26,7 +26,7 @@ calcCamRelativeImpulse = (camLoc, playerLoc, timeStep, force) ->
   ppos = playerLoc.position
   impulse = vec3(ppos.x - cpos.x, 0, ppos.z - cpos.z)
   impulse.normalize()
-  impulse.scale(timeStep * force, impulse)
+  impulse.multiplyScalar(timeStep)
   impulse
 
 
@@ -56,12 +56,12 @@ class PlayerPieceControlSystem extends BaseSystem
       
       strafeLeft: =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, StrafeForce)
-        Left90.vmult(impulse,impulse)
+        impulse.applyQuaternion(Left90)
         @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       strafeRight: =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, StrafeForce)
-        Right90.vmult(impulse,impulse)
+        impulse.applyQuaternion(Right90)
         @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       orbitRight: =>
@@ -93,7 +93,7 @@ class PlayerPieceControlSystem extends BaseSystem
 
       strafe: (analog) =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*StrafeForce)
-        Left90.vmult(impulse,impulse)
+        impulse.applyQuaternion(Left90)
         @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       orbitX: (analog) =>

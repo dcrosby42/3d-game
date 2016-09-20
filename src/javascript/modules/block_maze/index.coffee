@@ -1,5 +1,4 @@
 React = require 'react'
-Cannon = require 'cannon'
 KeyboardInput = require '../../elements/keyboard_input'
 GamepadInput = require '../../elements/gamepad_input'
 C = require './components'
@@ -72,7 +71,7 @@ mkSlabComps = (pos,dim,color=0xffffff,name='Slab') ->
     C.buildCompForType(T.Location, position: pos)
     C.buildCompForType(T.Physical,
       kind: 'block'
-      bodyType: Cannon.Body.STATIC
+      # bodyType: 0
       data: new C.Physical.Block(color, dim)
     )
   ]
@@ -80,12 +79,12 @@ mkSlabComps = (pos,dim,color=0xffffff,name='Slab') ->
 exports.initialState = ->
   estore = new EntityStore()
 
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Physics World')
-    C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
-  ])
+  # estore.createEntity([
+  #   C.buildCompForType(T.Name, name: 'Physics World')
+  #   C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
+  # ])
 
-  e = estore.createEntity([
+  estore.createEntity([
     C.buildCompForType(T.Name, name: 'Player One')
     C.buildCompForType(T.Tag, name: 'player_piece')
     C.buildCompForType(T.Location)
@@ -98,28 +97,31 @@ exports.initialState = ->
   ])
 
 
-  for comps in generateSlabComps()
-    estore.createEntity comps
+  # TODO
+  # for comps in generateSlabComps()
+  #   estore.createEntity comps
 
-  estore.createEntity mkCubeComps(vec3(-1,1,-1),0x993333)
-  estore.createEntity mkCubeComps(vec3(-1.1,2,-1),0x993333)
-  estore.createEntity mkCubeComps(vec3(20,0,-1),0x993333)
-  estore.createEntity mkCubeComps(vec3(20,1,-1),0x993333)
-  estore.createEntity mkCubeComps(vec3(20,0,10),0x993333)
-  estore.createEntity mkCubeComps(vec3(20,1,10),0x993333)
-  estore.createEntity mkCubeComps(vec3(-1,0,10),0x993333)
-  estore.createEntity mkCubeComps(vec3(-1,1,10),0x993333)
+  # TODO
+  # estore.createEntity mkCubeComps(vec3(-1,1,-1),0x993333)
+  # estore.createEntity mkCubeComps(vec3(-1.1,2,-1),0x993333)
+  # estore.createEntity mkCubeComps(vec3(20,0,-1),0x993333)
+  # estore.createEntity mkCubeComps(vec3(20,1,-1),0x993333)
+  # estore.createEntity mkCubeComps(vec3(20,0,10),0x993333)
+  # estore.createEntity mkCubeComps(vec3(20,1,10),0x993333)
+  # estore.createEntity mkCubeComps(vec3(-1,0,10),0x993333)
+  # estore.createEntity mkCubeComps(vec3(-1,1,10),0x993333)
   
-  groundQuat = quat()
-  groundQuat.setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Ground')
-    C.buildCompForType(T.Location, position: vec3(0,0,12), quaternion: groundQuat)
-    C.buildCompForType(T.Physical,
-      kind: 'plane'
-      data: new C.Physical.Plane(0x9999cc, 50, 50)
-    )
-  ])
+  # TODO
+  # groundQuat = quat()
+  # groundQuat.setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
+  # estore.createEntity([
+  #   C.buildCompForType(T.Name, name: 'Ground')
+  #   C.buildCompForType(T.Location, position: vec3(0,0,12), quaternion: groundQuat)
+  #   C.buildCompForType(T.Physical,
+  #     kind: 'plane'
+  #     data: new C.Physical.Plane(0x9999cc, 50, 50)
+  #   )
+  # ])
 
 
   estore.createEntity([
@@ -222,7 +224,13 @@ exports.view = (model,address) ->
       onMouseDown={handleMouse 'down', width,height,address}
       onMouseUp={handleMouse 'up', width,height,address}
     >
-      <MazeView width={width} height={height} camera={model.camera} estore={model.estore} />
+      <MazeView 
+        width={width} 
+        height={height} 
+        camera={model.camera} 
+        estore={model.estore} 
+        address={address}
+      />
     </div>
     <KeyboardInput
       tag="player1"

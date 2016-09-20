@@ -63,29 +63,30 @@ updateGameObjectViews = (root,estore) ->
   PhysicalSearcher.run estore, (r) ->
     [physical,location] = r.comps
 
-    view = root.getObjectById(physical.viewId)
-    if !view?
-      view = Objects.create3DView(physical,location)
-      physical.viewId = view.id
-      root.add view
+    shape = root.getObjectById(physical.viewId)
+    if !shape?
+      # view = Objects.create3DView(physical,location)
+      shape = Objects.create3DShape(physical,location)
+      physical.viewId = shape.id
+      root.add shape
       # console.log "Created view",physical,view
 
-    Objects.update3DView(view, physical,location)
-    view.userData.relevant = true
+    Objects.update3DShape(shape, physical,location)
+    shape.userData.relevant = true
 
   # Sweep all 3d objects in the root and look for irrelevant views:
   markedForDeath = []
-  for v in root.children
-    if !v.userData.relevant
+  for shape in root.children
+    if !shape.userData.relevant
       # console.log "Marking for death:",v
-      markedForDeath.push v
+      markedForDeath.push shape
     else
-      v.userData.relevant = false
+      shape.userData.relevant = false
 
   # Remove irrelevant views:
-  for v in markedForDeath
+  for shape in markedForDeath
     # console.log "Removing obsolete view",v
-    root.remove v
+    root.remove shape
 
   null
 
@@ -98,14 +99,18 @@ getCameraEntity = (estore) ->
   CameraSearcher.singleEntity(estore)
   
 class SceneWrapper
-  constructor: ({@canvas,@width,@height}) ->
+  constructor: ({@canvas,@width,@height,@address}) ->
     fog = defaultFog()
     @renderer = new THREE.WebGLRenderer(canvas: @canvas)
     @renderer.setSize( @width, @height)
     @renderer.setClearColor fog.color
     @renderer.shadowMap.enabled = true
 
-    @scene = new THREE.Scene()
+    @scene = new THREE.Scene() # FIXME: Physijs.scene
+    # TODO: @scene.addEventListener('collision', boundCollisionHandlerThatUsesAddressToPumpStuffBackUpToTheTop)
+    #
+
+
     @scene.fog = fog
 
     @scene.add defaultDirectionalLight()
@@ -116,25 +121,8 @@ class SceneWrapper
     window.scene = @scene
     window.root = @rootGroup
 
-
     axis = new THREE.AxisHelper(5)
     @scene.add axis
-
-
-
-    # XXX
-    # aspect = @width/@height
-    # @camera = new THREE.PerspectiveCamera( 75, aspect, 1, 100 )
-    # @camera.position.z = 30
-
-    # geometry = new THREE.IcosahedronGeometry(5, 1 )
-    # material =  new THREE.MeshBasicMaterial({
-    #                                           color: 0xfff999fff,
-    #                                           wireframe: true,
-    #                                           wireframeLinewidth:1 })
-
-    # mesh = new THREE.Mesh(geometry, material)
-    # @rootGroup.add( mesh )
 
 
   updateAndRender: (estore, width, height) ->

@@ -1,9 +1,8 @@
 React = require 'react'
 Cannon = require 'cannon'
 THREE = require 'three'
-Physijs = require '../../vendor/physijs_wrapper'
 
-{euler,vec3,quat} = require '../../lib/three_helpers'
+{euler,vec3,quat, convertCannonVec3, convertCannonQuat} = require '../../lib/three_helpers'
 
 Data = require './data'
 
@@ -12,46 +11,32 @@ Views = {}
 ViewUpdaters = {}
 
 Kindness = class Kindness
-  createShape: (physical,location) ->
-    throw new Error("Kind #{@constructor.name} needs to implement @createShape")
+  createBody: (physical,location) ->
+    throw new Error("Kind #{@constructor.name} needs to implement @createBody")
 
-  updateShape: (shape,physical,location) ->
-    return if physical.bodyType == 0
+  updateBody: (body,physical,location) ->
     pos = location.position
     vel = location.velocity
     quat = location.quaternion
-
-    shape.position.set(pos.x, pos.y, pos.z)
-    shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-
-    shape.setLinearVelocity(vel) # ASYNC! this gets posted as a message to physijs worker
-    # TODO shape.setAngularVelocity(location.angularVelocity # ASYNC! this gets posted as a message to physijs worker)
-
+    body.position.set(pos.x, pos.y, pos.z)
+    body.velocity.set(vel.x, vel.y, vel.z)
+    body.quaternion.set(quat.x, quat.y, quat.z, quat.w)
     null
 
-  # XXX:
-  # createBody: (physical,location) ->
-  #   throw new Error("Kind #{@constructor.name} needs to implement @createBody")
-  #
-  # updateBody: (body,physical,location) ->
-  #   pos = location.position
-  #   vel = location.velocity
-  #   quat = location.quaternion
-  #   body.position.set(pos.x, pos.y, pos.z)
-  #   body.velocity.set(vel.x, vel.y, vel.z)
-  #   body.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-  #   null
-  #
-  # createView: (physical,location) ->
-  #   throw new Error("Kind #{@constructor.name} needs to implement @createView")
-  #
-  #
-  # updateView: (view,physical,location) ->
-  #   if physical.bodyType? and physical.bodyType != Cannon.DYNAMIC
-  #     return
-  #   [pos,quat] = convertedPosAndQuat(location)
-  #   updateViewPosAndQuat(view,pos,quat)
-  #   null
+  createView: (physical,location) ->
+    throw new Error("Kind #{@constructor.name} needs to implement @createView")
+
+  updateView: (view,physical,location) ->
+    if physical.bodyType? and physical.bodyType != Cannon.DYNAMIC
+      return
+    [pos,quat] = convertedPosAndQuat(location)
+    updateViewPosAndQuat(view,pos,quat)
+    null
+
+convertedPosAndQuat = (location) ->
+  pos = convertCannonVec3(location.position)
+  quat = convertCannonQuat(location.quaternion)
+  [pos,quat]
 
 newGroup = (pos,quat) ->
   group = new THREE.Group()
@@ -59,33 +44,35 @@ newGroup = (pos,quat) ->
   group.quaternion.set(quat.x,quat.y,quat.z,quat.w)
   group
 
-# updateViewPosAndQuat = (view,pos,quat) ->
-#   view.position.set(pos.x,pos.y,pos.z)
-#   view.quaternion.set(quat.x,quat.y,quat.z,quat.w)
+updateViewPosAndQuat = (view,pos,quat) ->
+  view.position.set(pos.x,pos.y,pos.z)
+  view.quaternion.set(quat.x,quat.y,quat.z,quat.w)
 
 
 class Ball extends Kindness
-  createShape: (physical,location) ->
+  createBody: (physical,location) ->
     pos = location.position
-    quat = location.quaternion
+    shape = new Cannon.Sphere(0.5)
+    body = new Cannon.Body(mass: 2, shape: shape)
+    body.position.set(pos.x, pos.y, pos.z)
+    body.linearDamping = 0.1
+    body.angularDamping = 0.3
+    return body
 
-    mass = 2
-    friction = 0.8 # physijs default
-    restitution = 0.2 # physijs default
-    linearDamping = 0.1
-    angularDamping = 0.3
+  # updateBody: (body,physical,location) ->
 
+  createView: (physical,location) ->
+    [pos,quat] = convertedPosAndQuat(location)
+    group = newGroup(pos,quat)
     geometry = new THREE.SphereGeometry(0.5, 10, 10)
-    threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color) 
-    material = Physijs.createMaterial(threeMaterial, friction, restitution)
-    shape = new Physijs.SphereMesh( geometry, material, mass)
-    shape.castShadow = true
-    shape.receiveShadow = true
-    shape.position.set(pos.x, pos.y, pos.z)
+    material = new THREE.MeshPhongMaterial(color: physical.data.color)
+    mesh = new THREE.Mesh(geometry, material)
+    mesh.castShadow = true
+    mesh.receiveShadow = true
+    group.add mesh
+    return group
 
-    shape.setDamping(linearDamping, angularDamping)
-
-    shape
+  # updateView: (view,physical,location) ->
 
 class Cube extends Kindness
   createBody: (physical,location) ->
@@ -256,20 +243,14 @@ getModule = (k) ->
     throw new Error("No object kind '#{k}'")
 
 
-# module.exports.createBody = (physical,location) ->
-#   return getModule(physical.kind).createBody(physical,location)
-#
-# module.exports.updateBody = (body,physical,location) ->
-#   return getModule(physical.kind).updateBody(body,physical,location)
-#
-# module.exports.create3DView = (physical,location) ->
-#   return getModule(physical.kind).createView(physical,location)
-#
-# module.exports.update3DView = (view,physical,location) ->
-#   return getModule(physical.kind).updateView(view, physical,location)
+module.exports.createBody = (physical,location) ->
+  return getModule(physical.kind).createBody(physical,location)
 
-module.exports.create3DShape = (physical,location) ->
-  return getModule(physical.kind).createShape(physical,location)
+module.exports.updateBody = (body,physical,location) ->
+  return getModule(physical.kind).updateBody(body,physical,location)
 
-module.exports.update3DShape = (shape,physical,location) ->
-  return getModule(physical.kind).updateShape(shape, physical,location)
+module.exports.create3DView = (physical,location) ->
+  return getModule(physical.kind).createView(physical,location)
+
+module.exports.update3DView = (view,physical,location) ->
+  return getModule(physical.kind).updateView(view, physical,location)
