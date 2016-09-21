@@ -60,7 +60,8 @@ initScene = ->
 
   updateFn = ->
     # console.log "updateFn"
-    scene.simulate( undefined, 2 )
+    z = scene.simulate( undefined, 2 )
+    console.log z
     # physics_stats.update()
 
   scene.addEventListener( 'update', updateFn)

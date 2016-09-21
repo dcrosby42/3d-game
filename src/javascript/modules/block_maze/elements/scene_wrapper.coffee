@@ -1,11 +1,46 @@
 THREE = Three = require 'three'
-{euler,vec3,quat, convertCannonVec3, convertCannonQuat} = require '../../../lib/three_helpers'
+{euler,vec3,quat} = require '../../../lib/three_helpers'
 EntitySearch = require '../../../lib/ecs/entity_search'
 C = require '../components'
 T = C.Types
 Objects = require '../objects'
 
+Physijs = require '../../../vendor/physijs_wrapper'
+
 D = 20
+
+addAnObject = (scene) ->
+  sphere_geometry = new THREE.SphereGeometry( 1.5, 32, 32 )
+  material = new THREE.MeshLambertMaterial({ opacity: 0, transparent: true })
+  shape = new Physijs.SphereMesh(
+    sphere_geometry,
+    material,
+    undefined,
+    { restitution: Math.random() * 1.5 }
+  )
+
+  shape.material.color.setRGB( Math.random() * 100 / 100, Math.random() * 100 / 100, Math.random() * 100 / 100 )
+  shape.castShadow = true
+  shape.receiveShadow = true
+  
+  shape.position.set(0,1,0)
+  # shape.position.set(
+  #   Math.random() * 30 - 15,
+  #   20,
+  #   Math.random() * 30 - 15
+  # )
+  shape.material.opacity = 1
+  
+  shape.rotation.set(
+    Math.random() * Math.PI,
+    Math.random() * Math.PI,
+    Math.random() * Math.PI
+  )
+  console.log shape
+
+  scene.add(shape)
+  # shape.addEventListener( 'ready', createShape )
+
 
 defaultFog = ->
   fog = new Three.Fog(0x001525, 10, 40)
@@ -35,11 +70,13 @@ defaultDirectionalLight = ->
 
   #light.shadowDarkness = 0.5
   #light.shadowCameraVisible = true # only for debugging
+  light.userData.permanent = true
   return light
 
 defaultAmbientLight = ->
   color = 0x888888
   light = new THREE.AmbientLight(color)
+  light.userData.permanent = true
   return light
 
 createFollowCamera = (name,aspect) ->
@@ -52,40 +89,45 @@ createFollowCamera = (name,aspect) ->
 
 updateFollowCamera = (camera,cameraEntity) ->
   cameraComp = cameraEntity.get(T.FollowCamera)
-  lookAt = convertCannonVec3(cameraComp.lookAt)
+  lookAt = cameraComp.lookAt
   camLoc = cameraEntity.get(T.Location)
-  pos = convertCannonVec3(camLoc.position)
+  pos = camLoc.position
   camera.position.set(pos.x,pos.y,pos.z)
   camera.lookAt(lookAt)
   null
 
-updateGameObjectViews = (root,estore) ->
+updateSceneFromEntities = (root,estore) ->
+  # console.log root
   PhysicalSearcher.run estore, (r) ->
     [physical,location] = r.comps
 
     shape = root.getObjectById(physical.viewId)
     if !shape?
-      # view = Objects.create3DView(physical,location)
+      # console.log "SceneWrapper: root no object w id",physical.viewId
       shape = Objects.create3DShape(physical,location)
       physical.viewId = shape.id
       root.add shape
-      # console.log "Created view",physical,view
+      console.log "Created shape",physical,shape,root
+    # else
+    #   console.log "SceneWrapper: root object ",physical.viewId,shape
 
-    Objects.update3DShape(shape, physical,location)
+
+    # TODO Objects.update3DShape(shape, physical,location)
     shape.userData.relevant = true
 
   # Sweep all 3d objects in the root and look for irrelevant views:
   markedForDeath = []
   for shape in root.children
-    if !shape.userData.relevant
-      # console.log "Marking for death:",v
-      markedForDeath.push shape
-    else
-      shape.userData.relevant = false
+    unless shape.userData.permanent
+      if !shape.userData.relevant
+        # console.log "Marking for death:",v
+        markedForDeath.push shape
+      else
+        shape.userData.relevant = false
 
   # Remove irrelevant views:
   for shape in markedForDeath
-    # console.log "Removing obsolete view",v
+    console.log "Removing obsolete shape",shape
     root.remove shape
 
   null
@@ -99,16 +141,20 @@ getCameraEntity = (estore) ->
   CameraSearcher.singleEntity(estore)
   
 class SceneWrapper
-  constructor: ({@canvas,@width,@height,@address}) ->
+  constructor: ({@canvas,@width,@height,simAddress}) ->
     fog = defaultFog()
     @renderer = new THREE.WebGLRenderer(canvas: @canvas)
     @renderer.setSize( @width, @height)
     @renderer.setClearColor fog.color
     @renderer.shadowMap.enabled = true
 
-    @scene = new THREE.Scene() # FIXME: Physijs.scene
+    # @scene = new THREE.Scene() # FIXME: Physijs.scene
+    @scene = new Physijs.Scene(fixedTimeStep: 1/120)
+    @scene.setGravity(vec3(0,-10,0))
     # TODO: @scene.addEventListener('collision', boundCollisionHandlerThatUsesAddressToPumpStuffBackUpToTheTop)
-    #
+    # @scene.addEventListener 'update', => simAddress.send(@rootGroup)
+    # @scene.addEventListener 'update', =>
+    #   @scene.simulate(undefined, 2)
 
 
     @scene.fog = fog
@@ -116,13 +162,21 @@ class SceneWrapper
     @scene.add defaultDirectionalLight()
     @scene.add defaultAmbientLight()
 
-    @rootGroup = new THREE.Group()
-    @scene.add @rootGroup
-    window.scene = @scene
-    window.root = @rootGroup
+
+    # @rootGroup = new THREE.Group()
+    # @scene.add @rootGroup
+
+    # addAnObject(@scene)
+
+
+    # window.scene = @scene
+    # window.root = @rootGroup
 
     axis = new THREE.AxisHelper(5)
+    axis.userData.permanent = true
     @scene.add axis
+
+    @scene.simulate()
 
 
   updateAndRender: (estore, width, height) ->
@@ -140,8 +194,18 @@ class SceneWrapper
     #
     # GAME OBJECTS
     # 
-    updateGameObjectViews @rootGroup,estore
+    # updateSceneFromEntities @rootGroup,estore
+    updateSceneFromEntities @scene,estore
 
+    #
+    # SIMULATE PHYSICS
+    #
+    # console.log "Simulute"
+    @scene.simulate(undefined, 2)
+
+    #
+    # RENDER
+    #
     @renderer.render(@scene, @camera)
 
 module.exports = SceneWrapper

@@ -76,15 +76,17 @@ class Ball extends Kindness
     angularDamping = 0.3
 
     geometry = new THREE.SphereGeometry(0.5, 10, 10)
-    threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color) 
+    threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
     material = Physijs.createMaterial(threeMaterial, friction, restitution)
     shape = new Physijs.SphereMesh( geometry, material, mass)
     shape.castShadow = true
     shape.receiveShadow = true
     shape.position.set(pos.x, pos.y, pos.z)
+    console.log "objects.Ball createShape pos, shape.position",pos,shape.position#.set(pos.x, pos.y, pos.z)
 
     shape.setDamping(linearDamping, angularDamping)
 
+    @updateShape(shape,physical,location)
     shape
 
 class Cube extends Kindness

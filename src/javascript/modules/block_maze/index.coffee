@@ -15,8 +15,11 @@ class Action extends ActionBase
 class Input extends Action
 class Time extends Action
 class Mouse extends Action
+class PhysijsSimUpdate extends Action
+class PhysijsCollision extends Action
 
 ecsMachine = new EcsMachine([
+  Systems.physijs_physics_system()
   Systems.controller_system()
   Systems.player_piece_control_system()
   # Systems.physics_system()
@@ -71,7 +74,7 @@ mkSlabComps = (pos,dim,color=0xffffff,name='Slab') ->
     C.buildCompForType(T.Location, position: pos)
     C.buildCompForType(T.Physical,
       kind: 'block'
-      # bodyType: 0
+      bodyType: 0
       data: new C.Physical.Block(color, dim)
     )
   ]
@@ -79,15 +82,15 @@ mkSlabComps = (pos,dim,color=0xffffff,name='Slab') ->
 exports.initialState = ->
   estore = new EntityStore()
 
-  # estore.createEntity([
-  #   C.buildCompForType(T.Name, name: 'Physics World')
-  #   C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
-  # ])
+  estore.createEntity([
+    C.buildCompForType(T.Name, name: 'Physics World')
+    C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
+  ])
 
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Player One')
     C.buildCompForType(T.Tag, name: 'player_piece')
-    C.buildCompForType(T.Location)
+    C.buildCompForType(T.Location, position: vec3(0,1,0))
     C.buildCompForType(T.Physical,
       kind: 'ball'
       data: new C.Physical.Ball(0x333399)
@@ -136,6 +139,9 @@ exports.initialState = ->
     input:
       dt: null
       controllerEvents: []
+      physijsScene: null
+      physijsUpdateCount: 0
+      physijsCollisions: []
     # camera:
     #   type: "dev"
     #   data:
@@ -157,6 +163,17 @@ exports.update = (model,action) ->
     model.NO_RENDER=true
     e = action.value
     model.input.controllerEvents.push(e)
+
+  if action instanceof PhysijsSimUpdate
+    model.NO_RENDER=true
+    model.input.physijsScene = action.value
+    # console.log "maze update PhysijsSimUpdate scene",model.input.physijsScene
+    model.input.physijsUpdateCount += 1
+
+  if action instanceof PhysijsCollision
+    model.NO_RENDER=true
+    model.input.physijsCollisions.push(action.value)
+
 
   # if action instanceof Mouse
     # model.NO_RENDER=true
@@ -187,6 +204,10 @@ exports.update = (model,action) ->
 
       # Reset the controller input queue for the next Time action (tick)
       model.input.controllerEvents = []
+      model.input.physijsScene = null
+      # console.log "model.input.physijsUpdateCount:",model.input.physijsUpdateCount
+      model.input.physijsUpdateCount = 0
+      model.input.physijsCollisions = []
       
     else
       model.NO_RENDER=true
@@ -228,7 +249,8 @@ exports.view = (model,address) ->
         height={height} 
         camera={model.camera} 
         estore={model.estore} 
-        address={address}
+        simAddress={address.forward (fsig) -> fsig.map (scene) -> new PhysijsSimUpdate(scene)} 
+        collisionAddress={address.forward (fsig) -> fsig.map (col) -> new PhysijsCollision(col)} 
       />
     </div>
     <KeyboardInput
