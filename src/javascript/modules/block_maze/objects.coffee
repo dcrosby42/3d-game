@@ -17,41 +17,33 @@ Kindness = class Kindness
 
   updateShape: (shape,physical,location) ->
     return if physical.bodyType == 0# "static" ... TODO define this in a shared location 
-    pos = location.position
-    vel = location.velocity
-    quat = location.quaternion
+    if location.dirtyPosition
+      pos = location.position
+      shape.position.set(pos.x, pos.y, pos.z)
+      shape.__dirtyPosition = true
+      location.dirtyPosition = false
 
-    shape.position.set(pos.x, pos.y, pos.z)
-    shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+    if location.dirtyRotation
+      quat = location.quaternion
+      shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+      shape.__dirtyRotation = true
+      location.dirtyRotation = false
 
-    shape.setLinearVelocity(vel) # ASYNC! this gets posted as a message to physijs worker
+    # TODO shape.setLinearVelocity(vel) # ASYNC! this gets posted as a message to physijs worker
     # TODO shape.setAngularVelocity(location.angularVelocity # ASYNC! this gets posted as a message to physijs worker)
 
     null
 
-  # XXX:
-  # createBody: (physical,location) ->
-  #   throw new Error("Kind #{@constructor.name} needs to implement @createBody")
-  #
-  # updateBody: (body,physical,location) ->
-  #   pos = location.position
-  #   vel = location.velocity
-  #   quat = location.quaternion
-  #   body.position.set(pos.x, pos.y, pos.z)
-  #   body.velocity.set(vel.x, vel.y, vel.z)
-  #   body.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-  #   null
-  #
-  # createView: (physical,location) ->
-  #   throw new Error("Kind #{@constructor.name} needs to implement @createView")
-  #
-  #
-  # updateView: (view,physical,location) ->
-  #   if physical.bodyType? and physical.bodyType != Cannon.DYNAMIC
-  #     return
-  #   [pos,quat] = convertedPosAndQuat(location)
-  #   updateViewPosAndQuat(view,pos,quat)
-  #   null
+  updateFromShape: (shape,physical,location) ->
+    pos = shape.position
+    quat = shape.quaternion
+    # TODO vel = shape.getLinearVelocity()
+    # TODO: angular velocity
+    location.position.set(pos.x, pos.y, pos.z)
+    # console.log "PhysijsPhysicsSystem set location.position",location.position
+    # TODO location.velocity.set(vel.x, vel.y, vel.z)
+    location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+
 
 newGroup = (pos,quat) ->
   group = new THREE.Group()
@@ -82,11 +74,13 @@ class Ball extends Kindness
     shape.castShadow = true
     shape.receiveShadow = true
     shape.position.set(pos.x, pos.y, pos.z)
-    console.log "objects.Ball createShape pos, shape.position",pos,shape.position#.set(pos.x, pos.y, pos.z)
+    # console.log "objects.Ball createShape pos, shape.position",pos,shape.position#.set(pos.x, pos.y, pos.z)
 
     shape.setDamping(linearDamping, angularDamping)
+    shape.userData.debugme = true
 
-    @updateShape(shape,physical,location)
+    location.dirtyPosition = false
+    # @updateShape(shape,physical,location)
     shape
 
 class Cube extends Kindness
@@ -276,3 +270,6 @@ module.exports.create3DShape = (physical,location) ->
 
 module.exports.update3DShape = (shape,physical,location) ->
   return getModule(physical.kind).updateShape(shape, physical,location)
+
+module.exports.updateFrom3DShape = (shape,physical,location) ->
+  return getModule(physical.kind).updateFromShape(shape, physical,location)

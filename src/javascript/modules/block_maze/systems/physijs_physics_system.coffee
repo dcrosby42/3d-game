@@ -15,39 +15,24 @@ class PhysijsPhysicsSystem extends BaseSystem
   @Subscribe: [ T.PhysicsWorld ]
 
   process: (r) ->
-    rootGroup = @input.physijsScene
-    if !rootGroup?
-      # console.log "PhysijsPhysicsSystem returning becaues rootGroup null"
+    scene = @input.physijsScene
+    if !scene?
+      # console.log "PhysijsPhysicsSystem returning becaues scene null"
       return
-
-    # return null unless rootGroup?
 
     # TODO? timeStep = @input.dt
 
 
     # Sync game state to physics world
-    # pairings = []
-    # bodyIdsToComps = {}
-
     PhysicalSearcher.run @estore, (r) =>
       [physical, location] = r.comps
       return if physical.bodyType == 0
 
-      shape = rootGroup.getObjectById(physical.viewId)
+      shape = scene.getObjectById(physical.viewId)
       # console.log "."
       if shape?
-        # console.log "Syncing comps from shape",physical.viewId, shape.id
 
-        # Sync shape -> Location
-        # console.log "PhysijsPhysicsSystem shape.position",shape.position
-        pos = shape.position
-        quat = shape.quaternion
-        vel = shape.getLinearVelocity()
-        # TODO: angular velocity
-        location.position.set(pos.x, pos.y, pos.z)
-        # console.log "PhysijsPhysicsSystem set location.position",location.position
-        location.velocity.set(vel.x, vel.y, vel.z)
-        location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+        Objects.updateFrom3DShape(shape, physical,location)
       else
         console.log "!! PhysijsPhysicsSystem: no shape found for physical.viewId=#{physical.viewId}"
 

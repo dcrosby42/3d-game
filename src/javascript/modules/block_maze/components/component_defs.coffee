@@ -18,6 +18,8 @@ Defs =
    velocity: BT.Vec
    quaternion: BT.Quat
    angularVelocity: BT.Vec
+   dirtyPosition: BT.Bool
+   dirtyRotation: BT.Bool
   
  Physical:
    bodyId: BT.Number

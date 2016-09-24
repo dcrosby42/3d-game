@@ -16,6 +16,9 @@ exports.String = class String extends BaseType
 
 exports.Number = class Number extends BaseType
 
+exports.Bool = class Bool extends BaseType
+  default: -> "false"
+
 exports.Id = class Id extends BaseType
 exports.Eid = class Eid extends Id
 exports.Cid = class Cid extends Id
