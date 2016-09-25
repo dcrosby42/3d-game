@@ -109,16 +109,6 @@ updateSceneFromEntities = (scene,estore) ->
     # else
     #   console.log "SceneWrapper: scene object ",physical.viewId,shape
 
-    # TODO !1??
-    # Events from player control system were previously processed by CannonPhysicsSystem
-    # and applied changes to the physics bodies.
-    # However, this SceneWrapper is outside the update of game state via ecsMachin in BlockMaze module.
-      # @handleEvents r.eid,
-      #   localImpulse: ({impulse,point}) =>
-      #     body.applyLocalImpulse impulse, point
-      #   impulse: ({impulse,point}) =>
-      #     body.applyImpulse impulse, point
-
     Objects.update3DShape(shape, physical,location)
     shape.userData.relevant = true
 

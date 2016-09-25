@@ -19,15 +19,18 @@ Kindness = class Kindness
     return if physical.bodyType == 0# "static" ... TODO define this in a shared location 
     # if location.dirtyPosition
     pos = location.position
+    quat = location.quaternion
     shape.position.set(pos.x, pos.y, pos.z)
     shape.__dirtyPosition = true
-    location.dirtyPosition = false
+    # location.dirtyPosition = false
 
     # if location.dirtyRotation
-    quat = location.quaternion
     shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
     shape.__dirtyRotation = true
-    location.dirtyRotation = false
+    # location.dirtyRotation = false
+
+    shape.setLinearVelocity(location.velocity)
+    shape.setAngularVelocity(location.angularVelocity)
 
     if location.impulse?
       # console.log "updateShape: Applying impulse",location.impulse.force
@@ -35,20 +38,22 @@ Kindness = class Kindness
     
     # TODO shape.applyForce
     # TODO shape.applyTorque
-    # TODO shape.setLinearVelocity(vel) # ASYNC! this gets posted as a message to physijs worker
-    # TODO shape.setAngularVelocity(location.angularVelocity # ASYNC! this gets posted as a message to physijs worker)
 
     null
 
   updateFromShape: (shape,physical,location) ->
     pos = shape.position
     quat = shape.quaternion
-    # TODO vel = shape.getLinearVelocity()
-    # TODO: angular velocity
+    angVel = shape.getAngularVelocity()
+    vel = shape.getLinearVelocity()
     location.position.set(pos.x, pos.y, pos.z)
+    location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+    location.velocity.set(vel.x, vel.y, vel.z)
+    location.angularVelocity.set(angVel.x, angVel.y, angVel.z)
+    # TODO: angular velocity
     # console.log "PhysijsPhysicsSystem set location.position",location.position
     # TODO location.velocity.set(vel.x, vel.y, vel.z)
-    location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+    # location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
 
 
 newGroup = (pos,quat) ->
