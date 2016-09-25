@@ -1,5 +1,4 @@
 exports.camera_follow_system = require './camera_follow_system'
-exports.cannon_physics_system = require './cannon_physics_system'
 exports.collision_detect_system = require './collision_detect_system'
 exports.controller_system = require './controller_system'
 exports.player_piece_control_system = require './player_piece_control_system'

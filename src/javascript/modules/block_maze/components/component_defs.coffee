@@ -28,7 +28,7 @@ Defs =
  Physical:
    shapeId: BT.Number
    kind: BT.String
-   bodyType: BT.Number.with(default: "#{Objects.ShapeType.Dynamic}")
+   shapeType: BT.Number.with(default: "#{Objects.ShapeType.Dynamic}")
    data: BT.Comp
    _inner:
      Cube:

@@ -4,6 +4,7 @@ GamepadInput = require '../../elements/gamepad_input'
 C = require './components'
 T = C.Types
 Systems = require './systems'
+Objects = require './objects'
 
 EntityStore = require '../../lib/ecs/entity_store'
 EcsMachine = require '../../lib/ecs/ecs_machine'
@@ -79,7 +80,7 @@ mkSlabComps = (pos,dim,color=0xffffff,name='Slab') ->
     C.buildCompForType(T.Location, position: pos)
     C.buildCompForType(T.Physical,
       kind: 'block'
-      bodyType: 0
+      shapeType: Objects.ShapeType.Static
       data: new C.Physical.Block(color, dim)
     )
   ]
@@ -105,8 +106,8 @@ exports.initialState = ->
   ])
 
 
-  for comps in generateSlabComps()
-    estore.createEntity comps
+  # for comps in generateSlabComps()
+  #   estore.createEntity comps
 
   # TODO
   estore.createEntity mkCubeComps(vec3(-1,1,-1),0x993333)
@@ -118,17 +119,14 @@ exports.initialState = ->
   estore.createEntity mkCubeComps(vec3(-1,0,10),0x993333)
   estore.createEntity mkCubeComps(vec3(-1,1,10),0x993333)
   
-  # TODO
-  # groundQuat = quat()
-  # groundQuat.setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
-  # estore.createEntity([
-  #   C.buildCompForType(T.Name, name: 'Ground')
-  #   C.buildCompForType(T.Location, position: vec3(0,0,12), quaternion: groundQuat)
-  #   C.buildCompForType(T.Physical,
-  #     kind: 'plane'
-  #     data: new C.Physical.Plane(0x9999cc, 50, 50)
-  #   )
-  # ])
+  groundQuat = quat()
+  groundQuat.setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
+  estore.createEntity([
+    C.buildCompForType(T.Location, position: vec3(0,0,0), quaternion: groundQuat)
+    C.buildCompForType(T.Physical,
+      kind: 'terrain'
+    )
+  ])
 
 
   estore.createEntity([

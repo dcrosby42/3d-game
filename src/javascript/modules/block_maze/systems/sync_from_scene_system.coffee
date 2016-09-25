@@ -21,7 +21,7 @@ class SyncFromSceneSystem extends BaseSystem
 
     PhysicalSearcher.run @estore, (r) =>
       [physical, location] = r.comps
-      return if physical.bodyType == Objects.ShapeType.Static
+      return if physical.shapeType == Objects.ShapeType.Static
 
       shape = scene.getObjectById(physical.shapeId)
       if shape?

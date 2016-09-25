@@ -4,6 +4,7 @@ THREE = require 'three'
 Physijs = require '../../vendor/physijs_wrapper'
 
 {euler,vec3,quat} = require '../../lib/three_helpers'
+mkQuat = quat
 
 Data = require './data'
 
@@ -52,12 +53,12 @@ Kindness = class Kindness
     throw new Error("Kind #{@constructor.name} needs to implement @createShape")
 
   updateShape: (shape,physical,location,force=false) ->
-    return if physical.bodyType == ShapeType.Static
+    return if physical.shapeType == ShapeType.Static
     applyDispositionToShape(shape,location)
     null
 
   updateFromShape: (shape,physical,location) ->
-    return if physical.bodyType == ShapeType.Static
+    return if physical.shapeType == ShapeType.Static
     copyDispositionFromShape(shape,location)
     null
 
@@ -70,22 +71,22 @@ newGroup = (pos,quat) ->
 
 class Ball extends Kindness
   createShape: (physical,location) ->
-    # console.log "ball type", physical.bodyType
-    mass = if physical.bodyType == ShapeType.Static
+    # console.log "ball type", physical.shapeType
+    mass = if physical.shapeType == ShapeType.Static
       0
     else
       2
     friction = 0.8 # physijs default
     restitution = 0.2 # physijs default
 
-    geometry = new THREE.SphereGeometry(0.5, 10, 10) # TODO set from phys data
+    geometry = new THREE.SphereGeometry(0.5, 20, 20) # TODO set from phys data
     threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
     material = Physijs.createMaterial(threeMaterial, friction, restitution)
     shape = new Physijs.SphereMesh( geometry, material, mass)
     shape.castShadow = true
     shape.receiveShadow = true
 
-    if physical.bodyType == ShapeType.Dynamic
+    if physical.shapeType == ShapeType.Dynamic
       linearDamping = 0.1
       angularDamping = 0.3
       shape.setDamping(linearDamping, angularDamping)
@@ -98,7 +99,7 @@ class Ball extends Kindness
 
 class Cube extends Kindness
   createShape: (physical,location) ->
-    mass = if physical.bodyType == ShapeType.Static
+    mass = if physical.shapeType == ShapeType.Static
       0
     else
       2
@@ -112,7 +113,7 @@ class Cube extends Kindness
     shape.castShadow = true
     shape.receiveShadow = true
 
-    if physical.bodyType == ShapeType.Dynamic
+    if physical.shapeType == ShapeType.Dynamic
       linearDamping = 0.1
       angularDamping = 0.1
       shape.setDamping(linearDamping, angularDamping)
@@ -123,7 +124,90 @@ class Cube extends Kindness
 
 class Block extends Kindness
   createShape: (physical,location) ->
-    mass = if physical.bodyType == ShapeType.Static
+    mass = if physical.shapeType == ShapeType.Static
+      console.log "block mass 0"
+      0
+    else
+      1 # TODO physical.mass
+    friction = 0.8 # physijs default
+    restitution = 0.2 # physijs default
+    dim = physical.data.dim
+
+    geometry = new THREE.BoxGeometry(dim.x, dim.y, dim.z, 10, 10)
+    threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
+    material = Physijs.createMaterial(threeMaterial, friction, restitution)
+    shape = new Physijs.BoxMesh( geometry, material, mass)
+    shape.castShadow = true
+    shape.receiveShadow = true
+
+    if physical.shapeType == ShapeType.Dynamic
+      linearDamping = 0.1
+      angularDamping = 0.3
+      shape.setDamping(linearDamping, angularDamping)
+
+    applyDispositionToShape(shape, location)
+
+    shape
+
+class Terrain extends Kindness
+  createShape: (physical,location) ->
+    mass = 0
+    friction = 0.8 # physijs default
+    restitution = 0.4
+
+    width = 80
+    height = 80
+    xfaces = 50
+    yfaces = 50
+    geometry = new THREE.PlaneGeometry( width, height, xfaces, yfaces )
+    # NoiseGen = new SimplexNoise
+    for vertex in geometry.vertices
+      # vertex.z = NoiseGen.noise( vertex.x / 10, vertex.y / 10 ) * 2
+      # vertex.z = 0
+      vertex.z = Math.sin(vertex.x / 2)
+    geometry.computeFaceNormals()
+    geometry.computeVertexNormals()
+
+    # threeMaterial = new THREE.MeshPhongMaterial(color: 0x66cc66)
+    threeMaterial = new THREE.MeshLambertMaterial(map: THREE.ImageUtils.loadTexture('images/grass.png'))
+    threeMaterial.map.wrapS = THREE.RepeatWrapping
+    threeMaterial.map.wrapT = THREE.RepeatWrapping
+    threeMaterial.map.repeat.set(10,10) 
+    material = Physijs.createMaterial(threeMaterial, friction, restitution)
+
+    # If your plane is not square as far as face count then the HeightfieldMesh
+    # takes two more arguments at the end: # of x faces and # of y faces that were passed to THREE.PlaneMaterial
+    shape = new Physijs.HeightfieldMesh(
+      geometry
+      material
+      mass
+      xfaces
+      yfaces
+    )
+    shape.__dirtyRotation = true
+    # shape.rotation.x = Math.PI / -2
+    shape.receiveShadow = true
+    shape.castShadow = true
+
+    applyDispositionToShape(shape, location)
+
+    # pos = location.position
+    # console.log "terrain pos",pos
+    # shape.position.set(pos.x, pos.y, pos.z)
+    # shape.__dirtyPosition = true # required by physijs
+
+    # shapeQuat = mkQuat()
+    # shapeQuat.setFromAxisAngle(vec3(1,0,0), -(Math.PI/2))
+    # shape.quaternion = shapeQuat
+    # shape.__dirtyRotation = true # required by physijs
+
+    shape
+
+#######################################################
+
+class Block extends Kindness
+  createShape: (physical,location) ->
+    mass = if physical.shapeType == ShapeType.Static
       0
     else
       2 # TODO physical.mass
@@ -138,7 +222,7 @@ class Block extends Kindness
     shape.castShadow = true
     shape.receiveShadow = true
 
-    if physical.bodyType == ShapeType.Dynamic
+    if physical.shapeType == ShapeType.Dynamic
       linearDamping = 0.1
       angularDamping = 0.3
       shape.setDamping(linearDamping, angularDamping)
@@ -146,6 +230,7 @@ class Block extends Kindness
     applyDispositionToShape(shape, location)
 
     shape
+
 
 
 ter = Data.get("spike.terrain.shapes")
@@ -171,7 +256,7 @@ class Plane extends Kindness
       elementSize: ter.spacing # Distance between the data points in X and Y directions
     )
     window.heightfield = shape # XXX
-    body = new Cannon.Body(mass: 0, shape: shape, bodyType: Cannon.Body.STATIC)
+    body = new Cannon.Body(mass: 0, shape: shape, shapeType: Cannon.Body.STATIC)
     # halfx = (ter.xSegments*ter.spacing)/2
     # halfh = (ter.ySegments*ter.spacing)/2
     x = pos.x
@@ -244,6 +329,7 @@ Kinds.ball = new Ball()
 Kinds.cube = new Cube()
 Kinds.block = new Block()
 Kinds.plane = new Plane()
+Kinds.terrain = new Terrain()
 
 
 getModule = (k) ->

@@ -27,7 +27,7 @@ Kindness = class Kindness
     throw new Error("Kind #{@constructor.name} needs to implement @createView")
 
   updateView: (view,physical,location) ->
-    if physical.bodyType? and physical.bodyType != Cannon.DYNAMIC
+    if physical.shapeType? and physical.shapeType != Cannon.DYNAMIC
       return
     [pos,quat] = convertedPosAndQuat(location)
     updateViewPosAndQuat(view,pos,quat)
@@ -107,9 +107,9 @@ class Block extends Kindness
     pos = location.position
     data = physical.data
     shape = new Cannon.Box(new Cannon.Vec3(data.dim.x/2, data.dim.y/2, data.dim.z/2))
-    body = new Cannon.Body(shape: shape, type: physical.bodyType)
+    body = new Cannon.Body(shape: shape, type: physical.shapeType)
     body.position.set(pos.x, pos.y, pos.z)
-    if physical.bodyType == Cannon.DYNAMIC
+    if physical.shapeType == Cannon.DYNAMIC
       body.mass = 2
       body.linearDamping = 0.1
       body.angularDamping = 0.1
@@ -160,7 +160,7 @@ class Plane extends Kindness
       elementSize: ter.spacing # Distance between the data points in X and Y directions
     )
     window.heightfield = shape # XXX
-    body = new Cannon.Body(mass: 0, shape: shape, bodyType: Cannon.Body.STATIC)
+    body = new Cannon.Body(mass: 0, shape: shape, shapeType: Cannon.Body.STATIC)
     # halfx = (ter.xSegments*ter.spacing)/2
     # halfh = (ter.ySegments*ter.spacing)/2
     x = pos.x
