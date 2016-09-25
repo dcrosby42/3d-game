@@ -20,7 +20,7 @@ class ApplyScene extends Action
 class ApplyCollision extends Action
 
 DebugOn =
-  update_limit: 120
+  update_limit: 60
   log: console.log
 DebugOff =
   update_limit: null
@@ -50,7 +50,7 @@ generateSlabComps = () ->
   width = 4
   length = 4
   height = 0.5 
-  y = -2
+  y = 2
   z = -2
   lightColor = 0xffffff
   darkColor = 0x333366
@@ -261,12 +261,13 @@ exports.view = (model,address) ->
   width = 1200
   height = 600
   
+    #Adding these to the div surrounding MazeView causes props to be sent to MazeView with every event, like mouse motion
+      # onMouseMove={handleMouse 'move', width,height,address}
+      # onMouseDown={handleMouse 'down', width,height,address}
+      # onMouseUp={handleMouse 'up', width,height,address}
   <div>
     <h3>Maze Thinger</h3>
     <div style={width:width,height:height}
-      onMouseMove={handleMouse 'move', width,height,address}
-      onMouseDown={handleMouse 'down', width,height,address}
-      onMouseUp={handleMouse 'up', width,height,address}
     >
       <MazeView 
         width={width} 

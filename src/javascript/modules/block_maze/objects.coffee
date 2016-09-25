@@ -76,22 +76,26 @@ class Ball extends Kindness
       0
     else
       2
-    friction = 0.8 # physijs default
+    # friction = 0.8 # physijs default
+    friction = 1
     restitution = 0.2 # physijs default
 
-    geometry = new THREE.SphereGeometry(0.5, 20, 20) # TODO set from phys data
+    geometry = new THREE.SphereGeometry(0.5, 20,20) # TODO set from phys data
     threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
     material = Physijs.createMaterial(threeMaterial, friction, restitution)
     shape = new Physijs.SphereMesh( geometry, material, mass)
     shape.castShadow = true
     shape.receiveShadow = true
 
-    if physical.shapeType == ShapeType.Dynamic
-      linearDamping = 0.1
-      angularDamping = 0.3
-      shape.setDamping(linearDamping, angularDamping)
+    shape.addEventListener 'ready', ->
+      if physical.shapeType == ShapeType.Dynamic
+        # linearDamping = 0.1
+        # angularDamping = 0.3
+        linearDamping = 0.25
+        angularDamping = 0.4
+        shape.setDamping(linearDamping, angularDamping)
 
-    applyDispositionToShape(shape, location)
+      applyDispositionToShape(shape, location)
 
     # shape.userData.debugme = true
 
@@ -113,12 +117,13 @@ class Cube extends Kindness
     shape.castShadow = true
     shape.receiveShadow = true
 
-    if physical.shapeType == ShapeType.Dynamic
-      linearDamping = 0.1
-      angularDamping = 0.1
-      shape.setDamping(linearDamping, angularDamping)
+    shape.addEventListener 'ready', ->
+      if physical.shapeType == ShapeType.Dynamic
+        linearDamping = 0.1
+        angularDamping = 0.1
+        shape.setDamping(linearDamping, angularDamping)
 
-    applyDispositionToShape(shape,location)
+      applyDispositionToShape(shape,location)
     
     shape
 
@@ -141,18 +146,20 @@ class Block extends Kindness
     shape.receiveShadow = true
 
     if physical.shapeType == ShapeType.Dynamic
-      linearDamping = 0.1
-      angularDamping = 0.3
-      shape.setDamping(linearDamping, angularDamping)
+      shape.addEventListener 'ready', ->
+        linearDamping = 0.1
+        angularDamping = 0.3
+        shape.setDamping(linearDamping, angularDamping)
 
-    applyDispositionToShape(shape, location)
+      applyDispositionToShape(shape, location)
 
     shape
 
 class Terrain extends Kindness
   createShape: (physical,location) ->
     mass = 0
-    friction = 0.8 # physijs default
+    # friction = 0.8 # physijs default
+    friction = 1#0.8 # physijs default
     restitution = 0.4
 
     width = 80
@@ -184,22 +191,12 @@ class Terrain extends Kindness
       xfaces
       yfaces
     )
-    shape.__dirtyRotation = true
     # shape.rotation.x = Math.PI / -2
     shape.receiveShadow = true
-    shape.castShadow = true
+    # shape.castShadow = true
 
-    applyDispositionToShape(shape, location)
-
-    # pos = location.position
-    # console.log "terrain pos",pos
-    # shape.position.set(pos.x, pos.y, pos.z)
-    # shape.__dirtyPosition = true # required by physijs
-
-    # shapeQuat = mkQuat()
-    # shapeQuat.setFromAxisAngle(vec3(1,0,0), -(Math.PI/2))
-    # shape.quaternion = shapeQuat
-    # shape.__dirtyRotation = true # required by physijs
+    shape.addEventListener 'ready', ->
+      applyDispositionToShape(shape, location)
 
     shape
 

@@ -167,7 +167,7 @@ class SceneWrapper
     # SIMULATE PHYSICS
     #
     # @scene.simulate(undefined, 2)
-    @scene.simulate(1/60)
+    @scene.simulate(1/60,2)
 
     #
     # RENDER
