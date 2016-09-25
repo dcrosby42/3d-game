@@ -105,7 +105,7 @@ class Cube extends Kindness
     mass = if physical.bodyType == ShapeType.Static
       0
     else
-      0.5
+      2
     friction = 0.8 # physijs default
     restitution = 0.2 # physijs default
 

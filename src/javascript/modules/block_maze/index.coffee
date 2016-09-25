@@ -109,14 +109,14 @@ exports.initialState = ->
     estore.createEntity comps
 
   # TODO
-  # estore.createEntity mkCubeComps(vec3(-1,1,-1),0x993333)
-  # estore.createEntity mkCubeComps(vec3(-1.1,2,-1),0x993333)
-  # estore.createEntity mkCubeComps(vec3(20,0,-1),0x993333)
-  # estore.createEntity mkCubeComps(vec3(20,1,-1),0x993333)
-  # estore.createEntity mkCubeComps(vec3(20,0,10),0x993333)
-  # estore.createEntity mkCubeComps(vec3(20,1,10),0x993333)
-  # estore.createEntity mkCubeComps(vec3(-1,0,10),0x993333)
-  # estore.createEntity mkCubeComps(vec3(-1,1,10),0x993333)
+  estore.createEntity mkCubeComps(vec3(-1,1,-1),0x993333)
+  estore.createEntity mkCubeComps(vec3(-1.1,2,-1),0x993333)
+  estore.createEntity mkCubeComps(vec3(20,0,-1),0x993333)
+  estore.createEntity mkCubeComps(vec3(20,1,-1),0x993333)
+  estore.createEntity mkCubeComps(vec3(20,0,10),0x993333)
+  estore.createEntity mkCubeComps(vec3(20,1,10),0x993333)
+  estore.createEntity mkCubeComps(vec3(-1,0,10),0x993333)
+  estore.createEntity mkCubeComps(vec3(-1,1,10),0x993333)
   
   # TODO
   # groundQuat = quat()
