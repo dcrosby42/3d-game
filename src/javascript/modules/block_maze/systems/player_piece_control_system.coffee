@@ -26,7 +26,7 @@ calcCamRelativeImpulse = (camLoc, playerLoc, timeStep, force) ->
   ppos = playerLoc.position
   impulse = vec3(ppos.x - cpos.x, 0, ppos.z - cpos.z)
   impulse.normalize()
-  impulse.multiplyScalar(timeStep)
+  impulse.multiplyScalar(timeStep*force)
   impulse
 
 
@@ -45,24 +45,29 @@ class PlayerPieceControlSystem extends BaseSystem
 
     timeStep = @input.dt
 
+    location.impulse = null
     @handleEvents eid,
       forward: (val) =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, ForwardForce)
-        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+        location.impulse = new C.Location.Impulse(impulse, DrivePoint)
+        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       backward: =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -BackwardForce)
-        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+        location.impulse = new C.Location.Impulse(impulse, DrivePoint)
+        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
       
       strafeLeft: =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, StrafeForce)
         impulse.applyQuaternion(Left90)
-        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+        location.impulse = new C.Location.Impulse(impulse, DrivePoint)
+        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       strafeRight: =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, StrafeForce)
         impulse.applyQuaternion(Right90)
-        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+        location.impulse = new C.Location.Impulse(impulse, DrivePoint)
+        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       orbitRight: =>
         camera.hOrbit += -OrbitSpeed * timeStep
@@ -82,19 +87,22 @@ class PlayerPieceControlSystem extends BaseSystem
 
       jump: =>
         impulse = vec3(0, JumpThrust * timeStep, 0)
-        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+        location.impulse = new C.Location.Impulse(impulse, DrivePoint)
+        #@publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
 
       # GAMEPAD:
 
       drive: (analog) =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*ForwardForce)
-        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+        location.impulse = new C.Location.Impulse(impulse, DrivePoint)
+        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       strafe: (analog) =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*StrafeForce)
         impulse.applyQuaternion(Left90)
-        @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
+        location.impulse = new C.Location.Impulse(impulse, DrivePoint)
+        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       orbitX: (analog) =>
         camera.hOrbit += -analog *OrbitSpeed * timeStep

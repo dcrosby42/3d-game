@@ -18,8 +18,13 @@ Defs =
    velocity: BT.Vec
    quaternion: BT.Quat
    angularVelocity: BT.Vec
+   impulse: BT.Comp
    dirtyPosition: BT.Bool
    dirtyRotation: BT.Bool
+   _inner:
+     Impulse:
+       force: BT.Vec
+       offset: BT.Vec
   
  Physical:
    bodyId: BT.Number
@@ -40,6 +45,7 @@ Defs =
      Block:
        color: BT.Color
        dim: BT.Vec
+     
 
  FollowCamera:
    followingTag: BT.String

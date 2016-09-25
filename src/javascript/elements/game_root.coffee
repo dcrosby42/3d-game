@@ -24,7 +24,7 @@ GameRoot = React.createClass
   componentWillUnmount: ->
 
   shouldComponentUpdate: (nextProps, nextState) ->
-    if nextState.NO_RENDER
+    if nextState.main.NO_RENDER
       return false
     true
 

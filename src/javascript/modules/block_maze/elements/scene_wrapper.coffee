@@ -109,6 +109,15 @@ updateSceneFromEntities = (scene,estore) ->
     # else
     #   console.log "SceneWrapper: scene object ",physical.viewId,shape
 
+    # TODO !1??
+    # Events from player control system were previously processed by CannonPhysicsSystem
+    # and applied changes to the physics bodies.
+    # However, this SceneWrapper is outside the update of game state via ecsMachin in BlockMaze module.
+      # @handleEvents r.eid,
+      #   localImpulse: ({impulse,point}) =>
+      #     body.applyLocalImpulse impulse, point
+      #   impulse: ({impulse,point}) =>
+      #     body.applyImpulse impulse, point
 
     Objects.update3DShape(shape, physical,location)
     shape.userData.relevant = true
@@ -162,7 +171,7 @@ class SceneWrapper
     axis = new THREE.AxisHelper(5)
     @scene.add axis
 
-    @scene.simulate(1/120,2)
+    @scene.simulate(1/60,2)
 
 
   updateAndRender: (estore, width, height) ->
@@ -186,8 +195,8 @@ class SceneWrapper
     #
     # SIMULATE PHYSICS
     #
-    # console.log "Simulute"
-    @scene.simulate(undefined, 2)
+    # @scene.simulate(undefined, 2)
+    @scene.simulate(1/60)
 
     #
     # RENDER

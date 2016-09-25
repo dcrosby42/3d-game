@@ -17,18 +17,24 @@ Kindness = class Kindness
 
   updateShape: (shape,physical,location) ->
     return if physical.bodyType == 0# "static" ... TODO define this in a shared location 
-    if location.dirtyPosition
-      pos = location.position
-      shape.position.set(pos.x, pos.y, pos.z)
-      shape.__dirtyPosition = true
-      location.dirtyPosition = false
+    # if location.dirtyPosition
+    pos = location.position
+    shape.position.set(pos.x, pos.y, pos.z)
+    shape.__dirtyPosition = true
+    location.dirtyPosition = false
 
-    if location.dirtyRotation
-      quat = location.quaternion
-      shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-      shape.__dirtyRotation = true
-      location.dirtyRotation = false
+    # if location.dirtyRotation
+    quat = location.quaternion
+    shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+    shape.__dirtyRotation = true
+    location.dirtyRotation = false
 
+    if location.impulse?
+      # console.log "updateShape: Applying impulse",location.impulse.force
+      shape.applyImpulse(location.impulse.force, location.impulse.offset)
+    
+    # TODO shape.applyForce
+    # TODO shape.applyTorque
     # TODO shape.setLinearVelocity(vel) # ASYNC! this gets posted as a message to physijs worker
     # TODO shape.setAngularVelocity(location.angularVelocity # ASYNC! this gets posted as a message to physijs worker)
 
