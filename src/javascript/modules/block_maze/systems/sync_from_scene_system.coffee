@@ -23,11 +23,11 @@ class SyncFromSceneSystem extends BaseSystem
       [physical, location] = r.comps
       return if physical.bodyType == Objects.ShapeType.Static
 
-      shape = scene.getObjectById(physical.viewId)
+      shape = scene.getObjectById(physical.shapeId)
       if shape?
         Objects.updateFrom3DShape(shape, physical,location)
       else
-        console.log "!! SyncFromSceneSystem: no shape found for physical.viewId=#{physical.viewId}"
+        console.log "!! SyncFromSceneSystem: no shape found for physical.shapeId=#{physical.shapeId}"
 
       # TODO: propagate @input.collisions ?
 

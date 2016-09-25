@@ -26,8 +26,7 @@ Defs =
        offset: BT.Vec
   
  Physical:
-   bodyId: BT.Number
-   viewId: BT.Number
+   shapeId: BT.Number
    kind: BT.String
    bodyType: BT.Number.with(default: "#{Objects.ShapeType.Dynamic}")
    data: BT.Comp

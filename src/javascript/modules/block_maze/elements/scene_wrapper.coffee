@@ -65,16 +65,16 @@ updateSceneFromEntities = (scene,estore) ->
   PhysicalSearcher.run estore, (r) ->
     [physical,location] = r.comps
 
-    shape = scene.getObjectById(physical.viewId)
+    shape = scene.getObjectById(physical.shapeId)
     if !shape?
-      # console.log "SceneWrapper: scene no object w id",physical.viewId
+      # console.log "SceneWrapper: scene no object w id",physical.shapeId
       shape = Objects.create3DShape(physical,location)
       shape.userData.managed = true
-      physical.viewId = shape.id
+      physical.shapeId = shape.id
       scene.add shape
       # console.log "Created shape",physical,shape,scene
     # else
-    #   console.log "SceneWrapper: scene object ",physical.viewId,shape
+    #   console.log "SceneWrapper: scene object ",physical.shapeId,shape
 
     Objects.update3DShape(shape, physical,location)
     shape.userData.relevant = true
