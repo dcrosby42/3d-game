@@ -61,7 +61,7 @@ updateFollowCamera = (camera,cameraEntity) ->
   camera.lookAt(lookAt)
   null
 
-updateSceneFromEntities = (scene,estore) ->
+updateSceneFromEntities = (scene,estore,collisionAddress) ->
   PhysicalSearcher.run estore, (r) ->
     [physical,location] = r.comps
 
@@ -70,7 +70,22 @@ updateSceneFromEntities = (scene,estore) ->
       # console.log "SceneWrapper: scene no object w id",physical.shapeId
       shape = Objects.create3DShape(physical,location)
       shape.userData.managed = true
+      shape.userData.eid = physical.eid
+      shape.userData.cid = physical.cid
+      if physical.receiveCollisions
+        shape.addEventListener('collision', (other_object, relative_velocity, relative_rotation, contact_normal) ->
+          coll =
+            this_cid: this.userData.cid
+            this_eid: this.userData.eid
+            other_cid: other_object.userData.cid
+            other_eid: other_object.userData.eid
+            velocity: relative_velocity
+            angularVelocity: relative_rotation
+            normal: contact_normal
+          collisionAddress.send(coll)
+        )
       physical.shapeId = shape.id
+
       scene.add shape
       # console.log "Created shape",physical,shape,scene
     # else
@@ -105,7 +120,7 @@ getCameraEntity = (estore) ->
   CameraSearcher.singleEntity(estore)
   
 class SceneWrapper
-  constructor: ({@canvas,@width,@height,simAddress}) ->
+  constructor: ({@canvas,@width,@height,simAddress,@collisionAddress}) ->
     fog = defaultFog()
     @renderer = new THREE.WebGLRenderer(canvas: @canvas)
     @renderer.setSize( @width, @height)
@@ -114,7 +129,6 @@ class SceneWrapper
 
     @scene = new Physijs.Scene(fixedTimeStep: 1/120)
     @scene.setGravity(vec3(0,-10,0))
-    # TODO: @scene.addEventListener('collision', boundCollisionHandlerThatUsesAddressToPumpStuffBackUpToTheTop)
     @scene.addEventListener 'update', => simAddress.send(@scene)
     # @scene.addEventListener 'update', =>
     #   @scene.simulate(undefined, 2)
@@ -147,7 +161,7 @@ class SceneWrapper
     # GAME OBJECTS
     # 
     # updateSceneFromEntities @rootGroup,estore
-    updateSceneFromEntities @scene,estore
+    updateSceneFromEntities @scene,estore,@collisionAddress
 
     #
     # SIMULATE PHYSICS

@@ -29,6 +29,7 @@ Defs =
    shapeId: BT.Number
    kind: BT.String
    shapeType: BT.Number.with(default: "#{Objects.ShapeType.Dynamic}")
+   receiveCollisions: BT.Bool
    data: BT.Comp
    _inner:
      Cube:

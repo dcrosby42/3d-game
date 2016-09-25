@@ -19,11 +19,19 @@ class Mouse extends Action
 class ApplyScene extends Action
 class ApplyCollision extends Action
 
-# DEBUG_UPDATE_LIMIT = 100
+DebugOn =
+  update_limit: 120
+  log: console.log
+DebugOff =
+  update_limit: null
+  log: ->
+
+Debug = DebugOff
 
 TickEffect = {type: 'tick', map: (v) -> new Time(v/1000.0)}
 
 ecsMachine = new EcsMachine([
+  Systems.collision_system()
   Systems.controller_system()
   Systems.player_piece_control_system()
   Systems.camera_follow_system()
@@ -100,6 +108,7 @@ exports.initialState = ->
     C.buildCompForType(T.Physical,
       kind: 'ball'
       data: new C.Physical.Ball(0x333399)
+      receiveCollisions: true
       # axisHelper: 2
     )
     C.buildCompForType(T.Controller, inputName: 'player1')
@@ -177,29 +186,32 @@ exports.update = (model,action) ->
     # cy = (y * (-2/height)) + 1
     # model.mouseLocation.x = cx
     # model.mouseLocation.y = cy
-    # console.log "Action.Mouse type=#{type}", cx,cy
+    # Debug.log "Action.Mouse type=#{type}", cx,cy
         
 
   if action instanceof ApplyScene
     model.NO_RENDER=true
+    Debug.log "ApplyScene", action
     model.input.scene = action.value
     [model.estore, _globalEvents] = sceneSyncEcsMachine.update(model.estore, model.input)
     return [model, null]
 
   # TODO
-  # if action instanceof ApplyCollision
-  #   model.NO_RENDER=true
-  #   model.input.collisions.push(action.value)
+  if action instanceof ApplyCollision
+    model.NO_RENDER=true
+    Debug.log "ApplyCollision", action
+    model.input.collisions.push(action.value)
 
   if action instanceof Time
-    # console.log "BlockMaze update: Time",now
+    Debug.log "Time", action
+    # Debug.log "BlockMaze update: Time",now
     t = action.value
     if model.lastTime?
       dt = t - model.lastTime
       if dt > 0.1 or dt < 0
         dt = 1.0/60.0 # avoid big updates or the crazy first-reqAnimFr-is-huge-then-it-goes-back-to-normal issue. ?
       model.updateCount += 1
-      # console.log " BlockMaze update: Time: updateCount=#{model.updateCount} updating and rendering w dt=",dt
+      # Debug.log " BlockMaze update: Time: updateCount=#{model.updateCount} updating and rendering w dt=",dt
       model.input.dt = dt
       [model.estore, _globalEvents] = ecsMachine.update(model.estore, model.input)
       # TODO handle global events....?
@@ -214,14 +226,15 @@ exports.update = (model,action) ->
       model.input.collisions = []
       
     else
-      # console.log " BlockMaze update: NOT updating or rendering"
+      # Debug.log " BlockMaze update: NOT updating or rendering"
       model.NO_RENDER=true
     model.lastTime = t
 
-    if DEBUG_UPDATE_LIMIT? 
+    if Debug.update_limit? 
       effects = null
-      if model.updateCount <= DEBUG_UPDATE_LIMIT
+      if model.updateCount <= Debug.update_limit
         effects = [ TickEffect ]
+        Debug.log "  (updateCount #{model.updateCount})"
       return [model, effects]
     else
       return [model, [TickEffect]]

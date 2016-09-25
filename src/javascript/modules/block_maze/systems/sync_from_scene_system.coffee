@@ -1,15 +1,11 @@
 BaseSystem = require '../../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
-{canVec3,canQuat} = require '../../../lib/cannon_helpers'
+Objects = require "../objects"
 
 EntitySearch = require '../../../lib/ecs/entity_search'
-
-Cannon = require 'cannon'
-
 PhysicalSearcher = EntitySearch.prepare([T.Physical,T.Location])
 
-Objects = require "../objects"
 
 class SyncFromSceneSystem extends BaseSystem
   @Subscribe: [ T.PhysicsWorld ]
@@ -28,9 +24,6 @@ class SyncFromSceneSystem extends BaseSystem
         Objects.updateFrom3DShape(shape, physical,location)
       else
         console.log "!! SyncFromSceneSystem: no shape found for physical.shapeId=#{physical.shapeId}"
-
-      # TODO: propagate @input.collisions ?
-
 
 
 module.exports = -> new SyncFromSceneSystem()
