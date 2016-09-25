@@ -11,11 +11,11 @@ PhysicalSearcher = EntitySearch.prepare([T.Physical,T.Location])
 
 Objects = require "../objects"
 
-class PhysijsPhysicsSystem extends BaseSystem
+class SyncFromSceneSystem extends BaseSystem
   @Subscribe: [ T.PhysicsWorld ]
 
   process: (r) ->
-    scene = @input.physijsScene
+    scene = @input.scene
     if !scene?
       return
 
@@ -27,10 +27,10 @@ class PhysijsPhysicsSystem extends BaseSystem
       if shape?
         Objects.updateFrom3DShape(shape, physical,location)
       else
-        console.log "!! PhysijsPhysicsSystem: no shape found for physical.viewId=#{physical.viewId}"
+        console.log "!! SyncFromSceneSystem: no shape found for physical.viewId=#{physical.viewId}"
 
-      # TODO: propagate @input.physijsCollisions
+      # TODO: propagate @input.collisions ?
 
 
 
-module.exports = -> new PhysijsPhysicsSystem()
+module.exports = -> new SyncFromSceneSystem()

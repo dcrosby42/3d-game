@@ -15,8 +15,8 @@ class Action extends ActionBase
 class Input extends Action
 class Time extends Action
 class Mouse extends Action
-class PhysijsSimUpdate extends Action
-class PhysijsCollision extends Action
+class ApplyScene extends Action
+class ApplyCollision extends Action
 
 # DEBUG_UPDATE_LIMIT = 100
 
@@ -28,8 +28,8 @@ ecsMachine = new EcsMachine([
   Systems.camera_follow_system()
 ])
 
-physicsUpdateEcsMachine = new EcsMachine([
-  Systems.physijs_physics_system()
+sceneSyncEcsMachine = new EcsMachine([
+  Systems.sync_from_scene_system()
 ])
 
 
@@ -145,9 +145,8 @@ exports.initialState = ->
     input:
       dt: null
       controllerEvents: []
-      physijsScene: null
-      physijsUpdateCount: 0
-      physijsCollisions: []
+      scene: null
+      collisions: []
     # camera:
     #   type: "dev"
     #   data:
@@ -183,17 +182,16 @@ exports.update = (model,action) ->
     # console.log "Action.Mouse type=#{type}", cx,cy
         
 
-  if action instanceof PhysijsSimUpdate
+  if action instanceof ApplyScene
     model.NO_RENDER=true
-    model.input.physijsScene = action.value
-    # model.input.physijsUpdateCount += 1
-    [model.estore, _globalEvents] = physicsUpdateEcsMachine.update(model.estore, model.input)
+    model.input.scene = action.value
+    [model.estore, _globalEvents] = sceneSyncEcsMachine.update(model.estore, model.input)
     return [model, null]
 
   # TODO
-  # if action instanceof PhysijsCollision
+  # if action instanceof ApplyCollision
   #   model.NO_RENDER=true
-  #   model.input.physijsCollisions.push(action.value)
+  #   model.input.collisions.push(action.value)
 
   if action instanceof Time
     # console.log "BlockMaze update: Time",now
@@ -214,10 +212,8 @@ exports.update = (model,action) ->
 
       # Reset the controller input queue for the next Time action (tick)
       model.input.controllerEvents = []
-      model.input.physijsScene = null
-      # console.log "model.input.physijsUpdateCount:",model.input.physijsUpdateCount
-      model.input.physijsUpdateCount = 0
-      model.input.physijsCollisions = []
+      model.input.scene = null
+      model.input.collisions = []
       
     else
       # console.log " BlockMaze update: NOT updating or rendering"
@@ -266,8 +262,8 @@ exports.view = (model,address) ->
         height={height} 
         camera={model.camera} 
         estore={model.estore} 
-        simAddress={address.forward (fsig) -> fsig.map (scene) -> new PhysijsSimUpdate(scene)} 
-        collisionAddress={address.forward (fsig) -> fsig.map (col) -> new PhysijsCollision(col)} 
+        simAddress={address.forward (fsig) -> fsig.map (scene) -> new ApplyScene(scene)} 
+        collisionAddress={address.forward (fsig) -> fsig.map (col) -> new ApplyCollision(col)} 
       />
     </div>
     <KeyboardInput

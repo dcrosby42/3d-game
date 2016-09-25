@@ -12,10 +12,6 @@ ShapeType =
   Dynamic: 1
   NonPhysical: 2
 
-Bodies = {}
-Views = {}
-ViewUpdaters = {}
-
 applyDispositionToShape = (shape,location) ->
   pos = location.position
   quat = location.quaternion
