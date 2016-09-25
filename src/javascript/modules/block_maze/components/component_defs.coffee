@@ -1,4 +1,5 @@
 BT = require './base_types'
+Objects = require '../objects'
 Defs =
  Name:
    name: BT.String
@@ -15,12 +16,10 @@ Defs =
 
  Location:
    position: BT.Vec
-   velocity: BT.Vec
    quaternion: BT.Quat
+   velocity: BT.Vec
    angularVelocity: BT.Vec
    impulse: BT.Comp
-   dirtyPosition: BT.Bool
-   dirtyRotation: BT.Bool
    _inner:
      Impulse:
        force: BT.Vec
@@ -30,7 +29,7 @@ Defs =
    bodyId: BT.Number
    viewId: BT.Number
    kind: BT.String
-   bodyType: BT.Number
+   bodyType: BT.Number.with(default: "#{Objects.ShapeType.Dynamic}")
    data: BT.Comp
    _inner:
      Cube:

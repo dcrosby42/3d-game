@@ -9,39 +9,6 @@ Physijs = require '../../../vendor/physijs_wrapper'
 
 D = 20
 
-# addAnObject = (scene) ->
-#   sphere_geometry = new THREE.SphereGeometry( 1.5, 32, 32 )
-#   material = new THREE.MeshLambertMaterial({ opacity: 0, transparent: true })
-#   shape = new Physijs.SphereMesh(
-#     sphere_geometry,
-#     material,
-#     undefined,
-#     { restitution: Math.random() * 1.5 }
-#   )
-#
-#   shape.material.color.setRGB( Math.random() * 100 / 100, Math.random() * 100 / 100, Math.random() * 100 / 100 )
-#   shape.castShadow = true
-#   shape.receiveShadow = true
-#   
-#   shape.position.set(0,1,0)
-#   # shape.position.set(
-#   #   Math.random() * 30 - 15,
-#   #   20,
-#   #   Math.random() * 30 - 15
-#   # )
-#   shape.material.opacity = 1
-#   
-#   shape.rotation.set(
-#     Math.random() * Math.PI,
-#     Math.random() * Math.PI,
-#     Math.random() * Math.PI
-#   )
-#   console.log shape
-#
-#   scene.add(shape)
-  # shape.addEventListener( 'ready', createShape )
-
-
 defaultFog = ->
   fog = new Three.Fog(0x001525, 10, 40)
   return fog

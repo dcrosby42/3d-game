@@ -7,53 +7,63 @@ Physijs = require '../../vendor/physijs_wrapper'
 
 Data = require './data'
 
+ShapeType =
+  Static: 0
+  Dynamic: 1
+  NonPhysical: 2
+
 Bodies = {}
 Views = {}
 ViewUpdaters = {}
+
+applyDispositionToShape = (shape,location) ->
+  pos = location.position
+  quat = location.quaternion
+  vel = location.velocity
+  angVel = location.angularVelocity
+
+  # TODO -- only set shape values if they differ from gamestate
+  # Hypothesis: all changes need to be shuttled over to the physijs worker, but lets not if we don't have to
+  shape.position.set(pos.x, pos.y, pos.z)
+  shape.__dirtyPosition = true # required by physijs
+
+  shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+  shape.__dirtyRotation = true # required by physijs
+
+  shape.setLinearVelocity(vel) # async -> phyisjs world
+  shape.setAngularVelocity(angVel) # async -> phyisjs world
+
+  if location.impulse?
+    shape.applyImpulse(location.impulse.force, location.impulse.offset) # async -> phyisjs world
+    
+    # TODO shape.applyForce
+    # TODO shape.applyTorque
+  null
+
+copyDispositionFromShape = (shape,location) ->
+  pos = shape.position
+  quat = shape.quaternion
+  angVel = shape.getAngularVelocity()
+  vel = shape.getLinearVelocity()
+  location.position.set(pos.x, pos.y, pos.z)
+  location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+  location.velocity.set(vel.x, vel.y, vel.z)
+  location.angularVelocity.set(angVel.x, angVel.y, angVel.z)
+  null
 
 Kindness = class Kindness
   createShape: (physical,location) ->
     throw new Error("Kind #{@constructor.name} needs to implement @createShape")
 
-  updateShape: (shape,physical,location) ->
-    return if physical.bodyType == 0# "static" ... TODO define this in a shared location 
-    # if location.dirtyPosition
-    pos = location.position
-    quat = location.quaternion
-    shape.position.set(pos.x, pos.y, pos.z)
-    shape.__dirtyPosition = true
-    # location.dirtyPosition = false
-
-    # if location.dirtyRotation
-    shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-    shape.__dirtyRotation = true
-    # location.dirtyRotation = false
-
-    shape.setLinearVelocity(location.velocity)
-    shape.setAngularVelocity(location.angularVelocity)
-
-    if location.impulse?
-      # console.log "updateShape: Applying impulse",location.impulse.force
-      shape.applyImpulse(location.impulse.force, location.impulse.offset)
-    
-    # TODO shape.applyForce
-    # TODO shape.applyTorque
-
+  updateShape: (shape,physical,location,force=false) ->
+    return if physical.bodyType == ShapeType.Static
+    applyDispositionToShape(shape,location)
     null
 
   updateFromShape: (shape,physical,location) ->
-    pos = shape.position
-    quat = shape.quaternion
-    angVel = shape.getAngularVelocity()
-    vel = shape.getLinearVelocity()
-    location.position.set(pos.x, pos.y, pos.z)
-    location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-    location.velocity.set(vel.x, vel.y, vel.z)
-    location.angularVelocity.set(angVel.x, angVel.y, angVel.z)
-    # TODO: angular velocity
-    # console.log "PhysijsPhysicsSystem set location.position",location.position
-    # TODO location.velocity.set(vel.x, vel.y, vel.z)
-    # location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+    return if physical.bodyType == ShapeType.Static
+    copyDispositionFromShape(shape,location)
+    null
 
 
 newGroup = (pos,quat) ->
@@ -62,100 +72,84 @@ newGroup = (pos,quat) ->
   group.quaternion.set(quat.x,quat.y,quat.z,quat.w)
   group
 
-# updateViewPosAndQuat = (view,pos,quat) ->
-#   view.position.set(pos.x,pos.y,pos.z)
-#   view.quaternion.set(quat.x,quat.y,quat.z,quat.w)
-
-
 class Ball extends Kindness
   createShape: (physical,location) ->
-    pos = location.position
-    quat = location.quaternion
-
-    mass = 2
+    # console.log "ball type", physical.bodyType
+    mass = if physical.bodyType == ShapeType.Static
+      0
+    else
+      2
     friction = 0.8 # physijs default
     restitution = 0.2 # physijs default
-    linearDamping = 0.1
-    angularDamping = 0.3
 
-    geometry = new THREE.SphereGeometry(0.5, 10, 10)
+    geometry = new THREE.SphereGeometry(0.5, 10, 10) # TODO set from phys data
     threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
     material = Physijs.createMaterial(threeMaterial, friction, restitution)
     shape = new Physijs.SphereMesh( geometry, material, mass)
     shape.castShadow = true
     shape.receiveShadow = true
-    shape.position.set(pos.x, pos.y, pos.z)
-    # console.log "objects.Ball createShape pos, shape.position",pos,shape.position#.set(pos.x, pos.y, pos.z)
 
-    shape.setDamping(linearDamping, angularDamping)
-    shape.userData.debugme = true
+    if physical.bodyType == ShapeType.Dynamic
+      linearDamping = 0.1
+      angularDamping = 0.3
+      shape.setDamping(linearDamping, angularDamping)
 
-    location.dirtyPosition = false
-    # @updateShape(shape,physical,location)
+    applyDispositionToShape(shape, location)
+
+    # shape.userData.debugme = true
+
     shape
 
 class Cube extends Kindness
-  createBody: (physical,location) ->
-    shape = new Cannon.Box(new Cannon.Vec3(0.5,0.5,0.5)) # TODO get dimensions from physical comp
-    pos = location.position
-    body = new Cannon.Body(mass: 0.5, shape: shape)
-    body.linearDamping = 0.1
-    body.angularDamping = 0.1
-    body.position.set(pos.x, pos.y, pos.z)
-    # body.position.set(0,0,4)
-    # body.linearDamping = 0.0
-    # body.velocity.set(1,0,0)
-    body
+  createShape: (physical,location) ->
+    mass = if physical.bodyType == ShapeType.Static
+      0
+    else
+      0.5
+    friction = 0.8 # physijs default
+    restitution = 0.2 # physijs default
 
-  # updateBody: (body,physical,location) ->
+    geometry = new THREE.BoxGeometry(1,1,1, 10, 10) # TODO get dimensions from physical comp
+    threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
+    material = Physijs.createMaterial(threeMaterial, friction, restitution)
+    shape = new Physijs.BoxMesh( geometry, material, mass)
+    shape.castShadow = true
+    shape.receiveShadow = true
 
-  createView: (physical,location) ->
-    [pos,quat] = convertedPosAndQuat(location)
-    group = newGroup(pos,quat)
-    geometry = new THREE.BoxGeometry(1,1,1, 10, 10)
-    material = new THREE.MeshPhongMaterial(color: physical.data.color)
-    mesh = new THREE.Mesh(geometry, material)
-    mesh.castShadow = true
-    mesh.receiveShadow = true
-    group.add mesh
-    return group
+    if physical.bodyType == ShapeType.Dynamic
+      linearDamping = 0.1
+      angularDamping = 0.1
+      shape.setDamping(linearDamping, angularDamping)
 
-  # updateView: (view,physical,location) ->
+    applyDispositionToShape(shape,location)
+    
+    shape
 
 class Block extends Kindness
   createShape: (physical,location) ->
-    pos = location.position
-    vel = location.velocity
-    quat = location.quaternion
-
-    dim = physical.data.dim
-
-    mass = if physical.bodyType == 0 # "static" ... TODO define this in a shared location
+    mass = if physical.bodyType == ShapeType.Static
       0
     else
       2 # TODO physical.mass
     friction = 0.8 # physijs default
     restitution = 0.2 # physijs default
-    linearDamping = 0.1
-    angularDamping = 0.3
+    dim = physical.data.dim
 
     geometry = new THREE.BoxGeometry(dim.x, dim.y, dim.z, 10, 10)
     threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
     material = Physijs.createMaterial(threeMaterial, friction, restitution)
     shape = new Physijs.BoxMesh( geometry, material, mass)
-
     shape.castShadow = true
     shape.receiveShadow = true
-    shape.position.set(pos.x, pos.y, pos.z)
 
-    if physical.bodyType == 0 # "static" ... TODO define this in a shared location
-      null # TODO fix this whole stanza
-    else
+    if physical.bodyType == ShapeType.Dynamic
+      linearDamping = 0.1
+      angularDamping = 0.3
       shape.setDamping(linearDamping, angularDamping)
-      #TODO shape.setLinearVelocity(physical.velocity)
-      #TODO shape.setAngularVelocity(physical.angularVelocity)
 
-    return shape
+    applyDispositionToShape(shape, location)
+
+    shape
 
 
 ter = Data.get("spike.terrain.shapes")
@@ -284,3 +278,5 @@ module.exports.update3DShape = (shape,physical,location) ->
 
 module.exports.updateFrom3DShape = (shape,physical,location) ->
   return getModule(physical.kind).updateFromShape(shape, physical,location)
+
+module.exports.ShapeType = ShapeType

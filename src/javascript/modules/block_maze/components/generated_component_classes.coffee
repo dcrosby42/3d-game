@@ -41,10 +41,10 @@ exports.Rng = class Rng
 
 exports.Location = class Location
   Types.registerClass @
-  constructor: (@eid, @cid, @position, @velocity, @quaternion, @angularVelocity, @impulse, @dirtyPosition, @dirtyRotation) -> @type = @constructor.type
-  @default: -> new @(null, null, vec3(), vec3(), quat(), vec3(), null, false, false)
-  clone: -> new @constructor(@eid, @cid, (if @position? then @position.clone() else null), (if @velocity? then @velocity.clone() else null), (if @quaternion? then @quaternion.clone() else null), (if @angularVelocity? then @angularVelocity.clone() else null), (if @impulse? then @impulse.clone() else null), @dirtyPosition, @dirtyRotation)
-  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (if @position? then @position.equals(o.position) else !o.position?) and (if @velocity? then @velocity.equals(o.velocity) else !o.velocity?) and (if @quaternion? then @quaternion.equals(o.quaternion) else !o.quaternion?) and (if @angularVelocity? then @angularVelocity.equals(o.angularVelocity) else !o.angularVelocity?) and (if @impulse? then @impulse.equals(o.impulse) else !o.impulse?) and (@dirtyPosition == o.dirtyPosition) and (@dirtyRotation == o.dirtyRotation)
+  constructor: (@eid, @cid, @position, @quaternion, @velocity, @angularVelocity, @impulse) -> @type = @constructor.type
+  @default: -> new @(null, null, vec3(), quat(), vec3(), vec3(), null)
+  clone: -> new @constructor(@eid, @cid, (if @position? then @position.clone() else null), (if @quaternion? then @quaternion.clone() else null), (if @velocity? then @velocity.clone() else null), (if @angularVelocity? then @angularVelocity.clone() else null), (if @impulse? then @impulse.clone() else null))
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (if @position? then @position.equals(o.position) else !o.position?) and (if @quaternion? then @quaternion.equals(o.quaternion) else !o.quaternion?) and (if @velocity? then @velocity.equals(o.velocity) else !o.velocity?) and (if @angularVelocity? then @angularVelocity.equals(o.angularVelocity) else !o.angularVelocity?) and (if @impulse? then @impulse.equals(o.impulse) else !o.impulse?)
   
   @Impulse: class Impulse
     constructor: (@force, @offset) ->
@@ -55,7 +55,7 @@ exports.Location = class Location
 exports.Physical = class Physical
   Types.registerClass @
   constructor: (@eid, @cid, @bodyId, @viewId, @kind, @bodyType, @data) -> @type = @constructor.type
-  @default: -> new @(null, null, null, null, null, null, null)
+  @default: -> new @(null, null, null, null, null, 1, null)
   clone: -> new @constructor(@eid, @cid, @bodyId, @viewId, @kind, @bodyType, (if @data? then @data.clone() else null))
   equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@bodyId == o.bodyId) and (@viewId == o.viewId) and (@kind == o.kind) and (@bodyType == o.bodyType) and (if @data? then @data.equals(o.data) else !o.data?)
   
