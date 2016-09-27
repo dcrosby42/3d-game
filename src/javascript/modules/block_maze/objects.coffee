@@ -48,18 +48,43 @@ copyDispositionFromShape = (shape,location) ->
   location.angularVelocity.set(angVel.x, angVel.y, angVel.z)
   null
 
+arrayEquals = (src,dest) ->
+  if src? and dest?
+    return false if src.length != dest.length
+    for val,i in src
+      if dest[i] != val
+        return false
+    return true
+  else
+    return (!src? and !dest?)
+
+cloneArray = (src) ->
+  return null unless src?
+  dest = new Array(src.length)
+  for val,i in src
+    dest[i] = val
+  return dest
+
+
 Kindness = class Kindness
   createShape: (physical,location) ->
     throw new Error("Kind #{@constructor.name} needs to implement @createShape")
 
-  updateShape: (shape,physical,location,force=false) ->
+  updateShape: (shape,physical,location) ->
     return if physical.shapeType == ShapeType.Static
+    # if physical.eid == 2
+    #   console.log physical.eid, shape._physijs.touches
     applyDispositionToShape(shape,location)
     null
 
   updateFromShape: (shape,physical,location) ->
     return if physical.shapeType == ShapeType.Static
     copyDispositionFromShape(shape,location)
+
+    # if physical.receiveCollisions and !arrayEquals(shape._physijs.touches, physical.touches)
+    #   physical.touches = cloneArray(shape._physijs.touches)
+    #   console.log "Physical e#{physical.eid} touches",physical.touches
+
     null
 
 
@@ -164,8 +189,8 @@ class Terrain extends Kindness
 
     width = 80
     height = 80
-    xfaces = 50
-    yfaces = 50
+    xfaces = 80
+    yfaces = 80
     geometry = new THREE.PlaneGeometry( width, height, xfaces, yfaces )
     # NoiseGen = new SimplexNoise
     for vertex in geometry.vertices

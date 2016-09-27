@@ -20,7 +20,7 @@ class ApplyScene extends Action
 class ApplyCollision extends Action
 
 DebugOn =
-  update_limit: 60
+  update_limit: 120
   log: console.log
 DebugOff =
   update_limit: null
