@@ -128,14 +128,19 @@ exports.initialState = ->
   estore.createEntity mkCubeComps(vec3(-1,0,10),0x993333)
   estore.createEntity mkCubeComps(vec3(-1,1,10),0x993333)
   
-  groundQuat = quat()
-  groundQuat.setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
-  estore.createEntity([
-    C.buildCompForType(T.Location, position: vec3(0,0,0), quaternion: groundQuat)
-    C.buildCompForType(T.Physical,
-      kind: 'terrain'
-    )
-  ])
+  mkGrassTer = (pos) ->
+    groundQuat = quat()
+    groundQuat.setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
+    [
+      C.buildCompForType(T.Location, position: pos, quaternion: groundQuat)
+      C.buildCompForType(T.Physical,
+        kind: 'sine_grass_terrain'
+      )
+    ]
+
+  estore.createEntity(mkGrassTer(vec3(0,0,0)))
+  estore.createEntity(mkGrassTer(vec3(20,0,0)))
+  estore.createEntity(mkGrassTer(vec3(20,0,20)))
 
 
   estore.createEntity([

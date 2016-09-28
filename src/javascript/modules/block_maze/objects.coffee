@@ -72,20 +72,11 @@ Kindness = class Kindness
 
   updateShape: (shape,physical,location) ->
     return if physical.shapeType == ShapeType.Static
-    # if physical.eid == 2
-    #   console.log physical.eid, shape._physijs.touches
     applyDispositionToShape(shape,location)
-    null
 
   updateFromShape: (shape,physical,location) ->
     return if physical.shapeType == ShapeType.Static
     copyDispositionFromShape(shape,location)
-
-    # if physical.receiveCollisions and !arrayEquals(shape._physijs.touches, physical.touches)
-    #   physical.touches = cloneArray(shape._physijs.touches)
-    #   console.log "Physical e#{physical.eid} touches",physical.touches
-
-    null
 
 
 newGroup = (pos,quat) ->
@@ -180,31 +171,32 @@ class Block extends Kindness
 
     shape
 
-class Terrain extends Kindness
+class SineGrassTerrain extends Kindness
   createShape: (physical,location) ->
     mass = 0
     # friction = 0.8 # physijs default
     friction = 1#0.8 # physijs default
     restitution = 0.4
 
-    width = 80
-    height = 80
-    xfaces = 80
-    yfaces = 80
+    width = 20
+    height = 20
+    xfaces = 40
+    yfaces = 40
     geometry = new THREE.PlaneGeometry( width, height, xfaces, yfaces )
     # NoiseGen = new SimplexNoise
     for vertex in geometry.vertices
       # vertex.z = NoiseGen.noise( vertex.x / 10, vertex.y / 10 ) * 2
       # vertex.z = 0
-      vertex.z = Math.sin(vertex.x / 2)
+      vertex.z = Math.sin(vertex.x * (Math.PI/ 10) * 2)
+
     geometry.computeFaceNormals()
     geometry.computeVertexNormals()
 
-    # threeMaterial = new THREE.MeshPhongMaterial(color: 0x66cc66)
+    # threeMaterial = new THREE.MeshPhongMaterial(color: 0x66cc66, wireframe: true)
     threeMaterial = new THREE.MeshLambertMaterial(map: THREE.ImageUtils.loadTexture('images/grass.png'))
     threeMaterial.map.wrapS = THREE.RepeatWrapping
     threeMaterial.map.wrapT = THREE.RepeatWrapping
-    threeMaterial.map.repeat.set(10,10) 
+    threeMaterial.map.repeat.set(2.5,2.5)
     material = Physijs.createMaterial(threeMaterial, friction, restitution)
 
     # If your plane is not square as far as face count then the HeightfieldMesh
@@ -351,7 +343,7 @@ Kinds.ball = new Ball()
 Kinds.cube = new Cube()
 Kinds.block = new Block()
 Kinds.plane = new Plane()
-Kinds.terrain = new Terrain()
+Kinds.sine_grass_terrain = new SineGrassTerrain()
 
 
 getModule = (k) ->
