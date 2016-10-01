@@ -3,27 +3,23 @@ C = require '../components'
 T = C.Types
 Objects = require "../objects"
 
-EntitySearch = require '../../../lib/ecs/entity_search'
-PhysicalSearcher = EntitySearch.prepare([T.Physical,T.Location])
-
-
 class SyncFromSceneSystem extends BaseSystem
-  @Subscribe: [ T.PhysicsWorld ]
+  @Subscribe: [T.Physical,T.Location]
 
   process: (r) ->
+    # The "scene updates" arrive as input with a back reference to the actual Physijs scene.
     scene = @input.scene
     if !scene?
       return
 
-    PhysicalSearcher.run @estore, (r) =>
-      [physical, location] = r.comps
-      return if physical.shapeType == Objects.ShapeType.Static
+    [physical, location] = r.comps
+    return if physical.shapeType == Objects.ShapeType.Static
 
-      shape = scene.getObjectById(physical.shapeId)
-      if shape?
-        Objects.updateFrom3DShape(shape, physical,location)
-      else
-        console.log "!! SyncFromSceneSystem: no shape found for physical.shapeId=#{physical.shapeId}"
+    shape = scene.getObjectById(physical.shapeId)
+    if shape?
+      Objects.updateFrom3DShape(shape, physical,location)
+    else
+      console.log "!! SyncFromSceneSystem: no shape found for physical.shapeId=#{physical.shapeId}"
 
 
 module.exports = -> new SyncFromSceneSystem()

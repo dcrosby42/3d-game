@@ -90,13 +90,6 @@ exports.FollowCamera = class FollowCamera
   clone: -> new @constructor(@eid, @cid, @followingTag, (if @lookAt? then @lookAt.clone() else null), @hOrbit, @vOrbit)
   equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@followingTag == o.followingTag) and (if @lookAt? then @lookAt.equals(o.lookAt) else !o.lookAt?) and (@hOrbit == o.hOrbit) and (@vOrbit == o.vOrbit)
 
-exports.PhysicsWorld = class PhysicsWorld
-  Types.registerClass @
-  constructor: (@eid, @cid, @worldId) -> @type = @constructor.type
-  @default: -> new @(null, null, null)
-  clone: -> new @constructor(@eid, @cid, @worldId)
-  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@worldId == o.worldId)
-
 exports.Controller = class Controller
   Types.registerClass @
   constructor: (@eid, @cid, @inputName, @states) -> @type = @constructor.type

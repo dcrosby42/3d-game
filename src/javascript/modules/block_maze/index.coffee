@@ -96,10 +96,10 @@ mkSlabComps = (pos,dim,color=0xffffff,name='Slab') ->
 exports.initialState = ->
   estore = new EntityStore()
 
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Physics World')
-    C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
-  ])
+  # estore.createEntity([
+  #   C.buildCompForType(T.Name, name: 'Physics World')
+  #   C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
+  # ])
 
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Player One')

@@ -52,8 +52,8 @@ Defs =
    hOrbit: BT.Number
    vOrbit: BT.Number
 
- PhysicsWorld:
-   worldId: BT.Number
+#  PhysicsWorld:
+#    worldId: BT.Number
 
  Controller:
    inputName: BT.String
