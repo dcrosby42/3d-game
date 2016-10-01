@@ -1,13 +1,12 @@
 React = require 'react'
 KeyboardInput = require '../../elements/keyboard_input'
 GamepadInput = require '../../elements/gamepad_input'
-C = require './components'
-T = C.Types
 Systems = require './systems'
-Objects = require './objects'
 
 EntityStore = require '../../lib/ecs/entity_store'
 EcsMachine = require '../../lib/ecs/ecs_machine'
+
+Construct = require './construct'
 
 {euler,vec3,quat} = require '../../lib/three_helpers'
 
@@ -30,6 +29,45 @@ Debug = DebugOff
 
 TickEffect = {type: 'tick', map: (v) -> new Time(v/1000.0)}
 
+#
+# INITIAL STATE
+#
+
+exports.initialState = ->
+  model  = {
+    updateCount: 0
+    lastTime: null
+    estore: initialEntityStore()
+    input:
+      dt: null
+      controllerEvents: []
+      scene: null
+      collisions: []
+  }
+  [model, [TickEffect]]
+
+initialEntityStore = ->
+  estore = new EntityStore()
+  estore.createEntity(Construct.sineGrassChunk(vec3(0,0,0)))
+
+  estore.createEntity(Construct.playerPiece(tag:"player_piece"))
+  estore.createEntity Construct.playerFollowCamera(followTag:"player_piece")
+
+  estore.createEntity Construct.cube(vec3(-1,1,-1),0x993333)
+  estore.createEntity Construct.cube(vec3(-1.1,2,-1),0x993333)
+  estore.createEntity Construct.cube(vec3(20,0,-1),0x993333)
+  estore.createEntity Construct.cube(vec3(20,1,-1),0x993333)
+  estore.createEntity Construct.cube(vec3(20,0,10),0x993333)
+  estore.createEntity Construct.cube(vec3(20,1,10),0x993333)
+  estore.createEntity Construct.cube(vec3(-1,0,10),0x993333)
+  estore.createEntity Construct.cube(vec3(-1,1,10),0x993333)
+  
+  return estore
+
+#
+# UPDATE
+#
+
 ecsMachine = new EcsMachine([
   Systems.collision_system()
   Systems.controller_system()
@@ -40,137 +78,6 @@ ecsMachine = new EcsMachine([
 sceneSyncEcsMachine = new EcsMachine([
   Systems.sync_from_scene_system()
 ])
-
-
-generateSlabComps = () ->
-  compLists = []
-  dark=false
-  back = -2
-  left = -2
-  width = 4
-  length = 4
-  height = 0.5 
-  y = 2
-  z = -2
-  lightColor = 0xffffff
-  darkColor = 0x333366
-
-  numXSlabs = 10 
-  numZSlabs = 10
-
-  for i in [0...numZSlabs]
-    z = back + i*length
-    for j in [0...numXSlabs]
-      dark = if i % 2 == 0
-        j % 2 == 0
-      else
-        j % 2 != 0
-      x = left + j*width
-      color = if dark then darkColor else lightColor
-      compLists.push mkSlabComps(vec3(x, y, z), vec3(width,height,length), color)
-      dark = !dark
-
-  return compLists
-
-mkCubeComps = (pos,color=0xffffff,name='Cube') ->
-  [
-    C.buildCompForType(T.Name, name: name)
-    C.buildCompForType(T.Location, position: pos)
-    C.buildCompForType(T.Physical,
-      kind: 'cube'
-      data: new C.Physical.Cube(color)
-    )
-  ]
-
-mkSlabComps = (pos,dim,color=0xffffff,name='Slab') ->
-  [
-    C.buildCompForType(T.Name, name: 'Slab')
-    C.buildCompForType(T.Location, position: pos)
-    C.buildCompForType(T.Physical,
-      kind: 'block'
-      shapeType: Objects.ShapeType.Static
-      data: new C.Physical.Block(color, dim)
-    )
-  ]
-
-exports.initialState = ->
-  estore = new EntityStore()
-
-  # estore.createEntity([
-  #   C.buildCompForType(T.Name, name: 'Physics World')
-  #   C.buildCompForType(T.PhysicsWorld, worldId: 'myWorld')
-  # ])
-
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Player One')
-    C.buildCompForType(T.Tag, name: 'player_piece')
-    C.buildCompForType(T.Location, position: vec3(0,2,0))
-    C.buildCompForType(T.Physical,
-      kind: 'ball'
-      data: new C.Physical.Ball(0x333399)
-      receiveCollisions: true
-      # axisHelper: 2
-    )
-    C.buildCompForType(T.Controller, inputName: 'player1')
-  ])
-
-
-  # for comps in generateSlabComps()
-  #   estore.createEntity comps
-
-  # TODO
-  estore.createEntity mkCubeComps(vec3(-1,1,-1),0x993333)
-  estore.createEntity mkCubeComps(vec3(-1.1,2,-1),0x993333)
-  estore.createEntity mkCubeComps(vec3(20,0,-1),0x993333)
-  estore.createEntity mkCubeComps(vec3(20,1,-1),0x993333)
-  estore.createEntity mkCubeComps(vec3(20,0,10),0x993333)
-  estore.createEntity mkCubeComps(vec3(20,1,10),0x993333)
-  estore.createEntity mkCubeComps(vec3(-1,0,10),0x993333)
-  estore.createEntity mkCubeComps(vec3(-1,1,10),0x993333)
-  
-  mkGrassTer = (pos) ->
-    groundQuat = quat()
-    groundQuat.setFromAxisAngle(vec3(1, 0, 0), -Math.PI / 2)
-    [
-      C.buildCompForType(T.Location, position: pos, quaternion: groundQuat)
-      C.buildCompForType(T.Physical,
-        kind: 'sine_grass_terrain'
-      )
-    ]
-
-  estore.createEntity(mkGrassTer(vec3(0,0,0)))
-  estore.createEntity(mkGrassTer(vec3(20,0,0)))
-  estore.createEntity(mkGrassTer(vec3(20,0,20)))
-
-
-  estore.createEntity([
-    C.buildCompForType(T.Name, name: 'Follow Camera')
-    C.buildCompForType(T.FollowCamera, followTag: 'player_piece')
-    C.buildCompForType(T.Location, position: vec3(0,3,5))
-  ])
-
-
-  model  = {
-    updateCount: 0
-    lastTime: null
-    estore: estore
-    input:
-      dt: null
-      controllerEvents: []
-      scene: null
-      collisions: []
-    # camera:
-    #   type: "dev"
-    #   data:
-    #     name: "dev"
-    #     position: vec3(0,3,5)
-    #     pan: 0
-    #     tilt: 0
-    mouseLocation:
-      x: 0
-      y: 0
-  }
-  [model, [{type: 'tick', map: (v) -> new Time(v)}]]
 
 
 exports.update = (model,action) ->
