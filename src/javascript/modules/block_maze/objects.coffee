@@ -16,23 +16,18 @@ ShapeType =
 applyDispositionToShape = (shape,location) ->
   pos = location.position
   quat = location.quaternion
-  vel = location.velocity
-  angVel = location.angularVelocity
-
-  # TODO -- only set shape values if they differ from gamestate
-  # Hypothesis: all changes need to be shuttled over to the physijs worker, but lets not if we don't have to
   shape.position.set(pos.x, pos.y, pos.z)
-  shape.__dirtyPosition = true # required by physijs
-
   shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-  shape.__dirtyRotation = true # required by physijs
+  if shape._physijs?
+    # TODO -- only set shape values if they differ from gamestate
+    # Hypothesis: all changes need to be shuttled over to the physijs worker, but lets not if we don't have to
+    shape.__dirtyPosition = true # required by physijs
+    shape.__dirtyRotation = true # required by physijs
+    shape.setLinearVelocity(location.velocity) # async -> phyisjs world
+    shape.setAngularVelocity(location.angularVelocity) # async -> phyisjs world
 
-  shape.setLinearVelocity(vel) # async -> phyisjs world
-  shape.setAngularVelocity(angVel) # async -> phyisjs world
-
-  if location.impulse?
-    shape.applyImpulse(location.impulse.force, location.impulse.offset) # async -> phyisjs world
-    
+    if location.impulse?
+      shape.applyImpulse(location.impulse.force, location.impulse.offset) # async -> phyisjs world
     # TODO shape.applyForce
     # TODO shape.applyTorque
   null
@@ -40,12 +35,13 @@ applyDispositionToShape = (shape,location) ->
 copyDispositionFromShape = (shape,location) ->
   pos = shape.position
   quat = shape.quaternion
-  angVel = shape.getAngularVelocity()
-  vel = shape.getLinearVelocity()
   location.position.set(pos.x, pos.y, pos.z)
   location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-  location.velocity.set(vel.x, vel.y, vel.z)
-  location.angularVelocity.set(angVel.x, angVel.y, angVel.z)
+  if shape._physijs?
+    angVel = shape.getAngularVelocity()
+    vel = shape.getLinearVelocity()
+    location.velocity.set(vel.x, vel.y, vel.z)
+    location.angularVelocity.set(angVel.x, angVel.y, angVel.z)
   null
 
 arrayEquals = (src,dest) ->
@@ -87,14 +83,9 @@ newGroup = (pos,quat) ->
 
 class Ball extends Kindness
   createShape: (physical,location) ->
-    # console.log "ball type", physical.shapeType
-    mass = if physical.shapeType == ShapeType.Static
-      0
-    else
-      2
-    # friction = 0.8 # physijs default
+    mass = 2
     friction = 1
-    restitution = 0.2 # physijs default
+    restitution = 0.2
 
     geometry = new THREE.SphereGeometry(0.5, 20,20) # TODO set from phys data
     threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
@@ -105,17 +96,47 @@ class Ball extends Kindness
 
     shape.addEventListener 'ready', ->
       if physical.shapeType == ShapeType.Dynamic
-        # linearDamping = 0.1
-        # angularDamping = 0.3
         linearDamping = 0.25
         angularDamping = 0.4
         shape.setDamping(linearDamping, angularDamping)
 
       applyDispositionToShape(shape, location)
 
-    # shape.userData.debugme = true
+    # rbox = mkBox(geom:[0.3,0.3,0.3, 10,10], color: 0x229944, position: vec3(0.5,0,0), mass: 1)
+    # lbox = mkBox(geom:[0.3,0.3,0.3, 10,10], color: 0xcc6622, position: vec3(-0.5,0,0), mass: 1)
+    # shape.add(rbox)
+    # shape.add(lbox)
 
     shape
+
+  updateShape: (shape,physical,location) ->
+    super
+
+  updateFromShape: (shape,physical,location) ->
+    super
+
+
+mkBox = (opts={}) ->
+  opts.position ?= vec3()
+  opts.quaternion ?= mkQuat()
+  opts.friction ?= 0.8
+  opts.restitution ?= 0.2
+  opts.color ?= 0xffffff
+  opts.geom ?= [1,1,1, 1,1]
+  opts.mass ?= 1
+  opts.castShadow ?= true
+  opts.receiveShadow ?= true
+
+  geometry = new THREE.CubeGeometry(opts.geom[0], opts.geom[1], opts.geom[2])
+  threeMaterial = new THREE.MeshPhongMaterial(color: opts.color)
+  material = Physijs.createMaterial(threeMaterial)
+  box = new Physijs.BoxMesh( geometry, material)
+  box.position.set(opts.position.x,opts.position.y,opts.position.z)
+  box.castShadow = opts.castShadow
+  box.receiveShadow = opts.receiveShadow
+  box
+
+
 
 class Cube extends Kindness
   createShape: (physical,location) ->
@@ -241,7 +262,10 @@ class Block extends Kindness
       angularDamping = 0.3
       shape.setDamping(linearDamping, angularDamping)
 
-    applyDispositionToShape(shape, location)
+    shape.position.x = location.position.x
+    shape.position.y = location.position.y
+    shape.position.z = location.position.z
+    # applyDispositionToShape(shape, location)
 
     shape
 

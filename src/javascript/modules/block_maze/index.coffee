@@ -104,7 +104,7 @@ exports.initialState = ->
   estore.createEntity([
     C.buildCompForType(T.Name, name: 'Player One')
     C.buildCompForType(T.Tag, name: 'player_piece')
-    C.buildCompForType(T.Location, position: vec3(0,1,0))
+    C.buildCompForType(T.Location, position: vec3(0,2,0))
     C.buildCompForType(T.Physical,
       kind: 'ball'
       data: new C.Physical.Ball(0x333399)

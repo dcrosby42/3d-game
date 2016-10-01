@@ -7,6 +7,8 @@ Objects = require '../objects'
 
 Physijs = require '../../../vendor/physijs_wrapper'
 
+PiecesParts = require '../../../spike/pieces_parts'
+
 D = 20
 
 defaultFog = ->
@@ -72,8 +74,8 @@ updateSceneFromEntities = (scene,estore,collisionAddress) ->
       shape.userData.managed = true
       shape.userData.eid = physical.eid
       shape.userData.cid = physical.cid
-      if physical.receiveCollisions
-        1
+      # if physical.receiveCollisions
+      #   1
         # shape.addEventListener('collision', (other_object, relative_velocity, relative_rotation, contact_normal) ->
         #   console.log "scene_wrapper: object collision", shape._physijs.id
         #   coll =
@@ -151,6 +153,8 @@ class SceneWrapper
     # @scene.addEventListener 'update', =>
     #   @scene.simulate(undefined, 2)
 
+    #PiecesParts.addChair(@scene)
+    #PiecesParts.addThinger(@scene)
 
     @scene.fog = fog
 
@@ -192,4 +196,6 @@ class SceneWrapper
     #
     @renderer.render(@scene, @camera)
 
+
 module.exports = SceneWrapper
+
