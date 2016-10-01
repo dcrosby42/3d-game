@@ -47,6 +47,7 @@ class Construct
     for i in [0...length]
       for j in [0...width]
         list.push [
+          C.buildCompForType(T.Tag, name: 'pellet')
           C.buildCompForType(T.Location, position: vec3(j,y,i))
           C.buildCompForType(T.Physical, kind: 'pellet')
         ]

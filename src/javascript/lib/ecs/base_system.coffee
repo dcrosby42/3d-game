@@ -48,6 +48,6 @@ class BaseSystem
       if fn?
         fn(e.data)
     return null
-  
+
 
 module.exports = BaseSystem

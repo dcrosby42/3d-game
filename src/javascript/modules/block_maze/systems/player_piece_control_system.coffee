@@ -1,6 +1,7 @@
 BaseSystem = require '../../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
+E = require './entity_helpers'
 
 {vec3,quat,euler} = require '../../../lib/three_helpers'
 
@@ -50,24 +51,20 @@ class PlayerPieceControlSystem extends BaseSystem
       forward: (val) =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, ForwardForce)
         location.impulse = new C.Location.Impulse(impulse, DrivePoint)
-        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       backward: =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -BackwardForce)
         location.impulse = new C.Location.Impulse(impulse, DrivePoint)
-        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
       
       strafeLeft: =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, StrafeForce)
         impulse.applyQuaternion(Left90)
         location.impulse = new C.Location.Impulse(impulse, DrivePoint)
-        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       strafeRight: =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, StrafeForce)
         impulse.applyQuaternion(Right90)
         location.impulse = new C.Location.Impulse(impulse, DrivePoint)
-        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       orbitRight: =>
         camera.hOrbit += -OrbitSpeed * timeStep
@@ -88,21 +85,17 @@ class PlayerPieceControlSystem extends BaseSystem
       jump: =>
         impulse = vec3(0, JumpThrust * timeStep, 0)
         location.impulse = new C.Location.Impulse(impulse, DrivePoint)
-        #@publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
-
 
       # GAMEPAD:
 
       drive: (analog) =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*ForwardForce)
         location.impulse = new C.Location.Impulse(impulse, DrivePoint)
-        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       strafe: (analog) =>
         impulse = calcCamRelativeImpulse(camLocation,location,timeStep, -analog*StrafeForce)
         impulse.applyQuaternion(Left90)
         location.impulse = new C.Location.Impulse(impulse, DrivePoint)
-        # @publishEvent eid, "impulse", impulse: impulse, point: DrivePoint
 
       orbitX: (analog) =>
         camera.hOrbit += -analog *OrbitSpeed * timeStep
@@ -114,6 +107,17 @@ class PlayerPieceControlSystem extends BaseSystem
         else if camera.vOrbit > 0
           camera.vOrbit = 0
 
+      #
+      # COLLISIONS
+      #
+
+      collision: (col) =>
+        other = @estore.getEntity(col.other_eid)
+        if H.hasTag(other, 'pellet')
+          console.log "Player consuming pellet #{other.eid}"
+          other.destroy()
+
+  
 
 module.exports = -> new PlayerPieceControlSystem()
 

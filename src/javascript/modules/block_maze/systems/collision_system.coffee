@@ -9,7 +9,6 @@ class CollisionSystem extends BaseSystem
     [physical] = r.comps
     for c in @input.collisions
       if c.this_eid == physical.eid and c.this_cid = physical.cid
-        # console.log "CollisionSystem:",c
         @publishEvent r.eid, "collision", c
 
 module.exports = -> new CollisionSystem()

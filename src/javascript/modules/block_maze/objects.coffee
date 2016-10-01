@@ -139,7 +139,8 @@ class Ball extends Kindness
 
 class Pellet extends Kindness
   constructor: ->
-    @mass = 0.1
+    # @mass = 0.1
+    @mass = 0
     @friction = 1
     @restitution = 0.2
     @geometry = new THREE.SphereGeometry(0.1, 10,10)

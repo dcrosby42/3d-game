@@ -74,22 +74,18 @@ updateSceneFromEntities = (scene,estore,collisionAddress) ->
       shape.userData.managed = true
       shape.userData.eid = physical.eid
       shape.userData.cid = physical.cid
-      # if physical.receiveCollisions
-      #   1
-        # shape.addEventListener('collision', (other_object, relative_velocity, relative_rotation, contact_normal) ->
-        #   console.log "scene_wrapper: object collision", shape._physijs.id
-        #   coll =
-        #     # collision: true
-        #     # uncollision: false
-        #     this_cid: shape.userData.cid
-        #     this_eid: shape.userData.eid
-        #     other_cid: other_object.userData.cid
-        #     other_eid: other_object.userData.eid
-        #     velocity: relative_velocity
-        #     angularVelocity: relative_rotation
-        #     normal: contact_normal
-        #   collisionAddress.send(coll)
-        # )
+      if physical.receiveCollisions
+        shape.addEventListener('collision', (other_object, relative_velocity, relative_rotation, contact_normal) ->
+          coll =
+            this_cid: shape.userData.cid
+            this_eid: shape.userData.eid
+            other_cid: other_object.userData.cid
+            other_eid: other_object.userData.eid
+            velocity: relative_velocity
+            angularVelocity: relative_rotation
+            normal: contact_normal
+          collisionAddress.send(coll)
+        )
         # shape.addEventListener('uncollision', (other_object) ->
         #   console.log "scene_wrapper: object UNcollision", shape._physijs.id
         #   coll =
@@ -126,7 +122,7 @@ updateSceneFromEntities = (scene,estore,collisionAddress) ->
 
   # Remove irrelevant views:
   for shape in markedForDeath
-    console.log "Removing obsolete shape",shape
+    # console.log "Removing obsolete shape",shape
     scene.remove shape
 
   null
