@@ -13,35 +13,57 @@ ShapeType =
   Dynamic: 1
   NonPhysical: 2
 
-applyDispositionToShape = (shape,location) ->
-  pos = location.position
-  quat = location.quaternion
-  shape.position.set(pos.x, pos.y, pos.z)
-  shape.quaternion.set(quat.x, quat.y, quat.z, quat.w)
-  if shape._physijs?
-    # TODO -- only set shape values if they differ from gamestate
-    # Hypothesis: all changes need to be shuttled over to the physijs worker, but lets not if we don't have to
-    shape.__dirtyPosition = true # required by physijs
-    shape.__dirtyRotation = true # required by physijs
-    shape.setLinearVelocity(location.velocity) # async -> phyisjs world
-    shape.setAngularVelocity(location.angularVelocity) # async -> phyisjs world
+tol = 0.01
+vecEquals = (a,b) ->
+  if Math.abs(a.x - b.x) > tol and Math.abs(a.y - b.y) > tol and Math.abs(a.z - b.z) > tol
+    return false
 
-    if location.impulse?
-      shape.applyImpulse(location.impulse.force, location.impulse.offset) # async -> phyisjs world
-    # TODO shape.applyForce
-    # TODO shape.applyTorque
+applyDispositionToShape = (shape,location) ->
+  if location.positionDirty
+    pos = location.position
+    shape.position.set(pos.x, pos.y, pos.z)
+    location.positionDirty = false
+    if shape._physijs?
+      shape.__dirtyPosition = true
+
+  if location.quaternionDirty
+    rot = location.quaternion
+    shape.quaternion.set(rot.x, rot.y, rot.z, rot.w)
+    location.quaternionDirty = false
+    if shape._physijs?
+      shape.__dirtyRotation = true
+
+  if location.velocityDirty
+    shape.setLinearVelocity(location.velocity) # async -> phyisjs world
+    location.velocityDiry = false
+
+  if location.angularVelocityDirty
+    shape.setAngularVelocity(location.angularVelocity) # async -> phyisjs world
+    location.angularVelocityDirty = false
+
+  if location.impulse?
+    shape.applyImpulse(location.impulse.force, location.impulse.offset) # async -> phyisjs world
+  
+  # TODO shape.applyForce
+  
+  # TODO shape.applyTorque
+ 
   null
 
 copyDispositionFromShape = (shape,location) ->
   pos = shape.position
   quat = shape.quaternion
   location.position.set(pos.x, pos.y, pos.z)
+  location.positionDirty = false
   location.quaternion.set(quat.x, quat.y, quat.z, quat.w)
+  location.quaternionDirty = false
   if shape._physijs?
     angVel = shape.getAngularVelocity()
     vel = shape.getLinearVelocity()
     location.velocity.set(vel.x, vel.y, vel.z)
+    location.velocityDirty = false
     location.angularVelocity.set(angVel.x, angVel.y, angVel.z)
+    location.angularVelocityDirty = false
   null
 
 arrayEquals = (src,dest) ->
@@ -115,6 +137,31 @@ class Ball extends Kindness
   updateFromShape: (shape,physical,location) ->
     super
 
+class Pellet extends Kindness
+  constructor: ->
+    @mass = 0.1
+    @friction = 1
+    @restitution = 0.2
+    @geometry = new THREE.SphereGeometry(0.1, 10,10)
+    # @geometry = new THREE.BoxGeometry(0.1,0.1,0.1,1,1)
+    @threeMaterial = new THREE.MeshPhongMaterial(color: 0xffffff)
+    @material = Physijs.createMaterial(@threeMaterial, @friction, @restitution)
+
+  createShape: (physical,location) ->
+    shape = new Physijs.SphereMesh( @geometry, @material, @mass)
+    # shape = new Physijs.BoxMesh( @geometry, @material, @mass)
+    shape.castShadow = true
+    shape.receiveShadow = true
+
+    shape.addEventListener 'ready', ->
+      linearDamping = 0.25
+      angularDamping = 0.4
+      shape.setDamping(linearDamping, angularDamping)
+      applyDispositionToShape(shape, location)
+
+    shape
+
+
 
 mkBox = (opts={}) ->
   opts.position ?= vec3()
@@ -127,10 +174,10 @@ mkBox = (opts={}) ->
   opts.castShadow ?= true
   opts.receiveShadow ?= true
 
-  geometry = new THREE.CubeGeometry(opts.geom[0], opts.geom[1], opts.geom[2])
+  geometry = new THREE.CubeGeometry(opts.geom...)
   threeMaterial = new THREE.MeshPhongMaterial(color: opts.color)
   material = Physijs.createMaterial(threeMaterial)
-  box = new Physijs.BoxMesh( geometry, material)
+  box = new Physijs.BoxMesh( geometry, material, opts.mass)
   box.position.set(opts.position.x,opts.position.y,opts.position.z)
   box.castShadow = opts.castShadow
   box.receiveShadow = opts.receiveShadow
@@ -239,6 +286,42 @@ class SineGrassTerrain extends Kindness
     shape
 
 #######################################################
+class PacMap extends Kindness
+  createShape: (physical,location) ->
+    params =
+      position: vec3(0,0,0)
+      floorColor: 0x333399
+      wallColor: 0x5555cc
+      width: 50
+      length: 90
+      floorThickness: 1
+      wallHeight: 1
+      wallThickness: 1
+
+    floor = mkBox(position: params.position, geom: [params.width,params.floorThickness,params.length], color: params.floorColor, mass: 0)
+
+    wy = params.floorThickness/2+ params.wallHeight/2
+    nwall = mkBox(position: vec3(0, wy, -params.length/2 + params.wallThickness/2), geom: [params.width,params.wallHeight,params.wallThickness], color: params.wallColor, mass: 0)
+    floor.add nwall
+  
+    swall = mkBox(position: vec3(0, wy, params.length/2 - params.wallThickness/2), geom: [params.width,params.wallHeight,params.wallThickness], color: params.wallColor, mass: 0)
+    floor.add swall
+   
+    wwall = mkBox(position: vec3(-params.width/2 + params.wallThickness/2, wy, 0), geom: [params.wallThickness,params.wallHeight,params.length], color: params.wallColor, mass: 0)
+    floor.add wwall
+    
+    ewall = mkBox(position: vec3(params.width/2 - params.wallThickness/2, wy, 0), geom: [params.wallThickness,params.wallHeight,params.length], color: params.wallColor, mass: 0)
+    floor.add ewall
+
+    floor
+
+  updateShape: (shape,physical,location) ->
+    super
+
+  updateFromShape: (shape,physical,location) ->
+    super
+
+    
 
 class Block extends Kindness
   createShape: (physical,location) ->
@@ -368,6 +451,8 @@ Kinds.cube = new Cube()
 Kinds.block = new Block()
 Kinds.plane = new Plane()
 Kinds.sine_grass_terrain = new SineGrassTerrain()
+Kinds.pac_map = new PacMap()
+Kinds.pellet = new Pellet()
 
 
 getModule = (k) ->

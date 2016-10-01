@@ -158,3 +158,34 @@ module.exports.addThinger = (scene) ->
   ball.add box
 
   scene.add ball
+
+module.exports.addPellets = (scene) ->
+  length = 10
+  width = 10
+  list = []
+  y = 2
+
+  mass = 0.1
+  friction = 1
+  restitution = 0.2
+  # @geometry = new THREE.SphereGeometry(0.1, 10,10)
+  geometry = new THREE.BoxGeometry(0.2,0.2,0.2)
+  threeMaterial = new THREE.MeshPhongMaterial(color: 0xffffff)
+  material = Physijs.createMaterial(threeMaterial, friction, restitution)
+
+  for i in [0...length]
+    for j in [0...width]
+      pos = vec3(j,y,i)
+
+      shape = new Physijs.BoxMesh( geometry, material, mass)
+      shape.castShadow = true
+      shape.receiveShadow = true
+      shape.position.set(pos.x, pos.y, pos.z)
+      shape.addEventListener 'ready', ->
+        linearDamping = 0.25
+        angularDamping = 0.4
+        shape.setDamping(linearDamping, angularDamping)
+        shape.position.set(pos.x,pos.y,pos.z)
+
+      scene.add shape
+

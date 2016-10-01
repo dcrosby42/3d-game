@@ -155,14 +155,15 @@ class SceneWrapper
 
     #PiecesParts.addChair(@scene)
     #PiecesParts.addThinger(@scene)
+    # PiecesParts.addPellets(@scene)
 
     @scene.fog = fog
 
     @scene.add defaultDirectionalLight()
     @scene.add defaultAmbientLight()
 
-    axis = new THREE.AxisHelper(5)
-    @scene.add axis
+    # axis = new THREE.AxisHelper(5)
+    # @scene.add axis
 
     @scene.simulate(1/60,2)
 

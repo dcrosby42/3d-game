@@ -19,7 +19,7 @@ class ApplyScene extends Action
 class ApplyCollision extends Action
 
 DebugOn =
-  update_limit: 120
+  update_limit: 360
   log: console.log
 DebugOff =
   update_limit: null
@@ -48,19 +48,23 @@ exports.initialState = ->
 
 initialEntityStore = ->
   estore = new EntityStore()
-  estore.createEntity(Construct.sineGrassChunk(vec3(0,0,0)))
+  # estore.createEntity(Construct.sineGrassChunk(vec3(0,0,0)))
+  estore.createEntity(Construct.pacMap())
 
   estore.createEntity(Construct.playerPiece(tag:"player_piece"))
   estore.createEntity Construct.playerFollowCamera(followTag:"player_piece")
 
-  estore.createEntity Construct.cube(vec3(-1,1,-1),0x993333)
-  estore.createEntity Construct.cube(vec3(-1.1,2,-1),0x993333)
-  estore.createEntity Construct.cube(vec3(20,0,-1),0x993333)
-  estore.createEntity Construct.cube(vec3(20,1,-1),0x993333)
-  estore.createEntity Construct.cube(vec3(20,0,10),0x993333)
-  estore.createEntity Construct.cube(vec3(20,1,10),0x993333)
-  estore.createEntity Construct.cube(vec3(-1,0,10),0x993333)
-  estore.createEntity Construct.cube(vec3(-1,1,10),0x993333)
+  # estore.createEntity Construct.cube(vec3(-1,1,-1),0x993333)
+  # estore.createEntity Construct.cube(vec3(-1.1,2,-1),0x993333)
+  # estore.createEntity Construct.cube(vec3(20,0,-1),0x993333)
+  # estore.createEntity Construct.cube(vec3(20,1,-1),0x993333)
+  # estore.createEntity Construct.cube(vec3(20,0,10),0x993333)
+  # estore.createEntity Construct.cube(vec3(20,1,10),0x993333)
+  # estore.createEntity Construct.cube(vec3(-1,0,10),0x993333)
+  # estore.createEntity Construct.cube(vec3(-1,1,10),0x993333)
+
+  for pcomps in Construct.manyPellets()
+    estore.createEntity pcomps
   
   return estore
 
@@ -154,20 +158,25 @@ exports.update = (model,action) ->
   else
     [model,null]
 
+
+#
+# VIEW 
+#
+
 MazeView = require './elements/maze_view'
 
-handleMouse = (type,width,height,address) ->
-  (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-    address.send new Mouse(
-      type: type
-      x: e.nativeEvent.offsetX
-      y: e.nativeEvent.offsetY
-      width: width
-      height: height
-      event: e
-    )
+# handleMouse = (type,width,height,address) ->
+#   (e) ->
+#     e.stopPropagation()
+#     e.preventDefault()
+#     address.send new Mouse(
+#       type: type
+#       x: e.nativeEvent.offsetX
+#       y: e.nativeEvent.offsetY
+#       width: width
+#       height: height
+#       event: e
+#     )
 
 exports.view = (model,address) ->
   width = 1200

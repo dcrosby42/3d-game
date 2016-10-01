@@ -41,10 +41,10 @@ exports.Rng = class Rng
 
 exports.Location = class Location
   Types.registerClass @
-  constructor: (@eid, @cid, @position, @quaternion, @velocity, @angularVelocity, @impulse) -> @type = @constructor.type
-  @default: -> new @(null, null, vec3(), quat(), vec3(), vec3(), null)
-  clone: -> new @constructor(@eid, @cid, (if @position? then @position.clone() else null), (if @quaternion? then @quaternion.clone() else null), (if @velocity? then @velocity.clone() else null), (if @angularVelocity? then @angularVelocity.clone() else null), (if @impulse? then @impulse.clone() else null))
-  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (if @position? then @position.equals(o.position) else !o.position?) and (if @quaternion? then @quaternion.equals(o.quaternion) else !o.quaternion?) and (if @velocity? then @velocity.equals(o.velocity) else !o.velocity?) and (if @angularVelocity? then @angularVelocity.equals(o.angularVelocity) else !o.angularVelocity?) and (if @impulse? then @impulse.equals(o.impulse) else !o.impulse?)
+  constructor: (@eid, @cid, @position, @positionDirty, @quaternion, @quaternionDirty, @velocity, @velocityDirty, @angularVelocity, @angularVelocityDirty, @impulse) -> @type = @constructor.type
+  @default: -> new @(null, null, vec3(), true, quat(), true, vec3(), true, vec3(), true, null)
+  clone: -> new @constructor(@eid, @cid, (if @position? then @position.clone() else null), @positionDirty, (if @quaternion? then @quaternion.clone() else null), @quaternionDirty, (if @velocity? then @velocity.clone() else null), @velocityDirty, (if @angularVelocity? then @angularVelocity.clone() else null), @angularVelocityDirty, (if @impulse? then @impulse.clone() else null))
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (if @position? then @position.equals(o.position) else !o.position?) and (@positionDirty == o.positionDirty) and (if @quaternion? then @quaternion.equals(o.quaternion) else !o.quaternion?) and (@quaternionDirty == o.quaternionDirty) and (if @velocity? then @velocity.equals(o.velocity) else !o.velocity?) and (@velocityDirty == o.velocityDirty) and (if @angularVelocity? then @angularVelocity.equals(o.angularVelocity) else !o.angularVelocity?) and (@angularVelocityDirty == o.angularVelocityDirty) and (if @impulse? then @impulse.equals(o.impulse) else !o.impulse?)
   
   @Impulse: class Impulse
     constructor: (@force, @offset) ->

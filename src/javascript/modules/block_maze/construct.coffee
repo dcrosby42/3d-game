@@ -1,6 +1,6 @@
-# EntityStore = require '../../lib/ecs/entity_store'
 C = require './components'
 T = C.Types
+Objects = require './objects'
 
 {euler,vec3,quat} = require '../../lib/three_helpers'
 
@@ -14,7 +14,7 @@ class Construct
       C.buildCompForType(T.Location, position: vec3(0,2,0))
       C.buildCompForType(T.Physical,
         kind: 'ball'
-        data: new C.Physical.Ball(0x333399)
+        data: new C.Physical.Ball(0xaaaa22)
         receiveCollisions: true
         # axisHelper: 2
       )
@@ -28,6 +28,30 @@ class Construct
       C.buildCompForType(T.FollowCamera, followTag: opts.followTag)
       C.buildCompForType(T.Location, position: vec3(0,3,5))
     ]
+
+  @pacMap: (pos) ->
+    [
+      C.buildCompForType(T.Name, name: 'Pac Map')
+      C.buildCompForType(T.Location)
+      C.buildCompForType(T.Physical,
+        kind: 'pac_map'
+        shapeType: Objects.ShapeType.Static
+      )
+    ]
+
+  @manyPellets: (pos) ->
+    length = 10
+    width = 10
+    list = []
+    y = 2
+    for i in [0...length]
+      for j in [0...width]
+        list.push [
+          C.buildCompForType(T.Location, position: vec3(j,y,i))
+          C.buildCompForType(T.Physical, kind: 'pellet')
+        ]
+    list
+    
 
   @sineGrassChunk: (pos) ->
     groundQuat = quat()

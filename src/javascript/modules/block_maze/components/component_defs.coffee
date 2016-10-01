@@ -16,9 +16,13 @@ Defs =
 
  Location:
    position: BT.Vec
+   positionDirty: BT.Bool.with(default: "true")
    quaternion: BT.Quat
+   quaternionDirty: BT.Bool.with(default: "true")
    velocity: BT.Vec
+   velocityDirty: BT.Bool.with(default: "true")
    angularVelocity: BT.Vec
+   angularVelocityDirty: BT.Bool.with(default: "true")
    impulse: BT.Comp
    _inner:
      Impulse:
