@@ -113,7 +113,7 @@ class PlayerPieceControlSystem extends BaseSystem
 
       collision: (col) =>
         other = @estore.getEntity(col.other_eid)
-        if H.hasTag(other, 'pellet')
+        if E.hasTag(other, 'pellet')
           console.log "Player consuming pellet #{other.eid}"
           other.destroy()
 

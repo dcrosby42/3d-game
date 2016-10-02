@@ -129,6 +129,7 @@ exports.update = (model,action) ->
       model.updateCount += 1
       # Debug.log " BlockMaze update: Time: updateCount=#{model.updateCount} updating and rendering w dt=",dt
       model.input.dt = dt
+      model.input.time = t
       [model.estore, _globalEvents] = ecsMachine.update(model.estore, model.input)
       # TODO handle global events....?
 

@@ -19,34 +19,35 @@ vecEquals = (a,b) ->
     return false
 
 applyDispositionToShape = (shape,location) ->
+  phys = shape._physijs?
+
   if location.positionDirty
     pos = location.position
     shape.position.set(pos.x, pos.y, pos.z)
     location.positionDirty = false
-    if shape._physijs?
-      shape.__dirtyPosition = true
+    shape.__dirtyPosition = true if phys
 
   if location.quaternionDirty
     rot = location.quaternion
     shape.quaternion.set(rot.x, rot.y, rot.z, rot.w)
     location.quaternionDirty = false
-    if shape._physijs?
-      shape.__dirtyRotation = true
+    shape.__dirtyRotation = true if phys
 
-  if location.velocityDirty
-    shape.setLinearVelocity(location.velocity) # async -> phyisjs world
-    location.velocityDiry = false
+  if phys
+    if location.velocityDirty
+      shape.setLinearVelocity(location.velocity) # async -> phyisjs world
+      location.velocityDiry = false
 
-  if location.angularVelocityDirty
-    shape.setAngularVelocity(location.angularVelocity) # async -> phyisjs world
-    location.angularVelocityDirty = false
+    if location.angularVelocityDirty
+      shape.setAngularVelocity(location.angularVelocity) # async -> phyisjs world
+      location.angularVelocityDirty = false
 
-  if location.impulse?
-    shape.applyImpulse(location.impulse.force, location.impulse.offset) # async -> phyisjs world
+    if location.impulse?
+      shape.applyImpulse(location.impulse.force, location.impulse.offset) # async -> phyisjs world
   
-  # TODO shape.applyForce
-  
-  # TODO shape.applyTorque
+    # TODO shape.applyForce
+    
+    # TODO shape.applyTorque
  
   null
 
@@ -149,16 +150,18 @@ class Pellet extends Kindness
     @material = Physijs.createMaterial(@threeMaterial, @friction, @restitution)
 
   createShape: (physical,location) ->
-    shape = new Physijs.SphereMesh( @geometry, @material, @mass)
+    # shape = new Physijs.SphereMesh( @geometry, @material, @mass)
     # shape = new Physijs.BoxMesh( @geometry, @material, @mass)
-    shape.castShadow = true
-    shape.receiveShadow = true
+    shape = new THREE.Mesh(@geometry, @material)
+    # shape.castShadow = true
+    # shape.receiveShadow = true
 
-    shape.addEventListener 'ready', ->
-      linearDamping = 0.25
-      angularDamping = 0.4
-      shape.setDamping(linearDamping, angularDamping)
-      applyDispositionToShape(shape, location)
+    # shape.addEventListener 'ready', ->
+    #   linearDamping = 0.25
+    #   angularDamping = 0.4
+    #   shape.setDamping(linearDamping, angularDamping)
+    #   applyDispositionToShape(shape, location)
+    applyDispositionToShape(shape, location)
 
     shape
 

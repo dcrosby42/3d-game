@@ -43,7 +43,7 @@ class Construct
     length = 10
     width = 10
     list = []
-    y = 2
+    y = 1
     for i in [0...length]
       for j in [0...width]
         list.push [

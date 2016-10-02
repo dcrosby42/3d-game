@@ -1,7 +1,9 @@
 
 CompSet = require '../../../lib/ecs/comp_set'
+C = require '../components'
+T = C.Types
 
-H =
+E =
   matchCompTypeValue: (entity, type, key, val) ->
     got = null
     entity.each type, (comp) ->
@@ -11,6 +13,6 @@ H =
     got
 
   hasTag: (entity, tagName) ->
-    matchCompTypeValue(entity, T.Tag, 'name', tagName)?
+    E.matchCompTypeValue(entity, T.Tag, 'name', tagName)?
 
-module.export = H
+module.exports = E
