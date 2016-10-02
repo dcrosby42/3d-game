@@ -1,5 +1,6 @@
 exports.camera_follow_system = require './camera_follow_system'
 exports.collision_system = require './collision_system'
 exports.controller_system = require './controller_system'
+exports.pellet_system = require './pellet_system'
 exports.player_piece_control_system = require './player_piece_control_system'
 exports.sync_from_scene_system = require './sync_from_scene_system'

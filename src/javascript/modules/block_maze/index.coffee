@@ -76,6 +76,9 @@ ecsMachine = new EcsMachine([
   Systems.collision_system()
   Systems.controller_system()
   Systems.player_piece_control_system()
+
+  Systems.pellet_system()
+
   Systems.camera_follow_system()
 ])
 

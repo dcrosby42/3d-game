@@ -153,8 +153,8 @@ class Pellet extends Kindness
     # shape = new Physijs.SphereMesh( @geometry, @material, @mass)
     # shape = new Physijs.BoxMesh( @geometry, @material, @mass)
     shape = new THREE.Mesh(@geometry, @material)
-    # shape.castShadow = true
-    # shape.receiveShadow = true
+    shape.castShadow = true
+    shape.receiveShadow = true
 
     # shape.addEventListener 'ready', ->
     #   linearDamping = 0.25
@@ -164,6 +164,9 @@ class Pellet extends Kindness
     applyDispositionToShape(shape, location)
 
     shape
+
+  # updateShape: (shape,physical,location) ->
+  #   super
 
 
 
