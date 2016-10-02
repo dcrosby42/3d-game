@@ -9,6 +9,10 @@ class CollisionSystem extends BaseSystem
     [physical] = r.comps
     for c in @input.collisions
       if c.this_eid == physical.eid and c.this_cid = physical.cid
-        @publishEvent r.eid, "collision", c
+        @publishEvent r.eid, "physics_collision", c
+
+    for c in @input.hits
+      if c.this_eid == physical.eid and c.this_cid = physical.cid
+        @publishEvent r.eid, "hit", c
 
 module.exports = -> new CollisionSystem()

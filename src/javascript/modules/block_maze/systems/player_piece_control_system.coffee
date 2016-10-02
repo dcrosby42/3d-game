@@ -117,6 +117,12 @@ class PlayerPieceControlSystem extends BaseSystem
           console.log "Player consuming pellet #{other.eid}"
           other.destroy()
 
+      hit: (col) =>
+        other = @estore.getEntity(col.other_eid)
+        if other?
+          if E.hasTag(other, 'pellet')
+            console.log "Player consuming pellet #{other.eid}"
+            other.destroy()
   
 
 module.exports = -> new PlayerPieceControlSystem()

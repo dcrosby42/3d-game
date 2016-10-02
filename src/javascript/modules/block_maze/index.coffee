@@ -17,6 +17,7 @@ class Time extends Action
 class Mouse extends Action
 class ApplyScene extends Action
 class ApplyCollision extends Action
+class ApplyHit extends Action
 
 DebugOn =
   update_limit: 360
@@ -43,6 +44,7 @@ exports.initialState = ->
       controllerEvents: []
       scene: null
       collisions: []
+      hits: []
   }
   [model, [TickEffect]]
 
@@ -122,6 +124,13 @@ exports.update = (model,action) ->
     Debug.log "ApplyCollision", action
     model.input.collisions.push(action.value)
 
+  if action instanceof ApplyHit
+    model.NO_RENDER=true
+    # Debug.log "ApplyCollision", action
+    # model.input.collisions.push(action.value)
+    model.input.hits.push(action.value)
+
+
   if action instanceof Time
     Debug.log "Time", action
     # Debug.log "BlockMaze update: Time",now
@@ -145,6 +154,7 @@ exports.update = (model,action) ->
       model.input.controllerEvents = []
       model.input.scene = null
       model.input.collisions = []
+      model.input.hits = []
       
     else
       # Debug.log " BlockMaze update: NOT updating or rendering"
@@ -187,6 +197,8 @@ mazeView_to_blockMaze = (action) ->
   switch action.type
     when 'physics_collision'
       new ApplyCollision(action.data)
+    when 'hit'
+      new ApplyHit(action.data)
     when 'scene_update'
       new ApplyScene(action.data)
     else

@@ -8,6 +8,8 @@ mkQuat = quat
 
 Data = require './data'
 
+# HitProfile = require './hit_profile'
+
 ShapeType =
   Static: 0
   Dynamic: 1
@@ -109,8 +111,9 @@ class Ball extends Kindness
     mass = 2
     friction = 1
     restitution = 0.2
+    radius = 0.5
 
-    geometry = new THREE.SphereGeometry(0.5, 20,20) # TODO set from phys data
+    geometry = new THREE.SphereGeometry(radius, 20,20) # TODO set from phys data
     threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
     material = Physijs.createMaterial(threeMaterial, friction, restitution)
     shape = new Physijs.SphereMesh( geometry, material, mass)
@@ -130,6 +133,10 @@ class Ball extends Kindness
     # shape.add(rbox)
     # shape.add(lbox)
 
+    shape.userData.hitProfile = #HitProfile.sphere(@radius) #.setLayerMask(0)
+      layerMask: 1
+      hitSphere: new THREE.Sphere(vec3(), radius)
+
     shape
 
   updateShape: (shape,physical,location) ->
@@ -144,7 +151,9 @@ class Pellet extends Kindness
     @mass = 0
     @friction = 1
     @restitution = 0.2
-    @geometry = new THREE.SphereGeometry(0.1, 10,10)
+    @radius = 0.1
+    sect=10
+    @geometry = new THREE.SphereGeometry(@radius, sect,sect)
     # @geometry = new THREE.BoxGeometry(0.1,0.1,0.1,1,1)
     @threeMaterial = new THREE.MeshPhongMaterial(color: 0xffffff)
     @material = Physijs.createMaterial(@threeMaterial, @friction, @restitution)
@@ -155,6 +164,17 @@ class Pellet extends Kindness
     shape = new THREE.Mesh(@geometry, @material)
     shape.castShadow = true
     shape.receiveShadow = true
+
+    shape.userData.hitProfile = #HitProfile.sphere(@radius) #.setLayerMask(0)
+      hitSphere: new THREE.Sphere(vec3(), @radius-0.05)
+      layerMask: 1
+
+
+
+      
+
+      
+
 
     # shape.addEventListener 'ready', ->
     #   linearDamping = 0.25

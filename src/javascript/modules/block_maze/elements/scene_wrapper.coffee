@@ -117,7 +117,29 @@ newShapeFromComponents = (physical,location,address) ->
 
   shape
 
+class Hit
+  constructor: (@this_cid,@this_eid, @other_cid,@other_eid) ->
 
+detectHits = (scene, address) ->
+  shapes = scene.children
+  hittables = []
+  for shape in shapes
+    hittables.push shape if shape.userData.hitProfile?
+  return if hittables.length == 0
+
+  for a in hittables
+    for b in hittables
+      if a.id != b.id
+        if a.userData.hitProfile.layerMask & b.userData.hitProfile.layerMask
+          aSphere = a.userData.hitProfile.hitSphere
+          aSphere.center.set(a.position.x, a.position.y, a.position.z)
+          bSphere = b.userData.hitProfile.hitSphere
+          bSphere.center.set(b.position.x, b.position.y, b.position.z)
+          if aSphere.intersectsSphere(bSphere)
+            ahit = new Hit(a.userData.cid, a.userData.eid, b.userData.cid, b.userData.eid)
+            bhit = new Hit(b.userData.cid, b.userData.eid, a.userData.cid, a.userData.eid)
+            address.send(type: 'hit', data: ahit)
+            address.send(type: 'hit', data: bhit)
 
 
 CameraSearcher = EntitySearch.prepare([T.FollowCamera])
@@ -136,6 +158,7 @@ class SceneWrapper
     @scene = new Physijs.Scene(fixedTimeStep: 1/120)
     @scene.setGravity(vec3(0,-10,0))
     @scene.addEventListener 'update', =>
+      detectHits(@scene, @address)
       # TODO: is this where I should add custom collision detection / event dispatch?  
       # eg, from "Three.Box3.contains{Box,Point} or RayCaster stuff?
 #
