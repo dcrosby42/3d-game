@@ -9,8 +9,7 @@ MazeView = React.createClass
     {
       width: @props.width
       height: @props.height
-      simAddress: @props.simAddress
-      collisionAddress: @props.collisionAddress
+      address: @props.address
     }
   
   # Called ONCE just before initial render.
@@ -22,8 +21,7 @@ MazeView = React.createClass
       canvas: @canvas
       width: @state.width
       height: @state.height
-      simAddress: @state.simAddress
-      collisionAddress: @state.collisionAddress
+      address: @state.address
   
   # Called once, just before removal from DOM.
   componentWillUnmount: ->

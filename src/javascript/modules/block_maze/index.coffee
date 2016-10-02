@@ -182,6 +182,16 @@ MazeView = require './elements/maze_view'
 #       event: e
 #     )
 
+mazeView_to_blockMaze = (action) ->
+  switch action.type
+    when 'physics_collision'
+      new ApplyCollision(action.data)
+    when 'scene_update'
+      new ApplyScene(action.data)
+    else
+      console.log "!! BlockMaze mazeView_to_blockMaze: unknown action from MazeView:",action
+      null
+
 exports.view = (model,address) ->
   width = 1200
   height = 600
@@ -199,8 +209,7 @@ exports.view = (model,address) ->
         height={height} 
         camera={model.camera} 
         estore={model.estore} 
-        simAddress={address.forward (fsig) -> fsig.map (scene) -> new ApplyScene(scene)} 
-        collisionAddress={address.forward (fsig) -> fsig.map (col) -> new ApplyCollision(col)} 
+        address={address.forward (fsig) -> fsig.map(mazeView_to_blockMaze) }
       />
     </div>
     <KeyboardInput

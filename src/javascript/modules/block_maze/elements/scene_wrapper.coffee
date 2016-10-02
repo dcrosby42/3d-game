@@ -63,7 +63,7 @@ updateFollowCamera = (camera,cameraEntity) ->
   camera.lookAt(lookAt)
   null
 
-updateSceneFromEntities = (scene,estore,collisionAddress) ->
+updateSceneFromEntities = (scene,estore,address) ->
   PhysicalSearcher.run estore, (r) ->
     [physical,location] = r.comps
 
@@ -84,7 +84,7 @@ updateSceneFromEntities = (scene,estore,collisionAddress) ->
             velocity: relative_velocity
             angularVelocity: relative_rotation
             normal: contact_normal
-          collisionAddress.send(coll)
+          address.send(type: 'physics_collision', data: coll)
         )
         # shape.addEventListener('uncollision', (other_object) ->
         #   console.log "scene_wrapper: object UNcollision", shape._physijs.id
@@ -136,7 +136,7 @@ getCameraEntity = (estore) ->
   CameraSearcher.singleEntity(estore)
   
 class SceneWrapper
-  constructor: ({@canvas,@width,@height,simAddress,@collisionAddress}) ->
+  constructor: ({@canvas,@width,@height,@address}) ->
     fog = defaultFog()
     @renderer = new THREE.WebGLRenderer(canvas: @canvas)
     @renderer.setSize( @width, @height)
@@ -145,7 +145,7 @@ class SceneWrapper
 
     @scene = new Physijs.Scene(fixedTimeStep: 1/120)
     @scene.setGravity(vec3(0,-10,0))
-    @scene.addEventListener 'update', => simAddress.send(@scene)
+    @scene.addEventListener 'update', => @address.send(type: 'scene_update', data: @scene)
     # @scene.addEventListener 'update', =>
     #   @scene.simulate(undefined, 2)
 
@@ -180,7 +180,7 @@ class SceneWrapper
     # GAME OBJECTS
     # 
     # updateSceneFromEntities @rootGroup,estore
-    updateSceneFromEntities @scene,estore,@collisionAddress
+    updateSceneFromEntities @scene,estore,@address
 
     #
     # SIMULATE PHYSICS
