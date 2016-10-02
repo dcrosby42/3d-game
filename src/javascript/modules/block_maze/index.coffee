@@ -111,8 +111,9 @@ exports.update = (model,action) ->
   if action instanceof ApplyScene
     model.NO_RENDER=true
     Debug.log "ApplyScene", action
-    model.input.scene = action.value
-    [model.estore, _globalEvents] = sceneSyncEcsMachine.update(model.estore, model.input)
+    # model.input.scene = action.value
+    thisInput = {scene: action.value}
+    [model.estore, _globalEvents] = sceneSyncEcsMachine.update(model.estore, thisInput)
     return [model, null]
 
   # TODO

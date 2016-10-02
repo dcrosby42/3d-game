@@ -63,72 +63,62 @@ updateFollowCamera = (camera,cameraEntity) ->
   camera.lookAt(lookAt)
   null
 
+PhysicalSearcher = EntitySearch.prepare([T.Physical,T.Location])
+
 updateSceneFromEntities = (scene,estore,address) ->
+  # For all physical entites, create or update their shapes in scene:
   PhysicalSearcher.run estore, (r) ->
     [physical,location] = r.comps
 
     shape = scene.getObjectById(physical.shapeId)
     if !shape?
-      # console.log "SceneWrapper: scene no object w id",physical.shapeId
-      shape = Objects.create3DShape(physical,location)
-      shape.userData.managed = true
-      shape.userData.eid = physical.eid
-      shape.userData.cid = physical.cid
-      if physical.receiveCollisions
-        shape.addEventListener('collision', (other_object, relative_velocity, relative_rotation, contact_normal) ->
-          coll =
-            this_cid: shape.userData.cid
-            this_eid: shape.userData.eid
-            other_cid: other_object.userData.cid
-            other_eid: other_object.userData.eid
-            velocity: relative_velocity
-            angularVelocity: relative_rotation
-            normal: contact_normal
-          address.send(type: 'physics_collision', data: coll)
-        )
-        # shape.addEventListener('uncollision', (other_object) ->
-        #   console.log "scene_wrapper: object UNcollision", shape._physijs.id
-        #   coll =
-        #     uncollision: true
-        #     collision: false
-        #     this_cid: shape.userData.cid
-        #     this_eid: shape.userData.eid
-        #     other_cid: other_object.userData.cid
-        #     other_eid: other_object.userData.eid
-        #     velocity: null
-        #     angularVelocity: null
-        #     normal: null
-        #   collisionAddress.send(coll)
-        # )
-      physical.shapeId = shape.id
-
+      shape = newShapeFromComponents(physical,location,address)
       scene.add shape
-      # console.log "Created shape",physical,shape,scene
-    # else
-    #   console.log "SceneWrapper: scene object ",physical.shapeId,shape
 
     Objects.update3DShape(shape, physical,location)
     shape.userData.relevant = true
 
-  # Sweep all 3d objects in the scene and look for irrelevant views:
+  # Find shapes in scene whose entities have disappeared:
   markedForDeath = []
   for shape in scene.children
     if shape.userData.managed
       if !shape.userData.relevant
-        # console.log "Marking for death:",v
         markedForDeath.push shape
       else
         shape.userData.relevant = false
 
-  # Remove irrelevant views:
+  # Remove shapes from scene whose entities have disappeared:
   for shape in markedForDeath
-    # console.log "Removing obsolete shape",shape
     scene.remove shape
 
   null
 
+newShapeFromComponents = (physical,location,address) ->
+  shape = Objects.create3DShape(physical,location)
+  shape.userData.managed = true
+  shape.userData.eid = physical.eid
+  shape.userData.cid = physical.cid
+  if physical.receiveCollisions
+    shape.addEventListener('collision', (other_object, relative_velocity, relative_rotation, contact_normal) ->
+      coll =
+        this_cid: shape.userData.cid
+        this_eid: shape.userData.eid
+        other_cid: other_object.userData.cid
+        other_eid: other_object.userData.eid
+        velocity: relative_velocity
+        angularVelocity: relative_rotation
+        normal: contact_normal
 
-PhysicalSearcher = EntitySearch.prepare([T.Physical,T.Location])
+      address.send(type: 'physics_collision', data: coll)
+    )
+    # TODO no such thing, but it sure would be helpful: shape.addEventListener('uncollision', (other_object) ->
+
+  physical.shapeId = shape.id
+
+  shape
+
+
+
 
 CameraSearcher = EntitySearch.prepare([T.FollowCamera])
 
@@ -145,7 +135,12 @@ class SceneWrapper
 
     @scene = new Physijs.Scene(fixedTimeStep: 1/120)
     @scene.setGravity(vec3(0,-10,0))
-    @scene.addEventListener 'update', => @address.send(type: 'scene_update', data: @scene)
+    @scene.addEventListener 'update', =>
+      # TODO: is this where I should add custom collision detection / event dispatch?  
+      # eg, from "Three.Box3.contains{Box,Point} or RayCaster stuff?
+#
+      @address.send(type: 'scene_update', data: @scene)
+
     # @scene.addEventListener 'update', =>
     #   @scene.simulate(undefined, 2)
 
