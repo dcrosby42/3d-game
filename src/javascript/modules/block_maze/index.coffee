@@ -2,6 +2,7 @@ React = require 'react'
 KeyboardInput = require '../../elements/keyboard_input'
 GamepadInput = require '../../elements/gamepad_input'
 Systems = require './systems'
+Maps = require './maps'
 
 EntityStore = require '../../lib/ecs/entity_store'
 EcsMachine = require '../../lib/ecs/ecs_machine'
@@ -51,9 +52,8 @@ exports.initialState = ->
 initialEntityStore = ->
   estore = new EntityStore()
   # estore.createEntity(Construct.sineGrassChunk(vec3(0,0,0)))
-  estore.createEntity(Construct.pacMap())
 
-  estore.createEntity(Construct.playerPiece(tag:"player_piece"))
+  estore.createEntity(Construct.playerPiece(tag:"player_piece"), position: Maps.get('level1').getStartPosition())
   estore.createEntity Construct.playerFollowCamera(followTag:"player_piece")
 
   # estore.createEntity Construct.cube(vec3(-1,1,-1),0x993333)
@@ -65,8 +65,11 @@ initialEntityStore = ->
   # estore.createEntity Construct.cube(vec3(-1,0,10),0x993333)
   # estore.createEntity Construct.cube(vec3(-1,1,10),0x993333)
 
-  for pcomps in Construct.manyPellets()
-    estore.createEntity pcomps
+  # estore.createEntity(Construct.pacMap())
+  # for pcomps in Construct.manyPellets()
+  #   estore.createEntity pcomps
+  for comps in Construct.gameBoard1()
+    estore.createEntity comps
   
   return estore
 

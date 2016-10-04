@@ -48,6 +48,8 @@ Defs =
      Block:
        color: BT.Color
        dim: BT.Vec
+     PacMap:
+       mapName: BT.String
      
 
  FollowCamera:

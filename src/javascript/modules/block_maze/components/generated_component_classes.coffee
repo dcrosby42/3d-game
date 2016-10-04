@@ -82,6 +82,12 @@ exports.Physical = class Physical
     @default: -> new @(0xffffff, vec3())
     clone: -> new @constructor(@color, (if @dim? then @dim.clone() else null))
     equals: (o) -> (@color == o.color) and (if @dim? then @dim.equals(o.dim) else !o.dim?)
+  
+  @PacMap: class PacMap
+    constructor: (@mapName) ->
+    @default: -> new @(null)
+    clone: -> new @constructor(@mapName)
+    equals: (o) -> (@mapName == o.mapName)
 
 exports.FollowCamera = class FollowCamera
   Types.registerClass @

@@ -2,6 +2,7 @@ React = require 'react'
 Cannon = require 'cannon'
 THREE = require 'three'
 Physijs = require '../../vendor/physijs_wrapper'
+Maps = require './maps'
 
 {euler,vec3,quat} = require '../../lib/three_helpers'
 mkQuat = quat
@@ -106,12 +107,12 @@ newGroup = (pos,quat) ->
   group.quaternion.set(quat.x,quat.y,quat.z,quat.w)
   group
 
-class Ball extends Kindness
+class PacMan extends Kindness
   createShape: (physical,location) ->
     mass = 2
     friction = 1
     restitution = 0.2
-    radius = 0.5
+    radius = 0.45
 
     geometry = new THREE.SphereGeometry(radius, 20,20) # TODO set from phys data
     threeMaterial = new THREE.MeshPhongMaterial(color: physical.data.color)
@@ -134,8 +135,9 @@ class Ball extends Kindness
     # shape.add(lbox)
 
     shape.userData.hitProfile = #HitProfile.sphere(@radius) #.setLayerMask(0)
-      layerMask: 1
       hitSphere: new THREE.Sphere(vec3(), radius)
+      canHitOn: 1
+      getHitOn: 0
 
     shape
 
@@ -167,7 +169,8 @@ class Pellet extends Kindness
 
     shape.userData.hitProfile = #HitProfile.sphere(@radius) #.setLayerMask(0)
       hitSphere: new THREE.Sphere(vec3(), @radius-0.05)
-      layerMask: 1
+      canHitOn: 0
+      getHitOn: 1
 
 
 
@@ -315,6 +318,8 @@ class SineGrassTerrain extends Kindness
 #######################################################
 class PacMap extends Kindness
   createShape: (physical,location) ->
+    map = Maps.get(physical.data.mapName)
+
     params =
       position: vec3(0,0,0)
       floorColor: 0x333399
@@ -324,10 +329,12 @@ class PacMap extends Kindness
       floorThickness: 1
       wallHeight: 1
       wallThickness: 1
+      blockThickness: 1
 
     floor = mkBox(position: params.position, geom: [params.width,params.floorThickness,params.length], color: params.floorColor, mass: 0)
 
     wy = params.floorThickness/2+ params.wallHeight/2
+
     nwall = mkBox(position: vec3(0, wy, -params.length/2 + params.wallThickness/2), geom: [params.width,params.wallHeight,params.wallThickness], color: params.wallColor, mass: 0)
     floor.add nwall
   
@@ -340,13 +347,14 @@ class PacMap extends Kindness
     ewall = mkBox(position: vec3(params.width/2 - params.wallThickness/2, wy, 0), geom: [params.wallThickness,params.wallHeight,params.length], color: params.wallColor, mass: 0)
     floor.add ewall
 
+    for pos in map.getBlockLocations()
+      pos.y = wy
+      block = mkBox(position: pos, geom: [params.blockThickness, params.wallHeight, params.blockThickness], color: params.wallColor, mass: 0)
+      floor.add block
+
+
     floor
 
-  updateShape: (shape,physical,location) ->
-    super
-
-  updateFromShape: (shape,physical,location) ->
-    super
 
     
 
@@ -473,7 +481,7 @@ class Plane extends Kindness
 
 
 Kinds = {}
-Kinds.ball = new Ball()
+Kinds.pacman = new PacMan()
 Kinds.cube = new Cube()
 Kinds.block = new Block()
 Kinds.plane = new Plane()

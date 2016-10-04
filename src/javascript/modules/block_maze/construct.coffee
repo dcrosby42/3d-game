@@ -2,18 +2,21 @@ C = require './components'
 T = C.Types
 Objects = require './objects'
 
+Maps = require './maps'
+
 {euler,vec3,quat} = require '../../lib/three_helpers'
 
 
 class Construct
-  @playerPiece: (opts={}) ->
-    opts.tag ?= 'the_player'
+  @playerPiece: ({tag,position}) ->
+    position ?= vec3(0,2,0)
+    tag ?= 'the_player'
     [
       C.buildCompForType(T.Name, name: 'Player One')
-      C.buildCompForType(T.Tag, name: opts.tag)
-      C.buildCompForType(T.Location, position: vec3(0,2,0))
+      C.buildCompForType(T.Tag, name: tag)
+      C.buildCompForType(T.Location, position: position)
       C.buildCompForType(T.Physical,
-        kind: 'ball'
+        kind: 'pacman'
         data: new C.Physical.Ball(0xaaaa22)
         receiveCollisions: true
         # axisHelper: 2
@@ -29,12 +32,13 @@ class Construct
       C.buildCompForType(T.Location, position: vec3(0,3,5))
     ]
 
-  @pacMap: (pos) ->
+  @pacMap: (mapName) ->
     [
       C.buildCompForType(T.Name, name: 'Pac Map')
       C.buildCompForType(T.Location)
       C.buildCompForType(T.Physical,
         kind: 'pac_map'
+        data: new C.Physical.PacMap(mapName)
         shapeType: Objects.ShapeType.Static
       )
     ]
@@ -46,12 +50,26 @@ class Construct
     y = 1
     for i in [0...length]
       for j in [0...width]
-        list.push [
-          C.buildCompForType(T.Tag, name: 'pellet')
-          C.buildCompForType(T.Location, position: vec3(j,y,i))
-          C.buildCompForType(T.Physical, kind: 'pellet')
-        ]
+        list.push @pellet(position: vec3(j,y,i))
     list
+
+  @pellet: ({position}) ->
+    [
+      C.buildCompForType(T.Tag, name: 'pellet')
+      C.buildCompForType(T.Location, position: position)
+      C.buildCompForType(T.Physical, kind: 'pellet')
+    ]
+
+  @gameBoard1: ->
+    compLists = []
+
+    compLists.push @pacMap("level1")
+
+    map = Maps.get("level1")
+    for pos in map.getPelletLocations()
+      compLists.push @pellet(position: pos)
+
+    compLists
     
 
   @sineGrassChunk: (pos) ->

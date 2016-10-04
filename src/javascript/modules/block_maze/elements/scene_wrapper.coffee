@@ -120,26 +120,32 @@ newShapeFromComponents = (physical,location,address) ->
 class Hit
   constructor: (@this_cid,@this_eid, @other_cid,@other_eid) ->
 
-detectHits = (scene, address) ->
-  shapes = scene.children
+detectHits = (shapes, address) ->
   hittables = []
+  hitters = []
   for shape in shapes
-    hittables.push shape if shape.userData.hitProfile?
-  return if hittables.length == 0
+    if shape.userData.hitProfile?
+      if shape.userData.hitProfile.canHitOn != 0
+        hitters.push shape
+      if shape.userData.hitProfile.getHitOn != 0
+        hittables.push shape
 
-  for a in hittables
+  return if hitters.length == 0 or hittables.length == 0
+
+  for a in hitters
     for b in hittables
       if a.id != b.id
-        if a.userData.hitProfile.layerMask & b.userData.hitProfile.layerMask
+        if a.userData.hitProfile.canHitOn & b.userData.hitProfile.getHitOn
           aSphere = a.userData.hitProfile.hitSphere
           aSphere.center.set(a.position.x, a.position.y, a.position.z)
           bSphere = b.userData.hitProfile.hitSphere
           bSphere.center.set(b.position.x, b.position.y, b.position.z)
           if aSphere.intersectsSphere(bSphere)
             ahit = new Hit(a.userData.cid, a.userData.eid, b.userData.cid, b.userData.eid)
-            bhit = new Hit(b.userData.cid, b.userData.eid, a.userData.cid, a.userData.eid)
             address.send(type: 'hit', data: ahit)
-            address.send(type: 'hit', data: bhit)
+            if b.userData.hitProfile.check
+              bhit = new Hit(b.userData.cid, b.userData.eid, a.userData.cid, a.userData.eid)
+              address.send(type: 'hit', data: bhit)
 
 
 CameraSearcher = EntitySearch.prepare([T.FollowCamera])
@@ -158,7 +164,7 @@ class SceneWrapper
     @scene = new Physijs.Scene(fixedTimeStep: 1/120)
     @scene.setGravity(vec3(0,-10,0))
     @scene.addEventListener 'update', =>
-      detectHits(@scene, @address)
+      detectHits(@scene.children, @address)
       # TODO: is this where I should add custom collision detection / event dispatch?  
       # eg, from "Three.Box3.contains{Box,Point} or RayCaster stuff?
 #
