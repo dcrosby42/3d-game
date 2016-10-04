@@ -10,6 +10,7 @@ Maps = require './maps'
 class Construct
   @playerPiece: ({tag,position}) ->
     position ?= vec3(0,2,0)
+    console.log "PlayerPiece construct at",position
     tag ?= 'the_player'
     [
       C.buildCompForType(T.Name, name: 'Player One')
@@ -60,12 +61,12 @@ class Construct
       C.buildCompForType(T.Physical, kind: 'pellet')
     ]
 
-  @gameBoard1: ->
+  @gameBoard: (mapName) ->
     compLists = []
 
-    compLists.push @pacMap("level1")
+    compLists.push @pacMap(mapName)
 
-    map = Maps.get("level1")
+    map = Maps.get(mapName)
     for pos in map.getPelletLocations()
       compLists.push @pellet(position: pos)
 

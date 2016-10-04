@@ -27,6 +27,7 @@ class Map
   constructor: (@name,@sketch) ->
     @pelletLocs = []
     @blockLocs = []
+    @startPos = vec3(0,1,0)
 
     for rowSketch,r in @sketch
       for char,c in rowSketch

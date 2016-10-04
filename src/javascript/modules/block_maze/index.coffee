@@ -50,10 +50,12 @@ exports.initialState = ->
   [model, [TickEffect]]
 
 initialEntityStore = ->
+  mapName = "level1"
+
   estore = new EntityStore()
   # estore.createEntity(Construct.sineGrassChunk(vec3(0,0,0)))
 
-  estore.createEntity(Construct.playerPiece(tag:"player_piece"), position: Maps.get('level1').getStartPosition())
+  estore.createEntity Construct.playerPiece(tag:"player_piece", position: Maps.get(mapName).getStartPosition())
   estore.createEntity Construct.playerFollowCamera(followTag:"player_piece")
 
   # estore.createEntity Construct.cube(vec3(-1,1,-1),0x993333)
@@ -68,7 +70,7 @@ initialEntityStore = ->
   # estore.createEntity(Construct.pacMap())
   # for pcomps in Construct.manyPellets()
   #   estore.createEntity pcomps
-  for comps in Construct.gameBoard1()
+  for comps in Construct.gameBoard(mapName)
     estore.createEntity comps
   
   return estore
