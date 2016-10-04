@@ -55,6 +55,7 @@ Defs =
  FollowCamera:
    followingTag: BT.String
    lookAt: BT.Vec
+   followDistance: BT.Number.with(default: "5")
    hOrbit: BT.Number
    vOrbit: BT.Number
 

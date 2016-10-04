@@ -29,8 +29,8 @@ class Construct
     opts.followTag ?= 'the_player'
     [
       C.buildCompForType(T.Name, name: 'Follow Camera')
-      C.buildCompForType(T.FollowCamera, followTag: opts.followTag)
-      C.buildCompForType(T.Location, position: vec3(0,3,5))
+      C.buildCompForType(T.FollowCamera, followTag: opts.followTag, followDistance: 6, vOrbit: -Math.PI/3)
+      C.buildCompForType(T.Location)
     ]
 
   @pacMap: (mapName) ->

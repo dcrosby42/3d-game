@@ -33,15 +33,14 @@ class CameraFollowSystem extends BaseSystem
     ppos = location.position
 
 
-    stick = vec3(0,0,5)
-    twist = quat()
-    twist.setFromAxisAngle(vec3(1,0,0), camera.vOrbit)
-    stick.applyQuaternion(twist)
+    stick = vec3(0,0,camera.followDistance)
+    xrot = quat()
+    xrot.setFromAxisAngle(vec3(1,0,0), camera.vOrbit)
+    stick.applyQuaternion(xrot)
 
-    twist = quat()
-    twist.setFromAxisAngle(vec3(0,1,0), camera.hOrbit)
-    stick.applyQuaternion(twist)
-    # twist.multiplyVector3(stick)
+    yrot = quat()
+    yrot.setFromAxisAngle(vec3(0,1,0), camera.hOrbit)
+    stick.applyQuaternion(yrot)
 
     # quaternion = location.quaternion
     # quaternion.mult(twist,quaternion)

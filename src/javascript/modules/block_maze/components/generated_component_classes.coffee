@@ -91,10 +91,10 @@ exports.Physical = class Physical
 
 exports.FollowCamera = class FollowCamera
   Types.registerClass @
-  constructor: (@eid, @cid, @followingTag, @lookAt, @hOrbit, @vOrbit) -> @type = @constructor.type
-  @default: -> new @(null, null, null, vec3(), null, null)
-  clone: -> new @constructor(@eid, @cid, @followingTag, (if @lookAt? then @lookAt.clone() else null), @hOrbit, @vOrbit)
-  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@followingTag == o.followingTag) and (if @lookAt? then @lookAt.equals(o.lookAt) else !o.lookAt?) and (@hOrbit == o.hOrbit) and (@vOrbit == o.vOrbit)
+  constructor: (@eid, @cid, @followingTag, @lookAt, @followDistance, @hOrbit, @vOrbit) -> @type = @constructor.type
+  @default: -> new @(null, null, null, vec3(), 10, null, null)
+  clone: -> new @constructor(@eid, @cid, @followingTag, (if @lookAt? then @lookAt.clone() else null), @followDistance, @hOrbit, @vOrbit)
+  equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@followingTag == o.followingTag) and (if @lookAt? then @lookAt.equals(o.lookAt) else !o.lookAt?) and (@followDistance == o.followDistance) and (@hOrbit == o.hOrbit) and (@vOrbit == o.vOrbit)
 
 exports.Controller = class Controller
   Types.registerClass @
