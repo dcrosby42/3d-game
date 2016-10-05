@@ -25,23 +25,34 @@ module.exports =
 
 class Map
   constructor: (@name,@sketch) ->
+    @tileWidth = 1.1
+    @width = @sketch[0].length * @tileWidth
+    @length = @sketch.length * @tileWidth
+
+    xoffset = -@width/2 + @tileWidth/2
+    zoffset = -@length/2 + @tileWidth/2
+
     @pelletLocs = []
     @blockLocs = []
-    @startPos = vec3(0,1,0)
+    @startPos = null
 
-    @width = @sketch[0].length
-    @length = @sketch.length
     for rowSketch,r in @sketch
       for char,c in rowSketch
+        z = r*@tileWidth + zoffset
+        x = c*@tileWidth + xoffset
         switch char
           when "."
-            pos = vec3(c,1,r)
+            pos = vec3(x,1,z)
             @pelletLocs.push pos
           when "#"
-            pos = vec3(c,0,r)
+            pos = vec3(x,0,z)
             @blockLocs.push pos
           when "C"
-            @startPos = vec3(c,1,r)
+            @startPos = vec3(x,1,z)
+
+    @startPos ?= vec3(0+xoffset, 1, 0+zoffset)
+
+  getTileWidth: -> @tileWidth
 
   getPelletLocations: -> @pelletLocs
 
