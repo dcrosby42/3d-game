@@ -29,6 +29,8 @@ class Map
     @blockLocs = []
     @startPos = vec3(0,1,0)
 
+    @width = @sketch[0].length
+    @length = @sketch.length
     for rowSketch,r in @sketch
       for char,c in rowSketch
         switch char
@@ -46,6 +48,10 @@ class Map
   getBlockLocations: -> @blockLocs
 
   getStartPosition: -> @startPos
+
+  getLength: -> @length
+
+  getWidth: -> @width
 
 
 #

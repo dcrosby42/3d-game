@@ -331,24 +331,32 @@ class PacMap extends Kindness
       wallThickness: 1
       blockThickness: 1
 
-    floor = mkBox(position: params.position, geom: [params.width,params.floorThickness,params.length], color: params.floorColor, mass: 0)
+    # floor = mkBox(position: params.position, geom: [params.width,params.floorThickness,params.length], color: params.floorColor, mass: 0)
+    width = map.getWidth() + params.wallThickness
+    length = map.getLength() + params.wallThickness
+    pos = params.position
+    pos.x += width/2
+    pos.z += length/2
+    floor = mkBox(position: pos, geom: [width,params.floorThickness,length], color: params.floorColor, mass: 0)
 
     wy = params.floorThickness/2+ params.wallHeight/2
 
-    nwall = mkBox(position: vec3(0, wy, -params.length/2 + params.wallThickness/2), geom: [params.width,params.wallHeight,params.wallThickness], color: params.wallColor, mass: 0)
-    floor.add nwall
-  
-    swall = mkBox(position: vec3(0, wy, params.length/2 - params.wallThickness/2), geom: [params.width,params.wallHeight,params.wallThickness], color: params.wallColor, mass: 0)
-    floor.add swall
-   
-    wwall = mkBox(position: vec3(-params.width/2 + params.wallThickness/2, wy, 0), geom: [params.wallThickness,params.wallHeight,params.length], color: params.wallColor, mass: 0)
-    floor.add wwall
-    
-    ewall = mkBox(position: vec3(params.width/2 - params.wallThickness/2, wy, 0), geom: [params.wallThickness,params.wallHeight,params.length], color: params.wallColor, mass: 0)
-    floor.add ewall
+    # nwall = mkBox(position: vec3(0, wy, -params.length/2 + params.wallThickness/2), geom: [params.width,params.wallHeight,params.wallThickness], color: params.wallColor, mass: 0)
+    # floor.add nwall
+    #
+    # swall = mkBox(position: vec3(0, wy, params.length/2 - params.wallThickness/2), geom: [params.width,params.wallHeight,params.wallThickness], color: params.wallColor, mass: 0)
+    # floor.add swall
+    #
+    # wwall = mkBox(position: vec3(-params.width/2 + params.wallThickness/2, wy, 0), geom: [params.wallThickness,params.wallHeight,params.length], color: params.wallColor, mass: 0)
+    # floor.add wwall
+    #
+    # ewall = mkBox(position: vec3(params.width/2 - params.wallThickness/2, wy, 0), geom: [params.wallThickness,params.wallHeight,params.length], color: params.wallColor, mass: 0)
+    # floor.add ewall
 
     for pos in map.getBlockLocations()
       pos.y = wy
+      pos.x -= width/2
+      pos.z -= length/2
       block = mkBox(position: pos, geom: [params.blockThickness, params.wallHeight, params.blockThickness], color: params.wallColor, mass: 0)
       floor.add block
 
