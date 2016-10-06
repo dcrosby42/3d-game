@@ -349,7 +349,7 @@ class PacMap extends Kindness
       floor.add block
 
 
-    floor.add new THREE.AxisHelper(3)
+    # floor.add new THREE.AxisHelper(3)
     floor
     
 

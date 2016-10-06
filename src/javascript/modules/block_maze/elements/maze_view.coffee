@@ -1,5 +1,5 @@
 React = require 'react'
-
+BigScreen = require '../../../vendor/bigscreen_wrapper'
 SceneWrapper = require './scene_wrapper'
 
 MazeView = React.createClass
@@ -52,7 +52,12 @@ MazeView = React.createClass
   # Not called on initial render.
   componentDidUpdate: (prevProps, prevState) ->
 
+  goBig: (e) ->
+    console.log "goBig!", e
+    BigScreen.doTheBigThing @canvas
+
   render: ->
+    <div>
     <canvas 
       width={@state.width} 
       height={@state.height} 
@@ -60,6 +65,9 @@ MazeView = React.createClass
 
       ref={(ref) => @canvas = ref} 
     />
+    <button onClick={@goBig}>Big</button>
+    </div>
+    
 
 module.exports = MazeView
 

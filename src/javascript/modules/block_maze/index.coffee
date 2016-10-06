@@ -212,14 +212,17 @@ mazeView_to_blockMaze = (action) ->
 
 exports.view = (model,address) ->
   width = 1200
-  height = 600
+  height = 900
+  # width = 600
+  # height = 450
+
   
     #Adding these to the div surrounding MazeView causes props to be sent to MazeView with every event, like mouse motion
       # onMouseMove={handleMouse 'move', width,height,address}
       # onMouseDown={handleMouse 'down', width,height,address}
       # onMouseUp={handleMouse 'up', width,height,address}
   <div>
-    <h3>Maze Thinger</h3>
+    <h3>Pac-Man Clone</h3>
     <div style={width:width,height:height}
     >
       <MazeView 
