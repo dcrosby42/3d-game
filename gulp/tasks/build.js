@@ -6,7 +6,7 @@ gulp.task('build', [
     'images',
     'sounds',
     'fonts',
-    'markup',
-    'physijs_support'
+    'markup'
+    // 'physijs_support'
     // 'mapConvert'
     ]);

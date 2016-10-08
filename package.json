@@ -83,8 +83,6 @@
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "three": "^0.79.0",
-    "proc-noise": "cyle/proc-noise-node",
-    "physijs": "^0.0.4",
-    "physijs-browserify": "^0.0.2"
+    "proc-noise": "cyle/proc-noise-node"
   }
 }

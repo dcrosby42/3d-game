@@ -172,6 +172,8 @@ class Pellet extends Kindness
       canHitOn: 0
       getHitOn: 1
 
+    shape
+
 cache = {}
 class BlenderMesh extends Kindness
   createShape: (physical,location) ->

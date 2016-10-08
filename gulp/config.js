@@ -66,6 +66,10 @@ module.exports = {
       dest: dest,
       outputName: 'app.js'
     }, {
+      entries: src + '/javascript/vendor/physijs_worker.js',
+      dest: dest,
+      outputName: 'physijs_worker.js'
+    }, {
       entries: src + '/javascript/head.coffee',
       dest: dest,
       outputName: 'head.js'
