@@ -2,18 +2,18 @@ React = require 'react'
 KeyboardInput = require '../elements/keyboard_input'
 GamepadInput = require '../elements/gamepad_input'
 Systems = require './systems'
-Maps = require './maps'
 
 ThreeView = require './three_view'
 
 EntityStore = require '../lib/ecs/entity_store'
 EcsMachine = require '../lib/ecs/ecs_machine'
 
-Construct = require './construct'
-
-{euler,vec3,quat} = require '../lib/three_helpers'
+World = require './play_world'
 
 ActionBase = require '../lib/action_base'
+
+# ---------------------------------------------------------------
+
 class Action extends ActionBase
 class Input extends Action
 class Time extends Action
@@ -21,6 +21,10 @@ class Mouse extends Action
 class ApplyScene extends Action
 class ApplyCollision extends Action
 class ApplyHit extends Action
+  
+TickEffect = {type: 'tick', map: (v) -> new Time(v/1000.0)}
+
+# ---------------------------------------------------------------
 
 DebugOn =
   update_limit: 360
@@ -31,65 +35,41 @@ DebugOff =
 
 Debug = DebugOff
 
-TickEffect = {type: 'tick', map: (v) -> new Time(v/1000.0)}
-
+# ---------------------------------------------------------------
 #
 # INITIAL STATE
 #
+# ---------------------------------------------------------------
 
 exports.initialState = ->
+  estore = new EntityStore()
+  World.addInitialEntities(estore)
+
+  inputConfig = World.getInputConfig()
+
   model  = {
     updateCount: 0
     lastTime: null
-    estore: initialEntityStore()
+    estore: estore
     input:
       dt: null
       controllerEvents: []
       scene: null
       collisions: []
       hits: []
+    keyboardConfig: inputConfig.keyboardConfig
+    gamepadConfig: inputConfig.gamepadConfig
   }
   [model, [TickEffect]]
 
-initialEntityStore = ->
-  mapName = "level1"
 
-  estore = new EntityStore()
-  # estore.createEntity(Construct.sineGrassChunk(vec3(0,0,0)))
-
-  estore.createEntity Construct.playerPiece(tag:"player_piece", position: Maps.get(mapName).getStartPosition())
-  estore.createEntity Construct.playerFollowCamera(followTag:"player_piece")
-
-  # estore.createEntity Construct.cube(vec3(-1,1,-1),0x993333)
-  # estore.createEntity Construct.cube(vec3(-1.1,2,-1),0x993333)
-  # estore.createEntity Construct.cube(vec3(20,0,-1),0x993333)
-  # estore.createEntity Construct.cube(vec3(20,1,-1),0x993333)
-  # estore.createEntity Construct.cube(vec3(20,0,10),0x993333)
-  # estore.createEntity Construct.cube(vec3(20,1,10),0x993333)
-  # estore.createEntity Construct.cube(vec3(-1,0,10),0x993333)
-  # estore.createEntity Construct.cube(vec3(-1,1,10),0x993333)
-
-  # estore.createEntity(Construct.pacMap())
-  # for pcomps in Construct.manyPellets()
-  #   estore.createEntity pcomps
-  for comps in Construct.gameBoard(mapName)
-    estore.createEntity comps
-  
-  return estore
-
+# ---------------------------------------------------------------
 #
 # UPDATE
 #
+# ---------------------------------------------------------------
 
-ecsMachine = new EcsMachine([
-  Systems.collision_system()
-  Systems.controller_system()
-  Systems.player_piece_control_system()
-
-  Systems.pellet_system()
-
-  Systems.camera_follow_system()
-])
+ecsMachine = new EcsMachine(World.getSystems())
 
 sceneSyncEcsMachine = new EcsMachine([
   Systems.sync_from_scene_system()
@@ -176,9 +156,11 @@ exports.update = (model,action) ->
     [model,null]
 
 
+# ---------------------------------------------------------------
 #
 # VIEW 
 #
+# ---------------------------------------------------------------
 
 
 # handleMouse = (type,width,height,address) ->
@@ -209,6 +191,8 @@ exports.view = (model,address) ->
   width = 1200
   height = 900
   
+  keyboard = model.keyboardConfig
+  gamepad = model.gamepadConfig
     #Adding these to the div surrounding MazeView causes props to be sent to MazeView with every event, like mouse motion
       # onMouseMove={handleMouse 'move', width,height,address}
       # onMouseDown={handleMouse 'down', width,height,address}
@@ -225,36 +209,14 @@ exports.view = (model,address) ->
       />
     </div>
     <KeyboardInput
-      tag="player1"
-      mappings={{
-        "w": 'forward'
-        "a": 'strafeLeft'
-        "s": 'backward'
-        "d": 'strafeRight'
-        "left": 'orbitLeft'
-        "right": 'orbitRight'
-        "up": 'orbitUp'
-        "down": 'orbitDown'
-        "space": 'jump'
-      }}
+      tag={keyboard.tag}
+      mappings={keyboard.mappings}
       address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
     />
     <GamepadInput
-      tag="player1"
-      gamepadIndex={0}
-      mappings={{
-        "dpad_up": 'forward'
-        "dpad_left": 'strafeLeft'
-        "dpad_down": 'backward'
-        "dpad_right": 'strafeRight'
-        "left_bumper": 'turnLeft'
-        "right_bumper": 'turnRight'
-        "three": 'jump'
-        "axis_left_x": 'strafe'
-        "axis_left_y": 'drive'
-        "axis_right_x": 'orbitX'
-        "axis_right_y": 'orbitY'
-      }}
+      tag={gamepad.tag}
+      gamepadIndex={gamepad.gamepadIndex}
+      mappings={gamepad.mappings}
       address={address.forward (fsig) -> fsig.map (v) -> new Input(v)} 
     />
   </div>
