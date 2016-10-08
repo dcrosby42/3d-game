@@ -228,7 +228,6 @@ exports.view = (model,address) ->
       <MazeView 
         width={width} 
         height={height} 
-        camera={model.camera} 
         estore={model.estore} 
         address={address.forward (fsig) -> fsig.map(mazeView_to_blockMaze) }
       />

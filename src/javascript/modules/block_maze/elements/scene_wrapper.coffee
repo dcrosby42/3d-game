@@ -176,11 +176,17 @@ class SceneWrapper
     #PiecesParts.addChair(@scene)
     #PiecesParts.addThinger(@scene)
     # PiecesParts.addPellets(@scene)
+    # PiecesParts.addMonkey(@scene)
+    PiecesParts.addMeshFromFile @scene,"ship2.json", (mesh) ->
+      mesh.position.y = 4
+      mesh.castShadow = true
 
     @scene.fog = fog
 
     @scene.add defaultDirectionalLight()
     @scene.add defaultAmbientLight()
+
+    
 
     # axis = new THREE.AxisHelper(5)
     # @scene.add axis

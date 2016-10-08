@@ -189,3 +189,18 @@ module.exports.addPellets = (scene) ->
 
       scene.add shape
 
+module.exports.addMonkey = (scene) ->
+  # material = new THREE.MeshPhongMaterial(color: 0x99FF33) #, wireframe: true)
+  loader = new THREE.JSONLoader()
+  loader.load "monkey.json", (geometry,m) ->
+    console.log "monkey material",m
+    mesh = new THREE.Mesh(geometry,new THREE.MeshFaceMaterial(m))#,material)
+    mesh.position.y = 2
+    scene.add(mesh)
+
+module.exports.addMeshFromFile = (scene, fname, fn) ->
+  loader = new THREE.JSONLoader()
+  loader.load fname, (geometry,m) ->
+    mesh = new THREE.Mesh(geometry,new THREE.MeshFaceMaterial(m))#,material)
+    fn(mesh)
+    scene.add(mesh)
