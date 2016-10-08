@@ -204,3 +204,40 @@ module.exports.addMeshFromFile = (scene, fname, fn) ->
     mesh = new THREE.Mesh(geometry,new THREE.MeshFaceMaterial(m))#,material)
     fn(mesh)
     scene.add(mesh)
+
+
+module.exports.addDefaultLighting = (scene) ->
+  scene.add defaultDirectionalLight()
+  scene.add defaultAmbientLight()
+
+D = 20
+defaultDirectionalLight = ->
+  color = 0xffffff
+  intensity = 1
+  position = vec3(D,D,D)
+  targetVec = vec3(0,0,0)
+
+  light = new THREE.DirectionalLight(color,intensity)
+  light.castShadow = true
+  light.position.set(position.x, position.y, position.z)
+  light.lookAt = targetVec
+  # light.target.position.set(0, 0, 0);
+  light.shadow.mapSize.width = 1024
+  light.shadow.mapSize.height = 1024
+  light.shadow.camera.left = -D
+  light.shadow.camera.right = D
+  light.shadow.camera.top = D
+  light.shadow.camera.bottom = -D
+  light.shadow.camera.near = 1 # D
+  light.shadow.camera.far = 3*D
+  light.shadow.camera.fov = 75
+  light.shadow.bias = - 0.001
+
+  #light.shadowDarkness = 0.5
+  #light.shadowCameraVisible = true # only for debugging
+  return light
+
+defaultAmbientLight = ->
+  color = 0x888888
+  light = new THREE.AmbientLight(color)
+  return light

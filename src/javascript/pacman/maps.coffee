@@ -1,5 +1,5 @@
 Sketches = {}
-{euler,vec3,quat} = require '../../lib/three_helpers'
+{euler,vec3,quat} = require '../lib/three_helpers'
 
 cache = {}
 

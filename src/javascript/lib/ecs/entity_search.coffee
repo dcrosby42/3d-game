@@ -1,4 +1,4 @@
-C = require '../../modules/block_maze/components' # FIXME !!! doh.  Shouldn't have implemented this class based on assumed access to the type domain.  
+C = require '../../pacman/components' # FIXME !!! doh.  Shouldn't have implemented this class based on assumed access to the type domain.  
 # (^^^ is really only used by expandFilter which couldb be parameterized by the Domain instance, 
 #  and EntitySearchFilter.toString() is only for debug nice nice.)
 CompSet = require './comp_set'

@@ -1,4 +1,4 @@
-BaseSystem = require '../../../lib/ecs/base_system'
+BaseSystem = require '../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
 

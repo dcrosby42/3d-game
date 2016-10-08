@@ -1,7 +1,7 @@
 _ = require 'lodash'
-Domain = require '../../../lib/domain'
+Domain = require '../../lib/domain'
 Cannon = require 'cannon'
-{vec3,quat,euler} = require '../../../lib/three_helpers'
+{vec3,quat,euler} = require '../../lib/three_helpers'
 
 Types = new Domain('ComponentTypes')
 

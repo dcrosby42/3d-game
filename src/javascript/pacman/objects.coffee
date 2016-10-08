@@ -1,13 +1,13 @@
 React = require 'react'
 Cannon = require 'cannon'
 THREE = require 'three'
-Physijs = require '../../vendor/physijs_wrapper'
+Physijs = require '../vendor/physijs_wrapper'
 Maps = require './maps'
 
-{euler,vec3,quat} = require '../../lib/three_helpers'
+{euler,vec3,quat} = require '../lib/three_helpers'
 mkQuat = quat
 
-Data = require './data'
+# Data = require './data'
 
 # HitProfile = require './hit_profile'
 
@@ -387,102 +387,10 @@ class Block extends Kindness
 
 
 
-ter = Data.get("spike.terrain.shapes")
-class Plane extends Kindness
-
-  createBody: (physical,location) ->
-    # shape = new Cannon.Plane()
-    # body = new Cannon.Body(mass: 0, shape: shape)
-    # return body
-    pos = convertCannonVec3(location.position)
-
-    # data=ter.rows
-    data = []
-    for row in ter.rows
-      drow = []
-      for h in row
-        drow.push h
-      # drow.push 0
-      data.push drow
-
-    console.log "objects Plane making hfield from data rows #{data.length} cols #{data[0].length}"
-    shape = new Cannon.Heightfield(data,
-      elementSize: ter.spacing # Distance between the data points in X and Y directions
-    )
-    window.heightfield = shape # XXX
-    body = new Cannon.Body(mass: 0, shape: shape, shapeType: Cannon.Body.STATIC)
-    # halfx = (ter.xSegments*ter.spacing)/2
-    # halfh = (ter.ySegments*ter.spacing)/2
-    x = pos.x
-    y = pos.y
-    z = pos.z
-    # console.log "plane pos",x,y,z
-    # console.log "halfx #{halfx} halfh #{halfh}"
-    body.position.set(x,y,z)
-    return body
-    # heightfieldBody.addShape(heightfieldShape);
-    # world.addBody(heightfieldBody);
-
-  # updateBody: (body,physical,location) ->
-
-  createView: (physical,location) ->
-    [pos,quat] = convertedPosAndQuat(location)
-    group = newGroup(pos,quat)
-    # dim = physical.data.dim
-
-    axis = new THREE.AxisHelper(1)
-    group.add axis
-
-    # ter = Data.get("spike.terrain.flat")
-    # console.log ter
-    # window.ter = ter
-    width = ter.xSegments * ter.spacing
-    length = ter.ySegments * ter.spacing
-    geometry = new THREE.PlaneGeometry(
-      width
-      length
-      ter.xSegments
-      ter.ySegments
-    )
-
-    i = 0
-    for row in ter.rows
-      for h in row
-        geometry.vertices[i].z = h
-        i++
-
-    window.mesh = geometry
-
-    geometry.verticesNeedUpdate = false
-    geometry.normalsNeedUpdate = false
-    # geometry.colorsNeedUpdate = false
-    # geometry.uvsNeedUpdate = false
-    # geometry.groupsNeedUpdate = false
-    geometry.computeVertexNormals()
-
-    material = new THREE.MeshPhongMaterial(
-      color: physical.data.color
-      wireframe: true
-    )
-    mesh = new THREE.Mesh(geometry, material)
-    # mesh.castShadow = true
-    mesh.receiveShadow = true
-    # mesh.position.set(width/2, 0, length/2)
-    mesh.position.set(length/2,width/2,0)
-    mesh.rotation.z = Math.PI/2
-
-    group.add mesh
-      # {buildAxisHelper(physical)}
-    return group
-
-  # updateView: (view,physical,location) ->
-
-
 Kinds = {}
 Kinds.pacman = new PacMan()
 Kinds.cube = new Cube()
 Kinds.block = new Block()
-Kinds.plane = new Plane()
 Kinds.sine_grass_terrain = new SineGrassTerrain()
 Kinds.pac_map = new PacMap()
 Kinds.pellet = new Pellet()

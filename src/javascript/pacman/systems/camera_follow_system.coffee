@@ -1,8 +1,8 @@
-BaseSystem = require '../../../lib/ecs/base_system'
+BaseSystem = require '../../lib/ecs/base_system'
 C = require '../components'
 T = C.Types
 
-{vec3,quat,euler} = require '../../../lib/three_helpers'
+{vec3,quat,euler} = require '../../lib/three_helpers'
 
 UpVec = vec3(0,1,0)
 

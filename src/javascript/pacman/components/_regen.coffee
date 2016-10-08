@@ -60,9 +60,9 @@ funcWriters =
 headWriter = ->
   s = ""
   s += "_ = require 'lodash'\n"
-  s += "Domain = require '../../../lib/domain'\n"
+  s += "Domain = require '../../lib/domain'\n"
   s += "Cannon = require 'cannon'\n"
-  s += "{vec3,quat,euler} = require '../../../lib/three_helpers'\n"
+  s += "{vec3,quat,euler} = require '../../lib/three_helpers'\n"
   s += "\n"
   s += "Types = new Domain('ComponentTypes')\n"
 

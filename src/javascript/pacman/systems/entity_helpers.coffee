@@ -1,5 +1,5 @@
 
-CompSet = require '../../../lib/ecs/comp_set'
+CompSet = require '../../lib/ecs/comp_set'
 C = require '../components'
 T = C.Types
 

@@ -1,17 +1,19 @@
 React = require 'react'
-KeyboardInput = require '../../elements/keyboard_input'
-GamepadInput = require '../../elements/gamepad_input'
+KeyboardInput = require '../elements/keyboard_input'
+GamepadInput = require '../elements/gamepad_input'
 Systems = require './systems'
 Maps = require './maps'
 
-EntityStore = require '../../lib/ecs/entity_store'
-EcsMachine = require '../../lib/ecs/ecs_machine'
+ThreeView = require './three_view'
+
+EntityStore = require '../lib/ecs/entity_store'
+EcsMachine = require '../lib/ecs/ecs_machine'
 
 Construct = require './construct'
 
-{euler,vec3,quat} = require '../../lib/three_helpers'
+{euler,vec3,quat} = require '../lib/three_helpers'
 
-ActionBase = require '../../lib/action_base'
+ActionBase = require '../lib/action_base'
 class Action extends ActionBase
 class Input extends Action
 class Time extends Action
@@ -116,29 +118,24 @@ exports.update = (model,action) ->
         
 
   if action instanceof ApplyScene
-    model.NO_RENDER=true
     Debug.log "ApplyScene", action
-    # model.input.scene = action.value
+    model.NO_RENDER=true
     thisInput = {scene: action.value}
     [model.estore, _globalEvents] = sceneSyncEcsMachine.update(model.estore, thisInput)
     return [model, null]
 
-  # TODO
   if action instanceof ApplyCollision
-    model.NO_RENDER=true
     Debug.log "ApplyCollision", action
+    model.NO_RENDER=true
     model.input.collisions.push(action.value)
 
   if action instanceof ApplyHit
+    Debug.log "ApplyCollision", action
     model.NO_RENDER=true
-    # Debug.log "ApplyCollision", action
-    # model.input.collisions.push(action.value)
     model.input.hits.push(action.value)
-
 
   if action instanceof Time
     Debug.log "Time", action
-    # Debug.log "BlockMaze update: Time",now
     t = action.value
     if model.lastTime?
       dt = t - model.lastTime
@@ -162,11 +159,11 @@ exports.update = (model,action) ->
       model.input.hits = []
       
     else
-      # Debug.log " BlockMaze update: NOT updating or rendering"
+      Debug.log " update: NO_RENDER=true, so NOT updating or rendering scene"
       model.NO_RENDER=true
     model.lastTime = t
 
-    if Debug.update_limit? 
+    if Debug.update_limit?
       effects = null
       if model.updateCount <= Debug.update_limit
         effects = [ TickEffect ]
@@ -183,7 +180,6 @@ exports.update = (model,action) ->
 # VIEW 
 #
 
-MazeView = require './elements/maze_view'
 
 # handleMouse = (type,width,height,address) ->
 #   (e) ->
@@ -198,7 +194,7 @@ MazeView = require './elements/maze_view'
 #       event: e
 #     )
 
-mazeView_to_blockMaze = (action) ->
+threeView_to_pacmanAction = (action) ->
   switch action.type
     when 'physics_collision'
       new ApplyCollision(action.data)
@@ -225,11 +221,11 @@ exports.view = (model,address) ->
     <h3>Pac-Man Clone</h3>
     <div style={width:width,height:height}
     >
-      <MazeView 
+      <ThreeView 
         width={width} 
         height={height} 
         estore={model.estore} 
-        address={address.forward (fsig) -> fsig.map(mazeView_to_blockMaze) }
+        address={address.forward (fsig) -> fsig.map(threeView_to_pacmanAction) }
       />
     </div>
     <KeyboardInput
