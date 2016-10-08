@@ -72,6 +72,24 @@ class Construct
 
     compLists
     
+  @testShip: ({tag}) ->
+    # @playerPiece(tag: tag, position: vec3(0,0,0))
+    position = vec3(0,0,0)
+    [
+      C.buildCompForType(T.Physical,
+        kind: 'blender_mesh'
+        data: new C.Physical.BlenderMesh("ship1.json")
+      )
+      C.buildCompForType(T.Location, position: position)
+      C.buildCompForType(T.Controller, inputName: 'player1')
+      C.buildCompForType(T.Tag, name: 'pellet')
+      C.buildCompForType(T.Tag, name: tag)
+    ]
+
+  @examinationRoom: ->
+    # @pacMap("level1")
+    []
+    
 
   @sineGrassChunk: (pos) ->
     groundQuat = quat()
@@ -133,6 +151,9 @@ class Construct
         dark = !dark
 
     return compLists
+
+   
+
 
 module.exports = Construct
 

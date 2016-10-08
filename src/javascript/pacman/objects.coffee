@@ -172,7 +172,34 @@ class Pellet extends Kindness
       canHitOn: 0
       getHitOn: 1
 
+cache = {}
+class BlenderMesh extends Kindness
+  createShape: (physical,location) ->
+    if cache.dude
+      geometry = new THREE.BoxGeometry(2,2,2)
+      material = new THREE.MeshBasicMaterial(color: 0x99ff99)
+      shape = new THREE.Mesh(geometry,material)
+      return shape
 
+    else
+      geometry = new THREE.BoxGeometry(1,1,1)
+      material = new THREE.MeshBasicMaterial(color: 0x9999ff,wireframe:true)
+      shape = new THREE.Mesh(geometry,material)
+
+      callback = ->
+        cache.dude = true
+        shape.userData.rebuild = true
+      setTimeout callback, 3000
+      return shape
+
+    # fname = physical.data.fileName
+    #
+    # loader = new THREE.JSONLoader()
+    # loader.load fname, (geometry,m) ->
+    #   mesh = new THREE.Mesh(geometry,new THREE.MeshFaceMaterial(m))#,material)
+    #   mesh.castShadow = true
+    #   fn(mesh)
+    #   scene.add(mesh)
 
       
 
@@ -394,6 +421,7 @@ Kinds.block = new Block()
 Kinds.sine_grass_terrain = new SineGrassTerrain()
 Kinds.pac_map = new PacMap()
 Kinds.pellet = new Pellet()
+Kinds.blender_mesh = new BlenderMesh()
 
 
 getModule = (k) ->

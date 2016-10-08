@@ -178,6 +178,10 @@ updateSceneFromEntities = (scene,estore,address) ->
     if !shape?
       shape = newShapeFromComponents(physical,location,address)
       scene.add shape
+    else if shape.userData.rebuild
+      scene.remove shape
+      shape = newShapeFromComponents(physical,location,address)
+      scene.add shape
 
     Objects.update3DShape(shape, physical,location)
     shape.userData.relevant = true

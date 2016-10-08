@@ -5,23 +5,22 @@ Maps = require './maps'
 # {euler,vec3,quat} = require '../lib/three_helpers'
 
 exports.addInitialEntities = (estore) ->
-  mapName = "level1"
-  estore.createEntity Construct.playerPiece(tag:"player_piece", position: Maps.get(mapName).getStartPosition())
-  estore.createEntity Construct.playerFollowCamera(followTag:"player_piece")
-  for comps in Construct.gameBoard(mapName)
-    estore.createEntity comps
-  
+  estore.createEntity Construct.examinationRoom()
+  estore.createEntity Construct.testShip(tag: "player_piece") # FIXME arg! CameraFollowSystem hardcodes this tag, so it needs to be player_piece
+  estore.createEntity Construct.playerFollowCamera()#followTag:"player_piece")
+
 
 exports.getSystems = ->
   [
-    Systems.collision_system()
+    # Systems.collision_system()
     Systems.controller_system()
     Systems.player_piece_control_system()
 
-    Systems.pellet_system()
+    # Systems.pellet_system()
 
     Systems.camera_follow_system()
   ]
+
 
 exports.viewConfig =
   {

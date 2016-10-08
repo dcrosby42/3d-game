@@ -88,11 +88,17 @@ exports.Physical = class Physical
     @default: -> new @(null)
     clone: -> new @constructor(@mapName)
     equals: (o) -> (@mapName == o.mapName)
+  
+  @BlenderMesh: class BlenderMesh
+    constructor: (@fileName) ->
+    @default: -> new @(null)
+    clone: -> new @constructor(@fileName)
+    equals: (o) -> (@fileName == o.fileName)
 
 exports.FollowCamera = class FollowCamera
   Types.registerClass @
   constructor: (@eid, @cid, @followingTag, @lookAt, @followDistance, @hOrbit, @vOrbit) -> @type = @constructor.type
-  @default: -> new @(null, null, null, vec3(), 10, null, null)
+  @default: -> new @(null, null, null, vec3(), 5, null, null)
   clone: -> new @constructor(@eid, @cid, @followingTag, (if @lookAt? then @lookAt.clone() else null), @followDistance, @hOrbit, @vOrbit)
   equals: (o) -> (@eid == o.eid) and (@cid == o.cid) and (@followingTag == o.followingTag) and (if @lookAt? then @lookAt.equals(o.lookAt) else !o.lookAt?) and (@followDistance == o.followDistance) and (@hOrbit == o.hOrbit) and (@vOrbit == o.vOrbit)
 

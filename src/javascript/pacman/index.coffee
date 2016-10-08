@@ -8,7 +8,8 @@ ThreeView = require './three_view'
 EntityStore = require '../lib/ecs/entity_store'
 EcsMachine = require '../lib/ecs/ecs_machine'
 
-World = require './play_world'
+# World = require './play_world'
+World = require './mesh_world'
 
 ActionBase = require '../lib/action_base'
 
@@ -43,9 +44,9 @@ Debug = DebugOff
 
 exports.initialState = ->
   estore = new EntityStore()
+
   World.addInitialEntities(estore)
 
-  inputConfig = World.getInputConfig()
 
   model  = {
     updateCount: 0
@@ -57,8 +58,7 @@ exports.initialState = ->
       scene: null
       collisions: []
       hits: []
-    keyboardConfig: inputConfig.keyboardConfig
-    gamepadConfig: inputConfig.gamepadConfig
+
   }
   [model, [TickEffect]]
 
@@ -188,11 +188,11 @@ threeView_to_pacmanAction = (action) ->
       throw new Error("Pacman threeView_to_pacmanAction: unknown action from ThreeView: #{action}")
 
 exports.view = (model,address) ->
-  width = 1200
-  height = 900
+  width    = World.viewConfig.width
+  height   = World.viewConfig.height
+  keyboard = World.viewConfig.keyboardConfig
+  gamepad  = World.viewConfig.gamepadConfig
   
-  keyboard = model.keyboardConfig
-  gamepad = model.gamepadConfig
     #Adding these to the div surrounding MazeView causes props to be sent to MazeView with every event, like mouse motion
       # onMouseMove={handleMouse 'move', width,height,address}
       # onMouseDown={handleMouse 'down', width,height,address}

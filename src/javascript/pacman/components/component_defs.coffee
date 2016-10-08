@@ -50,6 +50,8 @@ Defs =
        dim: BT.Vec
      PacMap:
        mapName: BT.String
+     BlenderMesh:
+       fileName: BT.String
      
 
  FollowCamera:
