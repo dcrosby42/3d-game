@@ -142,7 +142,7 @@ exports.update = (model,action) ->
       if dt > 0.1 or dt < 0
         dt = 1.0/60.0 # avoid big updates or the crazy first-reqAnimFr-is-huge-then-it-goes-back-to-normal issue. ?
       model.updateCount += 1
-      # Debug.log " BlockMaze update: Time: updateCount=#{model.updateCount} updating and rendering w dt=",dt
+      # Debug.log " Pacman update: Time: updateCount=#{model.updateCount} updating and rendering w dt=",dt
       model.input.dt = dt
       model.input.time = t
       [model.estore, _globalEvents] = ecsMachine.update(model.estore, model.input)
@@ -203,15 +203,11 @@ threeView_to_pacmanAction = (action) ->
     when 'scene_update'
       new ApplyScene(action.data)
     else
-      console.log "!! BlockMaze mazeView_to_blockMaze: unknown action from MazeView:",action
-      null
+      throw new Error("Pacman threeView_to_pacmanAction: unknown action from ThreeView: #{action}")
 
 exports.view = (model,address) ->
   width = 1200
   height = 900
-  # width = 600
-  # height = 450
-
   
     #Adding these to the div surrounding MazeView causes props to be sent to MazeView with every event, like mouse motion
       # onMouseMove={handleMouse 'move', width,height,address}
@@ -253,7 +249,6 @@ exports.view = (model,address) ->
         "dpad_right": 'strafeRight'
         "left_bumper": 'turnLeft'
         "right_bumper": 'turnRight'
-        # "one": 'elevate'
         "three": 'jump'
         "axis_left_x": 'strafe'
         "axis_left_y": 'drive'

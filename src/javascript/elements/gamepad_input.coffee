@@ -37,6 +37,11 @@ GamepadInput = React.createClass
     requestAnimationFrame @handleTick
 
     
+  shouldComponentUpdate: (nextProps,nextState) ->
+    false
+
+  render: ->
+    null
 
   render: ->
     null

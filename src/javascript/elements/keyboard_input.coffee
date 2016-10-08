@@ -11,6 +11,9 @@ KeyboardInput = React.createClass
 
     KeyboardController.bindKeys address, @props.mappings
 
+  shouldComponentUpdate: (nextProps,nextState) ->
+    false
+
   render: ->
     null
 
