@@ -29,7 +29,7 @@ class Construct
     opts.followTag ?= 'the_player'
     [
       C.buildCompForType(T.Name, name: 'Follow Camera')
-      C.buildCompForType(T.FollowCamera, followTag: opts.followTag, followDistance: 6, vOrbit: -Math.PI/3)
+      C.buildCompForType(T.FollowCamera, followTag: opts.followTag, followDistance: 4, vOrbit: -Math.PI/3)
       C.buildCompForType(T.Location)
     ]
 
@@ -85,6 +85,21 @@ class Construct
       C.buildCompForType(T.Tag, name: 'pellet')
       C.buildCompForType(T.Tag, name: tag)
     ]
+
+  @blenderMesh: ({file,tag}) ->
+    # @playerPiece(tag: tag, position: vec3(0,0,0))
+    position = vec3(0,0,0)
+
+    comps = []
+    if tag?
+      comps.push C.buildCompForType(T.Tag, name: tag)
+    comps.push C.buildCompForType(T.Physical,
+        kind: 'blender_mesh'
+        data: new C.Physical.BlenderMesh(file)
+      )
+    comps.push C.buildCompForType(T.Location, position: position)
+    comps.push C.buildCompForType(T.Controller, inputName: 'player1')
+    comps
 
   @examinationRoom: ->
     # @pacMap("level1")

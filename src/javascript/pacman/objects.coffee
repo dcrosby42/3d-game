@@ -174,34 +174,80 @@ class Pellet extends Kindness
 
     shape
 
-cache = {}
+# class MeshLoader
+#   constructor: ->
+#     @_cache = {}
+#
+#   get: (name) ->
+#     if @has(name)
+#       return @_cache[name]
+#     else
+#       @_load(name)
+#       return null
+#
+#   has: (name) -> @_cache[name]?
+#
+# meshSource = new MeshLoader()
+cachedJsonData = {}
+
+newPlaceholder = ->
+  geometry = new THREE.BoxGeometry(1,1,1)
+  material = new THREE.MeshBasicMaterial(color: 0x9999ff,wireframe:true)
+  shape = new THREE.Mesh(geometry,material)
+  shape
+
 class BlenderMesh extends Kindness
   createShape: (physical,location) ->
-    if cache.dude
-      geometry = new THREE.BoxGeometry(2,2,2)
-      material = new THREE.MeshBasicMaterial(color: 0x99ff99)
-      shape = new THREE.Mesh(geometry,material)
+    fname = physical.data.fileName
+
+    data = cachedJsonData[fname]
+    if data? and data.loaded
+      if data.materials?
+        # material = new THREE.MeshFaceMaterial(data.materials)
+        material = new THREE.MultiMaterial(data.materials)
+        # material = data.materials[0] #new THREE.MeshFaceMaterial(data.materials)
+        # material.map = THREE.ImageUtils.loadTexture('testpattern.png')
+        shape = new THREE.Mesh(data.geometry, material)
+      else
+        shape = new THREE.Mesh(data.geometry)
+      # shape.receiveShadow = true
+      # shape.castShadow = true
       return shape
 
-    else
-      geometry = new THREE.BoxGeometry(1,1,1)
-      material = new THREE.MeshBasicMaterial(color: 0x9999ff,wireframe:true)
-      shape = new THREE.Mesh(geometry,material)
+    if !data?
+      # init the data box
+      data =
+        loaded: false
+        waiters: []
+        geometry: null
+        materials: null
+      # add it to cache:
+      cachedJsonData[fname] = data
 
-      callback = ->
-        cache.dude = true
-        shape.userData.rebuild = true
-      setTimeout callback, 3000
-      return shape
+      # Load mesh data async:
+      onLoad = (g,m) ->
+        console.log "onLoad #{fname}:"
+        data.geometry = g
+        data.materials = m
+        data.loaded = true
+        console.log "BlenderMesh onLoad",g,m
+        for waiter in data.waiters
+          waiter()
+      onProgress = (p) ->
+        console.log "onProgress #{fname}:",p
+      onError = (e) ->
+        console.log "onError !! AWE HELL: failed to load mesh #{fname}:",e
 
-    # fname = physical.data.fileName
-    #
-    # loader = new THREE.JSONLoader()
-    # loader.load fname, (geometry,m) ->
-    #   mesh = new THREE.Mesh(geometry,new THREE.MeshFaceMaterial(m))#,material)
-    #   mesh.castShadow = true
-    #   fn(mesh)
-    #   scene.add(mesh)
+      loader = new THREE.JSONLoader()
+      loader.load fname, onLoad, onProgress, onError
+
+
+    shape = newPlaceholder()
+    data.waiters.push ->
+      shape.userData.rebuild = true
+
+
+    return shape
 
       
 

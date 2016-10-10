@@ -6,7 +6,12 @@ Maps = require './maps'
 
 exports.addInitialEntities = (estore) ->
   estore.createEntity Construct.examinationRoom()
-  estore.createEntity Construct.testShip(tag: "player_piece") # FIXME arg! CameraFollowSystem hardcodes this tag, so it needs to be player_piece
+  estore.createEntity Construct.blenderMesh(
+    file: "testbox.json"
+    # file: "ship2.json"
+    # file: "monster.js"
+    tag: "player_piece" # FIXME argghgh! CameraFollowSystem hardcodes this tag, so it needs to be player_piece
+  )
   estore.createEntity Construct.playerFollowCamera()#followTag:"player_piece")
 
 
@@ -24,7 +29,7 @@ exports.getSystems = ->
 
 exports.viewConfig =
   {
-    width: 800
+    width: 1200
     height: 600
     keyboardConfig:  # FIXME: KeyboardInput component cannot actually handle changes to this state, so don't modify it
       tag: "player1"

@@ -8,8 +8,8 @@ ThreeView = require './three_view'
 EntityStore = require '../lib/ecs/entity_store'
 EcsMachine = require '../lib/ecs/ecs_machine'
 
-World = require './play_world'
-#World = require './mesh_world'
+#World = require './play_world'
+World = require './mesh_world'
 
 ActionBase = require '../lib/action_base'
 
